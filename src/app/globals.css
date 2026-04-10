@@ -1,26 +1,156 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eef3fb;
+  --foreground: #102033;
+  --surface: rgba(255, 255, 255, 0.62);
+  --surface-strong: rgba(255, 255, 255, 0.78);
+  --surface-soft: rgba(247, 250, 255, 0.55);
+  --line: rgba(255, 255, 255, 0.58);
+  --line-soft: rgba(148, 163, 184, 0.18);
+  --brand: #0f766e;
+  --brand-soft: rgba(20, 184, 166, 0.14);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-manrope);
+  --font-arabic: var(--font-noto-arabic);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), sans-serif;
+  background-image:
+    radial-gradient(circle at 8% 12%, rgba(255, 255, 255, 0.9), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(125, 211, 252, 0.28), transparent 26%),
+    radial-gradient(circle at 75% 78%, rgba(167, 243, 208, 0.22), transparent 22%),
+    linear-gradient(180deg, #f6f9ff 0%, #eef4fb 44%, #e8eef8 100%);
+  background-attachment: fixed;
+}
+
+html.dark {
+  color-scheme: dark;
+  --background: #07111d;
+  --foreground: #ecf3fb;
+  --surface: rgba(9, 18, 31, 0.62);
+  --surface-strong: rgba(10, 20, 35, 0.78);
+  --surface-soft: rgba(15, 23, 42, 0.54);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-soft: rgba(148, 163, 184, 0.14);
+  --brand: #5eead4;
+  --brand-soft: rgba(45, 212, 191, 0.14);
+}
+
+html.dark body {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(30, 41, 59, 0.45), transparent 26%),
+    radial-gradient(circle at 88% 14%, rgba(20, 184, 166, 0.14), transparent 22%),
+    radial-gradient(circle at 82% 82%, rgba(56, 189, 248, 0.12), transparent 22%),
+    linear-gradient(180deg, #06101b 0%, #081321 42%, #0a1625 100%);
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5));
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(26px) saturate(155%);
+  -webkit-backdrop-filter: blur(26px) saturate(155%);
+}
+
+.glass-subtle {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.38));
+  border: 1px solid rgba(255, 255, 255, 0.54);
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+}
+
+html.dark .glass-panel {
+  background: linear-gradient(180deg, rgba(11, 18, 32, 0.78), rgba(11, 18, 32, 0.56));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 22px 48px rgba(2, 6, 23, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+html.dark .glass-subtle {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.68), rgba(15, 23, 42, 0.48));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 14px 30px rgba(2, 6, 23, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html.dark .text-slate-950,
+html.dark .text-slate-900 {
+  color: #edf4fb !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #c7d5e5 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #8ea1b8 !important;
+}
+
+html.dark .bg-white {
+  background-color: rgba(10, 18, 31, 0.72) !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: rgba(15, 23, 42, 0.58) !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: rgba(30, 41, 59, 0.72) !important;
+}
+
+html.dark .bg-slate-200 {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+html.dark .text-teal-700 {
+  color: #2dd4bf !important;
+}
+
+html.dark .text-teal-600 {
+  color: #2dd4bf !important;
+}
+
+html.dark .text-teal-800 {
+  color: #5eead4 !important;
+}
+
+html.dark .border-slate-300,
+html.dark .border-slate-200,
+html.dark .border-slate-100 {
+  border-color: rgba(148, 163, 184, 0.16) !important;
+}
+
+html.dark .bg-blue-100 {
+  background-color: rgba(29, 78, 216, 0.22) !important;
+}
+
+html.dark .text-blue-900 {
+  color: #dbeafe !important;
+}
+
+html.dark .bg-blue-50,
+html.dark .bg-teal-50,
+html.dark .bg-sky-50\/55,
+html.dark .bg-amber-50\/60 {
+  backdrop-filter: blur(20px);
+}
+
+.font-arabic {
+  font-family: var(--font-noto-arabic), serif;
 }
