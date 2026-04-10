@@ -200,11 +200,11 @@ export default function Home() {
               <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Sholat Berikutnya</p>
               <div className="mt-4 flex items-end justify-between gap-4">
                 <div>
-                  <h3 className="text-4xl font-semibold tracking-tight text-slate-950">{nextPrayer?.name ?? 'Loading'}</h3>
+                  <h3 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">{nextPrayer?.name ?? 'Loading'}</h3>
                   <p className="mt-2 text-sm text-slate-600">{nextPrayer ? `Pukul ${nextPrayer.time}` : 'Fetching...'}</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-5xl font-semibold tracking-tight text-teal-700">
+                  <div className="text-4xl font-semibold tracking-tight text-teal-700 sm:text-5xl">
                     {nextPrayer ? `${nextPrayer.minutesUntil}` : '--'}
                   </div>
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">menit lagi</p>

@@ -171,7 +171,7 @@ export default function QiblaPage() {
           <div className="flex flex-col items-center">
 
             {/* Compass ring */}
-            <div className="relative flex h-72 w-72 items-center justify-center sm:h-80 sm:w-80">
+            <div className="relative mx-auto flex w-full max-w-[288px] aspect-square items-center justify-center sm:max-w-[320px]">
               <div className="absolute inset-0 rounded-full border-2 border-slate-200/60" />
               <div className="absolute inset-3 rounded-full border border-slate-200/40" />
               <div className="absolute inset-8 rounded-full border border-slate-200/30" />

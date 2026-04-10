@@ -192,15 +192,13 @@ export default function TasbihPage() {
           {/* Circular tap button with progress ring */}
           <button
             onClick={handleTap}
-            className="relative flex items-center justify-center rounded-full transition select-none"
-            style={{ width: 260, height: 260 }}
+            className="relative flex items-center justify-center rounded-full transition select-none w-[min(260px,80vw)] aspect-square"
             aria-label="Tap to count dhikr"
           >
-            {/* SVG ring */}
+            {/* SVG ring — scales with container via viewBox */}
             <svg
-              width="260"
-              height="260"
-              className="absolute inset-0"
+              viewBox="0 0 260 260"
+              className="absolute inset-0 w-full h-full"
               style={{ transform: 'rotate(-90deg)' }}
             >
               {/* Track */}
@@ -227,19 +225,17 @@ export default function TasbihPage() {
               />
             </svg>
 
-            {/* Inner circle */}
+            {/* Inner circle — ~85% of outer */}
             <div
-              className="relative flex flex-col items-center justify-center rounded-full shadow-xl transition-transform"
+              className="relative flex flex-col items-center justify-center rounded-full shadow-xl transition-transform w-[min(220px,calc(80vw-40px))] aspect-square"
               style={{
-                width: 220,
-                height: 220,
                 backgroundColor: justCompleted ? selectedDhikr.color : 'white',
                 transform: isAnimating ? 'scale(0.95)' : 'scale(1)',
                 transition: 'transform 0.13s ease, background-color 0.2s ease',
               }}
             >
               <span
-                className="text-7xl font-bold tabular-nums leading-none transition-colors"
+                className="text-6xl sm:text-7xl font-bold tabular-nums leading-none transition-colors"
                 style={{ color: justCompleted ? '#fff' : selectedDhikr.color }}
               >
                 {count}

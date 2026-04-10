@@ -49,6 +49,7 @@ export default function QuranReader({ initialSurah = 1 }: QuranReaderProps) {
   const [ayahs, setAyahs] = useState<Ayah[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch list of Surahs
   useEffect(() => {
@@ -193,11 +194,22 @@ export default function QuranReader({ initialSurah = 1 }: QuranReaderProps) {
           <h2 className="text-2xl font-semibold text-slate-900">Quran Reader</h2>
           <p className="text-sm text-slate-500">Arabic script with translation</p>
         </div>
+        {/* Mobile: toggle surah list button */}
+        <button
+          onClick={() => setSidebarOpen((v) => !v)}
+          className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-white lg:hidden dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          {sidebarOpen ? 'Tutup Daftar' : 'Pilih Surah'}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Sidebar - Surah List */}
-        <div className="lg:col-span-1 lg:border-r lg:border-slate-200 lg:pr-6 dark:lg:border-slate-700">
+        <div className={`lg:col-span-1 lg:border-r lg:border-slate-200 lg:pr-6 dark:lg:border-slate-700 ${sidebarOpen ? 'block' : 'hidden lg:block'}`}>
           <input
             type="text"
             placeholder="Search Surah..."
@@ -206,11 +218,11 @@ export default function QuranReader({ initialSurah = 1 }: QuranReaderProps) {
             className="mb-4 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 dark:focus:border-teal-500 dark:focus:ring-teal-900"
           />
 
-          <div className="max-h-[480px] space-y-2 overflow-y-auto pr-1">
+          <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1 lg:max-h-[480px]">
             {filteredSurahs.map((surah) => (
               <button
                 key={surah.number}
-                onClick={() => setSelectedSurah(surah.number)}
+                onClick={() => { setSelectedSurah(surah.number); setSidebarOpen(false); }}
                 className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
                   selectedSurah === surah.number
                     ? 'border border-blue-200 bg-blue-50 text-blue-900 dark:border-teal-700 dark:bg-teal-900/30 dark:text-teal-300'

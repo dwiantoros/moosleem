@@ -134,7 +134,7 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
             {/* Dropdown menu — always mounted, animated in/out */}
             <div
               data-menu
-              className="glass-panel absolute right-0 top-12 z-50 w-72 rounded-[1.5rem] p-3 shadow-xl"
+              className="glass-panel absolute right-0 top-12 z-50 w-72 max-w-[calc(100vw-2rem)] rounded-[1.5rem] p-3 shadow-xl"
               style={{
                 maxHeight: menuOpen ? '80vh' : '0px',
                 overflowY: menuOpen ? 'auto' : 'hidden',
