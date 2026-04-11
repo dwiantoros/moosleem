@@ -113,10 +113,17 @@ export default function NotificationBell() {
 
   return (
     <div className="relative" ref={panelRef}>
+      {bellOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-950/35 backdrop-blur-[3px]"
+          onClick={() => setBellOpen(false)}
+        />
+      )}
+
       <button
         onClick={() => setBellOpen(v => !v)}
         aria-label="Notifikasi"
-        className={`glass-subtle relative flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-white/60 ${bellOpen ? 'text-teal-600' : 'text-slate-700 dark:text-slate-300'}`}
+        className={`glass-subtle relative z-50 flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-white/60 ${bellOpen ? 'text-teal-600' : 'text-slate-700 dark:text-slate-300'}`}
       >
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7 2.5 7h-17S6 15 6 9Z" />
@@ -130,8 +137,19 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {bellOpen && (
-        <div className="glass-panel absolute right-0 top-12 z-50 w-80 rounded-[1.5rem] p-4 shadow-xl">
+      <div
+        className="fixed right-4 top-20 z-50 w-[min(92vw,380px)] max-h-[72vh] overflow-y-auto rounded-[1.6rem] p-4 shadow-2xl transition-all duration-300"
+        style={{
+          transform: bellOpen ? 'translateX(0)' : 'translateX(115%)',
+          opacity: bellOpen ? 1 : 0,
+          pointerEvents: bellOpen ? 'auto' : 'none',
+          background: 'rgba(8,16,30,0.94)',
+          backdropFilter: 'blur(28px) saturate(155%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(155%)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)',
+        }}
+      >
           {/* Header + toggle */}
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifikasi</h3>
@@ -189,8 +207,7 @@ export default function NotificationBell() {
                 : 'Aktifkan untuk notifikasi adzan & event Hijriah'}
             </p>
           </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

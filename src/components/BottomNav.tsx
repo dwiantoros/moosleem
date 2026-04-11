@@ -170,7 +170,7 @@ export default function BottomNav() {
       {/* More sheet — raised, more solid frost glass */}
       <div
         data-bottomsheet
-        className="fixed bottom-[88px] inset-x-0 z-50 mx-auto max-w-lg px-4 transition-all duration-300"
+        className="fixed bottom-[112px] inset-x-0 z-50 mx-auto max-w-lg px-4 transition-all duration-300"
         style={{
           transform: moreOpen ? 'translateY(0)' : 'translateY(120%)',
           opacity: moreOpen ? 1 : 0,
