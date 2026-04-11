@@ -15,7 +15,8 @@ interface Step {
 interface PrayerGuide {
   name: string;
   arabic: string;
-  rakaat: number;
+  rakaat: string;
+  rakaatDetail?: string;
   color: string;
   time: string;
   steps: Step[];
@@ -23,7 +24,7 @@ interface PrayerGuide {
 
 const GUIDES: PrayerGuide[] = [
   {
-    name: 'Subuh', arabic: 'صَلَاةُ الْفَجْر', rakaat: 2, color: '#0891b2', time: 'Sebelum matahari terbit',
+    name: 'Subuh', arabic: 'صَلَاةُ الْفَجْر', rakaat: '2', color: '#0891b2', time: 'Sebelum matahari terbit',
     steps: [
       {
         title: '1. Niat Sholat Subuh',
@@ -114,7 +115,7 @@ const GUIDES: PrayerGuide[] = [
     ],
   },
   {
-    name: 'Dzuhur', arabic: 'صَلَاةُ ٱلظُّهْر', rakaat: 4, color: '#d97706', time: 'Tengah hari',
+    name: 'Dzuhur', arabic: 'صَلَاةُ ٱلظُّهْر', rakaat: '4', color: '#d97706', time: 'Tengah hari',
     steps: [
       { title: '1. Niat Sholat Dzuhur', arabic: 'أُصَلِّي فَرْضَ ٱلظُّهْرِ أَرْبَعَ رَكَعَاتٍ مُسْتَقْبِلَ ٱلْقِبْلَةِ أَدَاءً لِلَّهِ تَعَالَى', latin: 'Ushalli fardladh-dhuhri arba\'a raka\'atin mustaqbilal qiblati adaa-an lillahi ta\'ala', meaning: 'Aku niat sholat fardhu Dzuhur empat rakaat menghadap kiblat karena Allah Ta\'ala' },
       { title: '2–10. Sama seperti Subuh (rakaat 1–2)', note: 'Takbir, doa iftitah, Al-Fatihah, surah, ruku\', i\'tidal, sujud 2x, duduk antara sujud.' },
@@ -124,14 +125,14 @@ const GUIDES: PrayerGuide[] = [
     ],
   },
   {
-    name: 'Ashar', arabic: 'صَلَاةُ ٱلْعَصْر', rakaat: 4, color: '#ea580c', time: 'Sore hari',
+    name: 'Ashar', arabic: 'صَلَاةُ ٱلْعَصْر', rakaat: '4', color: '#ea580c', time: 'Sore hari',
     steps: [
       { title: '1. Niat Sholat Ashar', arabic: 'أُصَلِّي فَرْضَ ٱلْعَصْرِ أَرْبَعَ رَكَعَاتٍ مُسْتَقْبِلَ ٱلْقِبْلَةِ أَدَاءً لِلَّهِ تَعَالَى', latin: 'Ushalli fardlal-\'ashri arba\'a raka\'atin mustaqbilal qiblati adaa-an lillahi ta\'ala', meaning: 'Aku niat sholat fardhu Ashar empat rakaat menghadap kiblat karena Allah Ta\'ala' },
       { title: '2–13. Sama persis seperti Dzuhur', note: '4 rakaat, tasyahud awal di rakaat ke-2, tasyahud akhir di rakaat ke-4, salam.' },
     ],
   },
   {
-    name: 'Maghrib', arabic: 'صَلَاةُ ٱلْمَغْرِب', rakaat: 3, color: '#9333ea', time: 'Setelah matahari terbenam',
+    name: 'Maghrib', arabic: 'صَلَاةُ ٱلْمَغْرِب', rakaat: '3', color: '#9333ea', time: 'Setelah matahari terbenam',
     steps: [
       { title: '1. Niat Sholat Maghrib', arabic: 'أُصَلِّي فَرْضَ ٱلْمَغْرِبِ ثَلَاثَ رَكَعَاتٍ مُسْتَقْبِلَ ٱلْقِبْلَةِ أَدَاءً لِلَّهِ تَعَالَى', latin: 'Ushalli fardlal-maghribi tsalasa raka\'atin mustaqbilal qiblati adaa-an lillahi ta\'ala', meaning: 'Aku niat sholat fardhu Maghrib tiga rakaat menghadap kiblat karena Allah Ta\'ala' },
       { title: '2. Rakaat 1 & 2', note: 'Sama seperti Subuh. Al-Fatihah + surah, ruku\', i\'tidal, sujud 2x.' },
@@ -141,7 +142,7 @@ const GUIDES: PrayerGuide[] = [
     ],
   },
   {
-    name: "Isya'", arabic: 'صَلَاةُ ٱلْعِشَاء', rakaat: 4, color: '#1d4ed8', time: 'Malam hari',
+    name: "Isya'", arabic: 'صَلَاةُ ٱلْعِشَاء', rakaat: '4', color: '#1d4ed8', time: 'Malam hari',
     steps: [
       { title: "1. Niat Sholat Isya'", arabic: 'أُصَلِّي فَرْضَ ٱلْعِشَاءِ أَرْبَعَ رَكَعَاتٍ مُسْتَقْبِلَ ٱلْقِبْلَةِ أَدَاءً لِلَّهِ تَعَالَى', latin: 'Ushalli fardlal-\'isyaa-i arba\'a raka\'atin mustaqbilal qiblati adaa-an lillahi ta\'ala', meaning: "Aku niat sholat fardhu Isya' empat rakaat menghadap kiblat karena Allah Ta'ala" },
       { title: '2–13. Sama persis seperti Dzuhur', note: '4 rakaat, tasyahud awal di rakaat ke-2, tasyahud akhir di rakaat ke-4, salam.' },
@@ -150,7 +151,8 @@ const GUIDES: PrayerGuide[] = [
   {
     name: 'Jamak Taqdim',
     arabic: 'الجَمْعُ التَّقْدِيمُ',
-    rakaat: 0,
+    rakaat: '4+4',
+    rakaatDetail: '4+4 rakaat atau 3+4 rakaat',
     color: '#16a34a',
     time: 'Dikerjakan di waktu sholat pertama',
     steps: [
@@ -187,7 +189,8 @@ const GUIDES: PrayerGuide[] = [
   {
     name: 'Jamak Takhir',
     arabic: 'الجَمْعُ التَّأْخِيرُ',
-    rakaat: 0,
+    rakaat: '4+4',
+    rakaatDetail: '4+4 rakaat atau 3+4 rakaat',
     color: '#0f766e',
     time: 'Dikerjakan di waktu sholat kedua',
     steps: [
@@ -222,9 +225,48 @@ const GUIDES: PrayerGuide[] = [
     ],
   },
   {
+    name: 'Qashar',
+    arabic: 'القَصْرُ',
+    rakaat: '2',
+    rakaatDetail: '2 rakaat untuk Dzuhur, Ashar, dan Isya',
+    color: '#7c3aed',
+    time: 'Saat safar memenuhi syarat',
+    steps: [
+      {
+        title: 'Apa itu Qashar?',
+        note: 'Qashar adalah meringkas sholat fardhu yang asalnya 4 rakaat menjadi 2 rakaat ketika sedang safar atau bepergian jauh dengan syarat yang dibenarkan syariat.',
+      },
+      {
+        title: 'Sholat yang bisa diqashar',
+        note: 'Yang bisa diqashar hanya sholat 4 rakaat, yaitu:\n• Dzuhur menjadi 2 rakaat\n• Ashar menjadi 2 rakaat\n• Isya menjadi 2 rakaat\n\nSubuh tetap 2 rakaat dan Maghrib tetap 3 rakaat, jadi tidak diqashar.',
+      },
+      {
+        title: 'Syarat qashar',
+        note: 'Qashar dilakukan saat safar yang memenuhi syarat menurut ulama, misalnya perjalanan yang cukup jauh dan bukan untuk maksiat. Musafir juga belum berniat menetap lama di tempat tujuan.',
+      },
+      {
+        title: 'Cara melakukan qashar',
+        note: 'Kerjakan sholat seperti biasa, tetapi cukup 2 rakaat untuk Dzuhur, Ashar, atau Isya. Setelah rakaat kedua, langsung tasyahud akhir lalu salam.',
+      },
+      {
+        title: 'Niat qashar',
+        note: 'Niat qashar dilakukan dalam hati sejak awal sholat. Yang penting sadar bahwa sholat yang dikerjakan adalah sholat qashar sebagai musafir.',
+      },
+      {
+        title: 'Qashar bisa digabung dengan jamak',
+        note: 'Dalam safar, qashar bisa dilakukan sendiri atau bersamaan dengan jamak. Contohnya Dzuhur dan Ashar dijamak taqdim sekaligus diqashar, sehingga masing-masing dikerjakan 2 rakaat.',
+      },
+      {
+        title: 'Hukum qashar',
+        note: 'Qashar adalah rukhsah atau keringanan dari Allah bagi musafir. Ini bukan mengurangi nilai ibadah, tetapi bentuk kemudahan yang dibenarkan syariat.',
+      },
+    ],
+  },
+  {
     name: 'Qadha (Sholat Tertinggal)',
     arabic: 'اَلْقَضَاءُ',
-    rakaat: 0,
+    rakaat: 'S',
+    rakaatDetail: 'Sesuai rakaat sholat asal',
     color: '#be123c',
     time: 'Kapan saja setelah waktu sholat',
     steps: [
@@ -328,7 +370,7 @@ export default function PanduanSholatPage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900">{selected.name}</h2>
             <p className="font-arabic text-lg" dir="rtl" style={{ color: selected.color }}>{selected.arabic}</p>
-            <p className="text-xs text-slate-500">{selected.rakaat} rakaat · {selected.time}</p>
+            <p className="text-xs text-slate-500">{selected.rakaatDetail ?? `${selected.rakaat} rakaat`} · {selected.time}</p>
           </div>
         </div>
 
