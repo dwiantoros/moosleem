@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PrayerTimes } from '@/types';
 
 // ── Hijri conversion (for Islamic event notifications) ───────────────────────
@@ -185,10 +185,24 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
   const [supported, setSupported] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [scheduledPrayers, setScheduledPrayers] = useState<string[]>([]);
-  const [todayIslamicEvents, setTodayIslamicEvents] = useState<IslamicEventNotif[]>([]);
   const [testSent, setTestSent] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Upcoming Hijri events (today + next 3 days) — always shown regardless of reminder state
+  const upcomingEvents = useMemo(() => {
+    const now = new Date();
+    const result: Array<{ ev: IslamicEventNotif; daysUntil: number }> = [];
+    for (let d = 0; d <= 3; d++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() + d);
+      const hijri = gregorianToHijri(date);
+      EVENT_NOTIFY
+        .filter(e => e.hijriMonth === hijri.month && e.hijriDay === hijri.day)
+        .forEach(ev => result.push({ ev, daysUntil: d }));
+    }
+    return result;
+  }, []);
 
   // Init: detect support, register SW, sync permission, restore toggle, maybe show prompt
   useEffect(() => {
@@ -298,8 +312,6 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
 
     const todayEvts = EVENT_NOTIFY.filter(e => e.hijriMonth === todayHijri.month && e.hijriDay === todayHijri.day);
     const tomorrowEvts = EVENT_NOTIFY.filter(e => e.hijriMonth === tomorrowHijri.month && e.hijriDay === tomorrowHijri.day);
-
-    setTodayIslamicEvents(todayEvts);
 
     // Today events: fire at 8:00 AM (or immediately if already past 8am)
     todayEvts.forEach((ev) => {
@@ -478,13 +490,28 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
           </button>
         </div>
 
-        {/* Today's Islamic events */}
-        {isActive && todayIslamicEvents.length > 0 && (
-          <div className="mt-4 rounded-2xl px-4 py-3" style={{ backgroundColor: 'rgba(250, 204, 21, 0.12)', border: '1px solid rgba(250, 204, 21, 0.25)' }}>
-            {todayIslamicEvents.map((ev) => (
-              <div key={`${ev.hijriMonth}-${ev.hijriDay}`}>
-                <p className="text-xs font-semibold" style={{ color: '#d97706' }}>🗓 {ev.name}</p>
+        {/* Upcoming Islamic events — always visible */}
+        {upcomingEvents.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {upcomingEvents.map(({ ev, daysUntil }) => (
+              <div
+                key={`${ev.hijriMonth}-${ev.hijriDay}-${daysUntil}`}
+                className="rounded-2xl px-4 py-3"
+                style={{
+                  backgroundColor: daysUntil === 0 ? 'rgba(250,204,21,0.13)' : 'rgba(250,204,21,0.07)',
+                  border: `1px solid rgba(250,204,21,${daysUntil === 0 ? '0.28' : '0.15'})`,
+                }}
+              >
+                <p className="text-xs font-semibold" style={{ color: '#d97706' }}>
+                  {daysUntil === 0 ? '🗓 Hari ini' : daysUntil === 1 ? '🌙 Besok' : `📅 ${daysUntil} hari lagi`}
+                  {' — '}{ev.name}
+                </p>
                 <p className="text-xs mt-0.5" style={{ color: '#92400e', opacity: 0.85 }}>{ev.desc}</p>
+                {!isActive && (
+                  <p className="text-[11px] mt-1" style={{ color: '#b45309', opacity: 0.75 }}>
+                    Aktifkan reminder untuk dapat notifikasi
+                  </p>
+                )}
               </div>
             ))}
           </div>
