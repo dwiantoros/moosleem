@@ -105,8 +105,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col pb-24">
-        <div className="islamic-bg-layer" aria-hidden="true" />
-        <div className="islamic-bg-arch" aria-hidden="true" />
+        <div className="islamic-calligraphy" aria-hidden="true">السلام عليكم</div>
         <div className="app-shell min-h-full flex flex-col pb-24">
           <AzanReminderController />
           {children}

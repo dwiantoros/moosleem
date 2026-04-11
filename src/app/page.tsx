@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import PrayerScheduleList from '@/components/PrayerScheduleList';
 import UserGreeting from '@/components/UserGreeting';
@@ -52,9 +52,39 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [districtLabel, setDistrictLabel] = useState<string | null>(null);
-  // Track initial minutes when a new prayer window starts (for progress bar %)
-  const initialMinsRef = useRef<number | null>(null);
-  const lastPrayerNameRef = useRef<string | null>(null);
+  const prayerWindowProgress = useMemo(() => {
+    if (!prayerTimes || !nextPrayer) return null;
+
+    const parseToMinute = (value: string): number | null => {
+      const match = value.match(/^(\d{1,2}):(\d{2})/);
+      if (!match) return null;
+      return Number(match[1]) * 60 + Number(match[2]);
+    };
+
+    const schedule = [
+      { key: 'Fajr', value: prayerTimes.Fajr },
+      { key: 'Dhuhr', value: prayerTimes.Dhuhr },
+      { key: 'Asr', value: prayerTimes.Asr },
+      { key: 'Maghrib', value: prayerTimes.Maghrib },
+      { key: 'Isha', value: prayerTimes.Isha },
+    ];
+
+    const nextIndex = schedule.findIndex((item) => item.key === nextPrayer.name);
+    if (nextIndex < 0) return null;
+
+    const prevIndex = nextIndex === 0 ? schedule.length - 1 : nextIndex - 1;
+    const nextMinuteRaw = parseToMinute(schedule[nextIndex].value);
+    const prevMinuteRaw = parseToMinute(schedule[prevIndex].value);
+    if (nextMinuteRaw === null || prevMinuteRaw === null) return null;
+
+    const nextMinute = nextIndex === 0 ? nextMinuteRaw + 24 * 60 : nextMinuteRaw;
+    const prevMinute = prevIndex === schedule.length - 1 ? prevMinuteRaw - 24 * 60 : prevMinuteRaw;
+    const totalWindow = nextMinute - prevMinute;
+    if (totalWindow <= 0) return null;
+
+    const elapsed = totalWindow - nextPrayer.minutesUntil;
+    return Math.min(100, Math.max(2, (elapsed / totalWindow) * 100));
+  }, [nextPrayer, prayerTimes]);
 
   const fetchPrayerData = async (latitude: number, longitude: number, timezone: string) => {
     const cacheKey = prayerCacheKey(latitude, longitude);
@@ -255,15 +285,6 @@ export default function Home() {
     hydrate();
   }, [location?.latitude, location?.longitude]);
 
-  // Reset progress-bar denominator whenever the next prayer changes
-  useEffect(() => {
-    if (!nextPrayer) return;
-    if (nextPrayer.name !== lastPrayerNameRef.current) {
-      lastPrayerNameRef.current = nextPrayer.name;
-      initialMinsRef.current = nextPrayer.minutesUntil;
-    }
-  }, [nextPrayer?.name]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Handle azan reminder notifications — now managed entirely in AzanReminder component
 
   const handleReminderToggle = async () => {
@@ -338,15 +359,7 @@ export default function Home() {
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-1000"
                     style={{
-                      width: `${Math.min(
-                        100,
-                        Math.max(
-                          2,
-                          initialMinsRef.current && initialMinsRef.current > 0
-                            ? ((initialMinsRef.current - nextPrayer.minutesUntil) / initialMinsRef.current) * 100
-                            : 0
-                        )
-                      )}%`,
+                      width: `${prayerWindowProgress ?? 2}%`,
                     }}
                   />
                 </div>

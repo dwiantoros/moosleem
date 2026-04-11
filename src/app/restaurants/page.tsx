@@ -11,6 +11,9 @@ export default function RestaurantsPage() {
   const [location, setLocation] = React.useState<LocationData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [districtLabel, setDistrictLabel] = React.useState<string | null>(null);
+  const [countryName, setCountryName] = React.useState<string | null>(null);
+  const [countryCode, setCountryCode] = React.useState<string | null>(null);
+  const [preferredHalalLogoKey, setPreferredHalalLogoKey] = React.useState<string>('id');
 
   React.useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -53,9 +56,29 @@ export default function RestaurantsPage() {
     const TTL_MS = 24 * 60 * 60 * 1000;
 
     const hydrate = async () => {
-      const cached = getCached<{ district: string | null }>(key, TTL_MS);
+      const cached = getCached<{
+        district: string | null;
+        country: string | null;
+        countryCode: string | null;
+        displayName: string | null;
+      }>(key, TTL_MS);
       if (cached) {
         setDistrictLabel(cached.data.district ?? null);
+        setCountryName(cached.data.country ?? null);
+        setCountryCode(cached.data.countryCode ?? null);
+
+        if ((cached.data.countryCode ?? '').toUpperCase() === 'CN') {
+          setPreferredHalalLogoKey('cn');
+        } else if ((cached.data.countryCode ?? '').toUpperCase() === 'JP') {
+          setPreferredHalalLogoKey('jp');
+        } else if ((cached.data.countryCode ?? '').toUpperCase() === 'KR') {
+          setPreferredHalalLogoKey('kr');
+        } else if ((cached.data.countryCode ?? '').toUpperCase() === 'SA') {
+          setPreferredHalalLogoKey('sa');
+        } else {
+          setPreferredHalalLogoKey('id');
+        }
+
         if (!cached.isStale) return;
       }
 
@@ -65,10 +88,37 @@ export default function RestaurantsPage() {
           { cache: 'no-store' }
         );
         if (!res.ok) return;
-        const json = (await res.json()) as { district?: string | null };
+        const json = (await res.json()) as {
+          district?: string | null;
+          country?: string | null;
+          countryCode?: string | null;
+          displayName?: string | null;
+        };
         const district = json.district ?? null;
+        const country = json.country ?? null;
+        const nextCode = (json.countryCode ?? null)?.toUpperCase() ?? null;
         setDistrictLabel(district);
-        safeSet(key, { district });
+        setCountryName(country);
+        setCountryCode(nextCode);
+
+        if (nextCode === 'CN') {
+          setPreferredHalalLogoKey('cn');
+        } else if (nextCode === 'JP') {
+          setPreferredHalalLogoKey('jp');
+        } else if (nextCode === 'KR') {
+          setPreferredHalalLogoKey('kr');
+        } else if (nextCode === 'SA') {
+          setPreferredHalalLogoKey('sa');
+        } else {
+          setPreferredHalalLogoKey('id');
+        }
+
+        safeSet(key, {
+          district,
+          country,
+          countryCode: nextCode,
+          displayName: json.displayName ?? null,
+        });
       } catch {
         // ignore
       }
@@ -116,7 +166,12 @@ export default function RestaurantsPage() {
             ))}
           </div>
         ) : (
-          <RestaurantFinder location={location} />
+          <RestaurantFinder
+            location={location}
+            preferredHalalLogoKey={preferredHalalLogoKey}
+            countryCode={countryCode}
+            countryName={countryName}
+          />
         )}
 
         <footer className="mt-10 border-t border-slate-200 dark:border-slate-700 pt-6 text-center text-sm text-slate-500">

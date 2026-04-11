@@ -59,6 +59,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         district,
+        country: address?.country ?? null,
+        countryCode: address?.country_code?.toUpperCase?.() ?? null,
         displayName: response.data?.display_name ?? null,
       },
       {

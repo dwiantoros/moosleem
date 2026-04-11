@@ -7,12 +7,112 @@ import { getCached, nearbyCacheKey, safeSet } from '@/utils/clientCache';
 
 interface RestaurantsProps {
   location: LocationData | null;
+  preferredHalalLogoKey?: string;
+  countryCode?: string | null;
+  countryName?: string | null;
 }
 
-export default function RestaurantFinder({ location }: RestaurantsProps) {
+type HalalLogoItem = {
+  key: string;
+  label: string;
+  mark: React.ReactNode;
+  languageTag: string;
+  note: string;
+};
+
+const HALAL_LOGOS: HalalLogoItem[] = [
+  {
+    key: 'id',
+    label: 'Indonesia',
+    mark: (
+      <svg className="h-9 w-9" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="#ECFDF5" stroke="#0F766E" strokeWidth="1.7" />
+        <text x="20" y="23" textAnchor="middle" fontSize="8" fontWeight="700" fill="#0F766E">HALAL</text>
+      </svg>
+    ),
+    languageTag: 'Indonesia',
+    note: 'Label halal umum untuk Indonesia menggunakan teks latin HALAL.',
+  },
+  {
+    key: 'cn',
+    label: 'China',
+    mark: (
+      <svg className="h-9 w-9" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="#EFF6FF" stroke="#1D4ED8" strokeWidth="1.7" />
+        <text x="20" y="19" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1D4ED8">清真</text>
+        <text x="20" y="27" textAnchor="middle" fontSize="4.6" fontWeight="700" fill="#1D4ED8">QINGZHEN</text>
+      </svg>
+    ),
+    languageTag: 'Mandarin',
+    note: 'Penanda halal umum di China: 清真 (qingzhen).',
+  },
+  {
+    key: 'jp',
+    label: 'Jepang',
+    mark: (
+      <svg className="h-9 w-9" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="#FDF2F8" stroke="#BE185D" strokeWidth="1.7" />
+        <text x="20" y="19" textAnchor="middle" fontSize="7" fontWeight="700" fill="#BE185D">ハラール</text>
+        <text x="20" y="27" textAnchor="middle" fontSize="4.7" fontWeight="700" fill="#BE185D">HARAARU</text>
+      </svg>
+    ),
+    languageTag: 'Jepang (Latin: haraaru)',
+    note: 'Istilah halal dalam konteks Jepang: ハラール (haraaru).',
+  },
+  {
+    key: 'kr',
+    label: 'Korea',
+    mark: (
+      <svg className="h-9 w-9" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="#EEF2FF" stroke="#4338CA" strokeWidth="1.7" />
+        <text x="20" y="19" textAnchor="middle" fontSize="8" fontWeight="700" fill="#4338CA">할랄</text>
+        <text x="20" y="27" textAnchor="middle" fontSize="4.9" fontWeight="700" fill="#4338CA">HALLAL</text>
+      </svg>
+    ),
+    languageTag: 'Korea (Latin: hallal)',
+    note: 'Istilah halal yang digunakan dalam konteks Korea: 할랄 (hallal).',
+  },
+  {
+    key: 'sa',
+    label: 'Saudi',
+    mark: (
+      <svg className="h-9 w-9" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="#ECFDF5" stroke="#166534" strokeWidth="1.7" />
+        <text x="20" y="19" textAnchor="middle" fontSize="9" fontWeight="700" fill="#166534">حلال</text>
+        <text x="20" y="27" textAnchor="middle" fontSize="5" fontWeight="700" fill="#166534">HALAL</text>
+      </svg>
+    ),
+    languageTag: 'Arab (Latin: halal)',
+    note: 'Penulisan halal berbahasa Arab: حلال (halal).',
+  },
+];
+
+export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id', countryCode, countryName }: RestaurantsProps) {
   const [restaurants, setRestaurants] = useState<HalalRestaurant[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<HalalRestaurant | null>(null);
+  const [selectedLogoKey, setSelectedLogoKey] = useState<string>(preferredHalalLogoKey);
+
+  useEffect(() => {
+    setSelectedLogoKey(preferredHalalLogoKey);
+  }, [preferredHalalLogoKey]);
+
+  const sortedLogos = React.useMemo(() => {
+    const priority = preferredHalalLogoKey;
+    const fallbackByCountryCode =
+      countryCode === 'CN' ? 'cn' :
+      countryCode === 'JP' ? 'jp' :
+      countryCode === 'KR' ? 'kr' :
+      countryCode === 'SA' ? 'sa' :
+      'id';
+    const top = HALAL_LOGOS.find((item) => item.key === priority) ?? HALAL_LOGOS.find((item) => item.key === fallbackByCountryCode) ?? HALAL_LOGOS[0];
+    return [
+      top,
+      ...HALAL_LOGOS.filter((item) => item.key !== top.key),
+    ];
+  }, [countryCode, preferredHalalLogoKey]);
+
+  const activeLogo = sortedLogos.find((item) => item.key === selectedLogoKey) ?? sortedLogos[0];
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) return;
@@ -63,6 +163,41 @@ export default function RestaurantFinder({ location }: RestaurantsProps) {
 
   return (
     <div className="glass-panel rounded-[1.75rem] p-6">
+      <div className="mb-5 rounded-2xl border border-teal-200/50 bg-gradient-to-r from-teal-500/10 to-cyan-500/10 p-4 dark:border-teal-700/40 dark:from-teal-500/15 dark:to-cyan-500/12">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-teal-700 dark:text-teal-300">Logo Halal Negara</p>
+        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+          Urutan diprioritaskan dari lokasi Anda{countryName ? ` (${countryName})` : ''}. Klik tombol negara untuk melihat label halal yang umum digunakan.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {sortedLogos.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setSelectedLogoKey(item.key)}
+              className={`rounded-xl border px-2.5 py-1.5 text-xs font-semibold transition ${
+                item.key === activeLogo.key
+                  ? 'border-teal-500 bg-teal-500/15 text-teal-700 dark:text-teal-300'
+                  : 'border-slate-200 bg-white/70 text-slate-600 hover:border-teal-300 hover:text-teal-700 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300'
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                {item.mark}
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 rounded-xl border border-slate-200/70 bg-white/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/55">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Logo Aktif</p>
+          <div className="mt-1 flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{activeLogo.label}</p>
+            <span className="rounded-full bg-teal-100 px-3 py-2 dark:bg-teal-900/40">{activeLogo.mark}</span>
+          </div>
+          <p className="mt-1 text-[11px] uppercase tracking-[0.15em] text-teal-700 dark:text-teal-300">Bahasa: {activeLogo.languageTag}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{activeLogo.note}</p>
+        </div>
+      </div>
+
       <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-5">Restoran Halal Terdekat</h2>
 
       {restaurants.length === 0 ? (
