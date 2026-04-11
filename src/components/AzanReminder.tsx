@@ -1,60 +1,29 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { PrayerTimes } from '@/types';
-
-// ── Hijri conversion (for Islamic event notifications) ───────────────────────
-function gregorianToHijri(gDate: Date): { month: number; day: number } {
-  const jd = Math.floor(
-    (1461 * (gDate.getFullYear() + 4800 + Math.floor((gDate.getMonth() + 1 - 14) / 12))) / 4 +
-    Math.floor((367 * (gDate.getMonth() + 1 - 2 - 12 * Math.floor((gDate.getMonth() + 1 - 14) / 12))) / 12) -
-    Math.floor((3 * Math.floor((gDate.getFullYear() + 4900 + Math.floor((gDate.getMonth() + 1 - 14) / 12)) / 100)) / 4) +
-    gDate.getDate() - 32075
-  );
-  let l = jd - 1948440 + 10632;
-  const n = Math.floor((l - 1) / 10631);
-  l = l - 10631 * n + 354;
-  const j =
-    Math.floor((10985 - l) / 5316) * Math.floor((50 * l) / 17719) +
-    Math.floor(l / 5670) * Math.floor((43 * l) / 15238);
-  l =
-    l -
-    Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
-    Math.floor(j / 16) * Math.floor((15238 * j) / 43) +
-    29;
-  const month = Math.floor((24 * l) / 709);
-  const day = l - Math.floor((709 * month) / 24);
-  return { month, day };
-}
-
-interface IslamicEventNotif { hijriMonth: number; hijriDay: number; name: string; desc: string; }
-const EVENT_NOTIFY: IslamicEventNotif[] = [
-  { hijriMonth: 1,  hijriDay: 1,  name: 'Tahun Baru Hijriah 🌙',  desc: 'Selamat Tahun Baru Islam! Semoga tahun ini penuh berkah.' },
-  { hijriMonth: 1,  hijriDay: 10, name: 'Hari Asyura',             desc: 'Hari Asyura — puasa sunnah hari ini sangat dianjurkan.' },
-  { hijriMonth: 3,  hijriDay: 12, name: 'Maulid Nabi ﷺ',           desc: 'Peringatan hari lahir Rasulullah ﷺ. Perbanyak shalawat.' },
-  { hijriMonth: 7,  hijriDay: 27, name: "Isra' Mi'raj 🕌",          desc: "Peringatan perjalanan malam Nabi ﷺ ke Sidratul Muntaha." },
-  { hijriMonth: 8,  hijriDay: 15, name: "Nisfu Sya'ban 🌕",         desc: "Malam nisfu Sya'ban — perbanyak doa dan ibadah malam ini." },
-  { hijriMonth: 9,  hijriDay: 1,  name: 'Awal Ramadan 🌙',          desc: 'Marhaban ya Ramadan! Mulai puasa hari ini. Semoga diberkahi.' },
-  { hijriMonth: 9,  hijriDay: 17, name: 'Nuzulul Quran 📖',         desc: 'Peringatan turunnya Al-Quran. Perbanyak tilawah hari ini.' },
-  { hijriMonth: 9,  hijriDay: 21, name: 'Lailatul Qadar ✨',        desc: 'Malam ke-21 Ramadan — kemungkinan Lailatul Qadar. Tingkatkan ibadah!' },
-  { hijriMonth: 9,  hijriDay: 23, name: 'Lailatul Qadar ✨',        desc: 'Malam ke-23 Ramadan — kemungkinan Lailatul Qadar.' },
-  { hijriMonth: 9,  hijriDay: 25, name: 'Lailatul Qadar ✨',        desc: 'Malam ke-25 Ramadan — kemungkinan Lailatul Qadar.' },
-  { hijriMonth: 9,  hijriDay: 27, name: 'Lailatul Qadar ✨',        desc: 'Malam ke-27 Ramadan — malam yang paling utama! Jangan lewatkan.' },
-  { hijriMonth: 9,  hijriDay: 29, name: 'Lailatul Qadar ✨',        desc: 'Malam ke-29 Ramadan — kemungkinan Lailatul Qadar.' },
-  { hijriMonth: 10, hijriDay: 1,  name: 'Idul Fitri 🎉',            desc: 'Allahu Akbar! Selamat Hari Raya Idul Fitri. Minal aidin wal faizin.' },
-  { hijriMonth: 12, hijriDay: 9,  name: 'Hari Arafah 🕋',           desc: 'Hari Arafah — puasa sunnah yang sangat dianjurkan hari ini.' },
-  { hijriMonth: 12, hijriDay: 10, name: 'Idul Adha 🐑',             desc: 'Selamat Hari Raya Idul Adha 10 Dzulhijjah. Allahu Akbar!' },
-];
-
-// Only schedule fard prayers (not Sunrise/Sunset)
-const NOTIFY_PRAYERS: Array<keyof PrayerTimes> = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-const PRAYER_LABELS: Record<string, string> = {
-  Fajr: 'Subuh', Dhuhr: 'Dzuhur', Asr: 'Ashar', Maghrib: 'Maghrib', Isha: "Isya'",
-};
-const PRAYER_ARABIC: Record<string, string> = {
-  Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء',
-};
-const MINUTES_BEFORE = 10;
+import {
+  AZAN_PROMPT_DISMISSED_KEY,
+  AZAN_REMINDER_EVENT,
+  AzanReminderSnapshot,
+  broadcastAzanReminderState,
+  queueAzanWebsitePopup,
+  readAzanReminderSnapshot,
+  writeAzanReminderEnabled,
+  writeAzanSoundEnabled,
+} from '@/utils/azanReminder';
+import {
+  EVENT_NOTIFY,
+  MINUTES_BEFORE,
+  NOTIFY_PRAYERS,
+  PRAYER_LABELS,
+  gregorianToHijri,
+  parsePrayerMs,
+  playAzanSound,
+  primeAzanAudio,
+  sendNotification,
+  ensureAzanServiceWorker,
+} from '@/utils/azanReminderRuntime';
 
 interface AzanReminderProps {
   prayerTimes: PrayerTimes | null;
@@ -63,136 +32,18 @@ interface AzanReminderProps {
   onToggle: (enabled: boolean) => void;
 }
 
-function parsePrayerMs(timeStr: string): number | null {
-  const match = timeStr.match(/^(\d{1,2}):(\d{2})/);
-  if (!match) return null;
-  const d = new Date();
-  d.setHours(Number(match[1]), Number(match[2]), 0, 0);
-  return d.getTime();
-}
-
-// ── Synthesized adhan chime (Web Audio API, no external file needed) ─────────
-// ── Azan audio — tries local file first, then CDN, then synth fallback ───────
-// Drop your own MP3 in public/azan.mp3 to override CDN
-const AZAN_URLS = [
-  '/azan.mp3',
-  'https://ia802609.us.archive.org/13/items/AzanMakkah/AzanMakkah.mp3',
-  'https://ia800202.us.archive.org/17/items/AdhanazeazanAzan/Adan.mp3',
-];
-
-let azanAudio: HTMLAudioElement | null = null;
-let azanLoadPromise: Promise<HTMLAudioElement | null> | null = null;
-
-async function loadAzanAudio(): Promise<HTMLAudioElement | null> {
-  // Only attempt load once — reuse the same promise
-  if (azanLoadPromise) return azanLoadPromise;
-  azanLoadPromise = (async () => {
-    for (const url of AZAN_URLS) {
-      try {
-        const audio = new Audio();
-        audio.src = url;
-        audio.preload = 'auto';
-        // Just try to play directly — most reliable signal vs canplaythrough
-        await audio.play();
-        audio.pause();
-        audio.currentTime = 0;
-        azanAudio = audio;
-        return audio;
-      } catch { /* try next URL */ }
-    }
-    return null; // all failed → use synth fallback
-  })();
-  return azanLoadPromise;
-}
-
-// Synthesized fallback — bell chime via Web Audio API
-let audioCtxRef: AudioContext | null = null;
-function playSynthChime(isShort = false) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return;
-    if (!audioCtxRef || audioCtxRef.state === 'closed') audioCtxRef = new AudioCtx();
-    const ctx = audioCtxRef;
-    if (ctx.state === 'suspended') ctx.resume();
-    const t = ctx.currentTime;
-    const bell = (freq: number, start: number, dur: number, vol = 0.28) => {
-      const osc = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sine'; osc2.type = 'sine';
-      osc.frequency.setValueAtTime(freq, t + start);
-      osc2.frequency.setValueAtTime(freq * 2.756, t + start);
-      gain.gain.setValueAtTime(0, t + start);
-      gain.gain.linearRampToValueAtTime(vol, t + start + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + start + dur);
-      osc.start(t + start); osc.stop(t + start + dur);
-      osc2.start(t + start); osc2.stop(t + start + dur);
-    };
-    if (!isShort) {
-      const r = 220;
-      bell(r,        0.00, 2.5, 0.30); bell(r * 1.25, 2.70, 2.0, 0.28);
-      bell(r * 1.50, 4.80, 2.5, 0.28); bell(r * 1.33, 7.40, 2.0, 0.26);
-      bell(r * 1.00, 9.50, 3.5, 0.30);
-    } else {
-      bell(440, 0.0, 1.5, 0.22); bell(550, 1.7, 1.2, 0.20); bell(440, 3.0, 2.0, 0.22);
-    }
-  } catch { /* silent fail */ }
-}
-
-async function playAzanSound(type: 'azan' | 'before' | 'test' = 'azan') {
-  const isShort = type === 'before';
-  try {
-    // Always use full adzan audio for azan + test; short synth for before-reminder
-    if (!isShort) {
-      // azanAudio is already loaded if loadAzanAudio() was previously called
-      const audio = azanAudio ?? await loadAzanAudio();
-      if (audio) {
-        audio.currentTime = 0;
-        await audio.play();
-        return;
-      }
-      playSynthChime(false); // fallback
-    } else {
-      // Short reminder — just synth chime (avoids playing full 5-min azan 10min before)
-      playSynthChime(true);
-    }
-  } catch { playSynthChime(isShort); }
-}
-
-
-
-// ── Reliable notification via SW → fallback to Notification API ─────────────
-async function sendNotification(title: string, options: NotificationOptions): Promise<void> {
-  try {
-    if ('serviceWorker' in navigator) {
-      const reg = await navigator.serviceWorker.getRegistration('/sw.js');
-      if (reg) { await reg.showNotification(title, options); return; }
-      const newReg = await navigator.serviceWorker.register('/sw.js');
-      await navigator.serviceWorker.ready;
-      await newReg.showNotification(title, options);
-      return;
-    }
-  } catch {
-    // fall through to Notification API
-  }
-  new Notification(title, options);
-}
-
 export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggle }: AzanReminderProps) {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [supported, setSupported] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [scheduledPrayers, setScheduledPrayers] = useState<string[]>([]);
   const [testSent, setTestSent] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [nowTick, setNowTick] = useState(() => Date.now());
 
   // Upcoming Hijri events (today + next 3 days) — always shown regardless of reminder state
   const upcomingEvents = useMemo(() => {
     const now = new Date();
-    const result: Array<{ ev: IslamicEventNotif; daysUntil: number }> = [];
+    const result: Array<{ ev: (typeof EVENT_NOTIFY)[number]; daysUntil: number }> = [];
     for (let d = 0; d <= 3; d++) {
       const date = new Date(now);
       date.setDate(date.getDate() + d);
@@ -202,187 +53,108 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
         .forEach(ev => result.push({ ev, daysUntil: d }));
     }
     return result;
-  }, []);
+  }, [onToggle]);
 
-  // Init: detect support, register SW, sync permission, restore toggle, maybe show prompt
+  const scheduledPrayers = useMemo(() => {
+    if (!prayerTimes) return [];
+
+    return NOTIFY_PRAYERS.filter((prayer) => {
+      const prayerMs = parsePrayerMs(prayerTimes[prayer]);
+      return prayerMs !== null && prayerMs > nowTick - 30000;
+    });
+  }, [nowTick, prayerTimes]);
+
   useEffect(() => {
     if (!('Notification' in window)) return;
+
+    const syncSnapshot = () => {
+      const snapshot = readAzanReminderSnapshot();
+      setPermission(snapshot.permission === 'unsupported' ? 'default' : snapshot.permission);
+      setSoundEnabled(snapshot.soundEnabled);
+      onToggle(snapshot.enabled);
+    };
+
     setSupported(true);
-    setPermission(Notification.permission);
+    syncSnapshot();
 
-    // Pre-register SW so it's ready when notifications arrive
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {/* non-critical */});
-    }
+    void ensureAzanServiceWorker().catch(() => {});
 
-    // Sync permission when user switches back to tab
-    const syncPerm = () => setPermission(Notification.permission);
+    const syncPerm = () => {
+      if (document.visibilityState !== 'visible') return;
+      syncSnapshot();
+    };
+    const onReminderChanged = (event: Event) => {
+      const custom = event as CustomEvent<AzanReminderSnapshot>;
+      if (custom.detail) {
+        setPermission(custom.detail.permission === 'unsupported' ? 'default' : custom.detail.permission);
+        setSoundEnabled(custom.detail.soundEnabled);
+        onToggle(custom.detail.enabled);
+        return;
+      }
+
+      syncSnapshot();
+    };
+    const onStorage = () => syncSnapshot();
+
     document.addEventListener('visibilitychange', syncPerm);
+    window.addEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
+    window.addEventListener('storage', onStorage);
 
     if (Notification.permission === 'default') {
-      const dismissed = localStorage.getItem('azanPromptDismissed');
+      const dismissed = localStorage.getItem(AZAN_PROMPT_DISMISSED_KEY);
       if (!dismissed) setTimeout(() => setShowPrompt(true), 900);
     }
 
-    // Restore saved enabled state (only honour if permission still granted)
-    if (Notification.permission === 'granted') {
-      const saved = localStorage.getItem('azanReminderEnabled');
-      if (saved === 'true') onToggle(true);
-    }
-    // Restore sound preference
-    const savedSound = localStorage.getItem('azanSoundEnabled');
-    if (savedSound === 'false') setSoundEnabled(false);
-
-    return () => document.removeEventListener('visibilitychange', syncPerm);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      document.removeEventListener('visibilitychange', syncPerm);
+      window.removeEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
-  // Clear all scheduled timeouts
-  const clearTimers = useCallback(() => {
-    timersRef.current.forEach(clearTimeout);
-    timersRef.current = [];
-    setScheduledPrayers([]);
-  }, []);
-
-  // Schedule setTimeout for each prayer that hasn't passed yet
-  const scheduleAll = useCallback((times: PrayerTimes, withSound: boolean) => {
-    clearTimers();
-    if (Notification.permission !== 'granted') return;
-
-    const now = Date.now();
-    const scheduled: string[] = [];
-
-    NOTIFY_PRAYERS.forEach((prayer) => {
-      const timeStr = times[prayer];
-      if (!timeStr) return;
-      const prayerMs = parsePrayerMs(timeStr);
-      if (!prayerMs) return;
-      const msUntil = prayerMs - now;
-
-      // Skip prayers that already passed (allow up to 30s grace)
-      if (msUntil <= -30_000) return;
-
-      const label = PRAYER_LABELS[prayer] ?? prayer;
-      const arabic = PRAYER_ARABIC[prayer] ?? '';
-
-      // Notification exactly at prayer time
-      const atMs = Math.max(msUntil, 0);
-      const t1 = setTimeout(() => {
-        if (Notification.permission !== 'granted') return;
-        if (withSound) playAzanSound('azan');
-        sendNotification(`🕌 Allahu Akbar — Waktu ${label}`, {
-          body: `Waktu sholat ${label} ${arabic} pukul ${timeStr} telah tiba. Allahu Akbar!`,
-          icon: '/icon-192.png',
-          tag: `azan-at-${prayer}`,
-          requireInteraction: true,
-          silent: false,
-        });
-      }, atMs);
-      timersRef.current.push(t1);
-      scheduled.push(prayer);
-
-      // Notification MINUTES_BEFORE minutes before
-      const beforeMs = msUntil - MINUTES_BEFORE * 60_000;
-      if (beforeMs > 0) {
-        const t2 = setTimeout(() => {
-          if (Notification.permission !== 'granted') return;
-          if (withSound) playAzanSound('before');
-          sendNotification(`⏰ ${label} dalam ${MINUTES_BEFORE} menit`, {
-            body: `Bersiaplah untuk sholat ${label}. Waktu masuk pukul ${timeStr}.`,
-            icon: '/icon-192.png',
-            tag: `azan-before-${prayer}`,
-            silent: false,
-          });
-        }, beforeMs);
-        timersRef.current.push(t2);
-      }
-    });
-
-    setScheduledPrayers(scheduled);
-  }, [clearTimers]);
-
-  // Schedule Islamic calendar event notifications (today at 8am, tomorrow reminder at 8pm)
-  const scheduleIslamicEvents = useCallback(() => {
-    if (Notification.permission !== 'granted') return;
-    const now = new Date();
-    const nowMs = now.getTime();
-    const todayHijri = gregorianToHijri(now);
-    const tomorrowDate = new Date(now); tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    const tomorrowHijri = gregorianToHijri(tomorrowDate);
-
-    const todayEvts = EVENT_NOTIFY.filter(e => e.hijriMonth === todayHijri.month && e.hijriDay === todayHijri.day);
-    const tomorrowEvts = EVENT_NOTIFY.filter(e => e.hijriMonth === tomorrowHijri.month && e.hijriDay === tomorrowHijri.day);
-
-    // Today events: fire at 8:00 AM (or immediately if already past 8am)
-    todayEvts.forEach((ev) => {
-      const at8am = new Date(now); at8am.setHours(8, 0, 0, 0);
-      const delay = Math.max(at8am.getTime() - nowMs, 2000);
-      const t = setTimeout(() => {
-        if (Notification.permission !== 'granted') return;
-        sendNotification(`📅 ${ev.name}`, {
-          body: ev.desc,
-          icon: '/icon-192.png',
-          tag: `islamic-event-today-${ev.hijriMonth}-${ev.hijriDay}`,
-          requireInteraction: false,
-        });
-      }, delay);
-      timersRef.current.push(t);
-    });
-
-    // Tomorrow events: remind at 8:00 PM today
-    tomorrowEvts.forEach((ev) => {
-      const at8pm = new Date(now); at8pm.setHours(20, 0, 0, 0);
-      const delay = at8pm.getTime() - nowMs;
-      if (delay <= 0) return;
-      const t = setTimeout(() => {
-        if (Notification.permission !== 'granted') return;
-        sendNotification(`🌙 Besok: ${ev.name}`, {
-          body: `Besok adalah ${ev.name}. ${ev.desc}`,
-          icon: '/icon-192.png',
-          tag: `islamic-event-tomorrow-${ev.hijriMonth}-${ev.hijriDay}`,
-          requireInteraction: false,
-        });
-      }, delay);
-      timersRef.current.push(t);
-    });
-  }, []);
-
-  // Reschedule whenever prayerTimes, enabled, permission, or sound changes
   useEffect(() => {
-    if (!enabled || !prayerTimes || permission !== 'granted') {
-      clearTimers();
-      return;
-    }
-    scheduleAll(prayerTimes, soundEnabled);
-    scheduleIslamicEvents();
-    return () => clearTimers();
-  }, [enabled, prayerTimes, permission, soundEnabled, scheduleAll, scheduleIslamicEvents, clearTimers]);
+    if (!enabled) return;
+
+    const interval = setInterval(() => {
+      setNowTick(Date.now());
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [enabled]);
 
   const requestPermission = async () => {
     if (!supported) return;
+    void ensureAzanServiceWorker().catch(() => {});
     const result = await Notification.requestPermission();
     setPermission(result);
     if (result === 'granted') {
       setShowPrompt(false);
-      localStorage.removeItem('azanPromptDismissed');
+      localStorage.removeItem(AZAN_PROMPT_DISMISSED_KEY);
       onToggle(true);
-      localStorage.setItem('azanReminderEnabled', 'true');
+      const snapshot = writeAzanReminderEnabled(true);
+      broadcastAzanReminderState(snapshot);
+      if (soundEnabled) {
+        await primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined);
+      }
     }
   };
 
   const handleToggle = (next: boolean) => {
     if (next && permission === 'default') {
-      requestPermission();
+      void requestPermission();
       return;
     }
+
     onToggle(next);
-    localStorage.setItem('azanReminderEnabled', String(next));
-    if (!next) clearTimers();
+    broadcastAzanReminderState(writeAzanReminderEnabled(next));
+    if (next && soundEnabled) {
+      void primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined);
+    }
   };
 
   const dismissPrompt = () => {
     setShowPrompt(false);
-    localStorage.setItem('azanPromptDismissed', 'true');
+    localStorage.setItem(AZAN_PROMPT_DISMISSED_KEY, 'true');
   };
 
   const enableFromPrompt = () => {
@@ -393,11 +165,24 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
   const sendTest = async () => {
     const livePerm = Notification.permission;
     if (livePerm !== permission) setPermission(livePerm);
-    if (livePerm !== 'granted') { requestPermission(); return; }
-    if (soundEnabled) await playAzanSound('azan'); // full adzan on user gesture
+    if (livePerm !== 'granted') {
+      void requestPermission();
+      return;
+    }
+
+    if (soundEnabled) {
+      await primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined);
+      await playAzanSound('azan', nextPrayer?.name as keyof PrayerTimes | undefined);
+    }
+
+    queueAzanWebsitePopup({
+      title: '🕌 Test Adzan Reminder',
+      body: `Popup website berjalan. Kamu akan diingatkan ${MINUTES_BEFORE} mnt sebelum dan tepat saat waktu sholat.`,
+      timeLabel: 'Tes sekarang',
+    });
+
     await sendNotification('🕌 Test Adzan Reminder', {
       body: `Notifikasi berjalan! Kamu akan diingatkan ${MINUTES_BEFORE} mnt sebelum dan tepat saat waktu sholat.`,
-      icon: '/icon-192.png',
       tag: 'azan-test',
       requireInteraction: false,
     });
@@ -408,8 +193,12 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
   const toggleSound = () => {
     const next = !soundEnabled;
     setSoundEnabled(next);
-    localStorage.setItem('azanSoundEnabled', String(next));
-    if (next) playAzanSound('azan'); // preview when turning on
+    broadcastAzanReminderState(writeAzanSoundEnabled(next));
+    if (next) {
+      void primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined).then(() =>
+        playAzanSound('test', nextPrayer?.name as keyof PrayerTimes | undefined)
+      );
+    }
   };
 
   if (!supported) return null;

@@ -8,6 +8,7 @@ import PrayerScheduleList from '@/components/PrayerScheduleList';
 import UserGreeting from '@/components/UserGreeting';
 import HijriDateBanner from '@/components/HijriDateBanner';
 import { LocationData, PrayerTimes } from '@/types';
+import { AZAN_REMINDER_EVENT, AzanReminderSnapshot, readAzanReminderSnapshot } from '@/utils/azanReminder';
 import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
 import { getCached, getLastLocation, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
 
@@ -138,14 +139,13 @@ export default function Home() {
   // Sync reminder state when toggled from NotificationBell popup
   useEffect(() => {
     const syncFromStorage = () => {
-      const enabled = localStorage.getItem('azanReminderEnabled') === 'true';
-      setReminderEnabled(enabled);
+      setReminderEnabled(readAzanReminderSnapshot().enabled);
     };
 
     syncFromStorage();
 
     const onReminderChanged = (event: Event) => {
-      const custom = event as CustomEvent<{ enabled?: boolean }>;
+      const custom = event as CustomEvent<AzanReminderSnapshot>;
       if (typeof custom.detail?.enabled === 'boolean') {
         setReminderEnabled(custom.detail.enabled);
         return;
@@ -153,9 +153,9 @@ export default function Home() {
       syncFromStorage();
     };
 
-    window.addEventListener('azan-reminder-changed', onReminderChanged as EventListener);
+    window.addEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
     return () => {
-      window.removeEventListener('azan-reminder-changed', onReminderChanged as EventListener);
+      window.removeEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
     };
   }, []);
 

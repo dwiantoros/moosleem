@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Noto_Naskh_Arabic } from "next/font/google";
 import "./globals.css";
+import AzanReminderController from "@/components/AzanReminderController";
 import BottomNav from "@/components/BottomNav";
 
 const manrope = Manrope({
@@ -104,6 +105,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col pb-24">
+        <AzanReminderController />
         {children}
         <BottomNav />
       </body>

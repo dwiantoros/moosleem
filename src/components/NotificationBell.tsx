@@ -1,6 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import {
+  AZAN_REMINDER_EVENT,
+  AzanReminderSnapshot,
+  broadcastAzanReminderState,
+  readAzanReminderSnapshot,
+  writeAzanReminderEnabled,
+} from '@/utils/azanReminder';
 
 // ── Hijri conversion ─────────────────────────────────────────────────────────
 function gregorianToHijri(gDate: Date): { month: number; day: number } {
@@ -68,6 +75,12 @@ export default function NotificationBell() {
   const hasToday = upcoming.some(e => e.daysUntil === 0);
 
   useEffect(() => {
+    const syncSnapshot = () => {
+      const snapshot = readAzanReminderSnapshot();
+      setReminderOn(snapshot.enabled);
+      setPermission(snapshot.permission === 'unsupported' ? 'default' : snapshot.permission);
+    };
+
     setMounted(true);
     setIsDark(document.documentElement.classList.contains('dark'));
 
@@ -76,13 +89,32 @@ export default function NotificationBell() {
     );
     obs.observe(document.documentElement, { attributeFilter: ['class'] });
 
-    if ('Notification' in window) {
-      setPermission(Notification.permission);
-      const saved = localStorage.getItem('azanReminderEnabled');
-      if (Notification.permission === 'granted' && saved === 'true') setReminderOn(true);
-    }
+    syncSnapshot();
 
-    return () => obs.disconnect();
+    const onReminderChanged = (event: Event) => {
+      const custom = event as CustomEvent<AzanReminderSnapshot>;
+      if (custom.detail) {
+        setReminderOn(custom.detail.enabled);
+        setPermission(custom.detail.permission === 'unsupported' ? 'default' : custom.detail.permission);
+        return;
+      }
+      syncSnapshot();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        syncSnapshot();
+      }
+    };
+
+    window.addEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      obs.disconnect();
+      window.removeEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, []);
 
   // Close on outside click
@@ -105,20 +137,15 @@ export default function NotificationBell() {
       const result = await Notification.requestPermission();
       setPermission(result);
       if (result === 'granted') {
-        setReminderOn(true);
-        localStorage.setItem('azanReminderEnabled', 'true');
-        window.dispatchEvent(
-          new CustomEvent('azan-reminder-changed', { detail: { enabled: true } })
-        );
+        const snapshot = writeAzanReminderEnabled(true);
+        setReminderOn(snapshot.enabled);
+        broadcastAzanReminderState(snapshot);
       }
       return;
     }
     const next = !reminderOn;
     setReminderOn(next);
-    localStorage.setItem('azanReminderEnabled', String(next));
-    window.dispatchEvent(
-      new CustomEvent('azan-reminder-changed', { detail: { enabled: next } })
-    );
+    broadcastAzanReminderState(writeAzanReminderEnabled(next));
   };
 
   if (!mounted) return (
