@@ -135,6 +135,30 @@ export default function Home() {
     fetchLocationAndPrayerTimes();
   }, []);
 
+  // Sync reminder state when toggled from NotificationBell popup
+  useEffect(() => {
+    const syncFromStorage = () => {
+      const enabled = localStorage.getItem('azanReminderEnabled') === 'true';
+      setReminderEnabled(enabled);
+    };
+
+    syncFromStorage();
+
+    const onReminderChanged = (event: Event) => {
+      const custom = event as CustomEvent<{ enabled?: boolean }>;
+      if (typeof custom.detail?.enabled === 'boolean') {
+        setReminderEnabled(custom.detail.enabled);
+        return;
+      }
+      syncFromStorage();
+    };
+
+    window.addEventListener('azan-reminder-changed', onReminderChanged as EventListener);
+    return () => {
+      window.removeEventListener('azan-reminder-changed', onReminderChanged as EventListener);
+    };
+  }, []);
+
   // Refresh prayer times
   const handleRefresh = async () => {
     if (!location) return;

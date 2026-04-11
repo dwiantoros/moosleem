@@ -107,12 +107,18 @@ export default function NotificationBell() {
       if (result === 'granted') {
         setReminderOn(true);
         localStorage.setItem('azanReminderEnabled', 'true');
+        window.dispatchEvent(
+          new CustomEvent('azan-reminder-changed', { detail: { enabled: true } })
+        );
       }
       return;
     }
     const next = !reminderOn;
     setReminderOn(next);
     localStorage.setItem('azanReminderEnabled', String(next));
+    window.dispatchEvent(
+      new CustomEvent('azan-reminder-changed', { detail: { enabled: next } })
+    );
   };
 
   if (!mounted) return (
