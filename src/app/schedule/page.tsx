@@ -7,6 +7,7 @@ import PageHeaderActions from '@/components/PageHeaderActions';
 import PrayerScheduleList from '@/components/PrayerScheduleList';
 import { LocationData, PrayerTimes } from '@/types';
 import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
+import { getCached, getLastLocation, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
 
 export default function SchedulePage() {
   const [location, setLocation] = useState<LocationData | null>(null);
@@ -16,9 +17,8 @@ export default function SchedulePage() {
 
   useEffect(() => {
     const fetchData = async (latitude: number, longitude: number, timezone: string) => {
-      const today = new Date().toDateString();
-      const cacheKey = `prayer-${latitude.toFixed(3)}-${longitude.toFixed(3)}-${today}`;
-      const STALE_MS = 30 * 60 * 1000;
+      const cacheKey = prayerCacheKey(latitude, longitude);
+      const STALE_MS = 6 * 60 * 60 * 1000;
 
       const doFetch = async () => {
         const response = await axios.get('/api/prayer-times', {
@@ -26,29 +26,36 @@ export default function SchedulePage() {
           timeout: 8000,
         });
         if (response.data) {
-          const entry = { data: response.data, ts: Date.now() };
-          try { localStorage.setItem(cacheKey, JSON.stringify(entry)); } catch { /* ignore */ }
+          safeSet(cacheKey, response.data);
           setPrayerTimes(response.data);
           setNextPrayer(getNextPrayer(response.data, timezone));
         }
       };
 
-      try {
-        const raw = localStorage.getItem(cacheKey);
-        if (raw) {
-          const { data, ts } = JSON.parse(raw);
-          setPrayerTimes(data);
-          setNextPrayer(getNextPrayer(data, timezone));
-          if (Date.now() - ts > STALE_MS) doFetch().catch(() => {});
-          return;
-        }
-      } catch { /* ignore */ }
+      const cached = getCached<PrayerTimes>(cacheKey, STALE_MS);
+      if (cached) {
+        setPrayerTimes(cached.data);
+        setNextPrayer(getNextPrayer(cached.data, timezone));
+        if (cached.isStale) doFetch().catch(() => {});
+        return;
+      }
 
       await doFetch();
     };
 
     const load = async () => {
       setLoading(true);
+
+      const cachedLoc = getLastLocation(24 * 60 * 60 * 1000);
+      if (cachedLoc) {
+        setLocation({
+          latitude: cachedLoc.latitude,
+          longitude: cachedLoc.longitude,
+          timezone: cachedLoc.timezone,
+        });
+        fetchData(cachedLoc.latitude, cachedLoc.longitude, cachedLoc.timezone).catch(() => {});
+      }
+
       if (!('geolocation' in navigator)) {
         setLoading(false);
         return;
@@ -59,6 +66,12 @@ export default function SchedulePage() {
           const { latitude, longitude } = position.coords;
           const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
           setLocation({ latitude, longitude, timezone });
+          setLastLocation({
+            latitude,
+            longitude,
+            timezone,
+            accuracy: position.coords.accuracy,
+          });
           try {
             await fetchData(latitude, longitude, timezone);
           } finally {
@@ -75,6 +88,11 @@ export default function SchedulePage() {
           } finally {
             setLoading(false);
           }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 30000,
         }
       );
     };

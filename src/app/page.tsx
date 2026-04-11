@@ -9,6 +9,7 @@ import UserGreeting from '@/components/UserGreeting';
 import HijriDateBanner from '@/components/HijriDateBanner';
 import { LocationData, PrayerTimes } from '@/types';
 import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
+import { getCached, getLastLocation, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
 
 export default function Home() {
   const [location, setLocation] = useState<LocationData | null>(null);
@@ -25,9 +26,8 @@ export default function Home() {
   const lastPrayerNameRef = useRef<string | null>(null);
 
   const fetchPrayerData = async (latitude: number, longitude: number, timezone: string) => {
-    const today = new Date().toDateString();
-    const cacheKey = `prayer-${latitude.toFixed(3)}-${longitude.toFixed(3)}-${today}`;
-    const STALE_MS = 30 * 60 * 1000; // refresh background after 30 min
+    const cacheKey = prayerCacheKey(latitude, longitude);
+    const STALE_MS = 6 * 60 * 60 * 1000; // refresh after 6h
 
     const doFetch = async () => {
       const response = await axios.get('/api/prayer-times', {
@@ -35,24 +35,20 @@ export default function Home() {
         timeout: 8000,
       });
       if (response.data) {
-        const entry = { data: response.data, ts: Date.now() };
-        try { localStorage.setItem(cacheKey, JSON.stringify(entry)); } catch { /* ignore */ }
+        safeSet(cacheKey, response.data);
         setPrayerTimes(response.data);
         setNextPrayer(getNextPrayer(response.data, timezone));
       }
     };
 
-    try {
-      const raw = localStorage.getItem(cacheKey);
-      if (raw) {
-        const { data, ts } = JSON.parse(raw);
-        setPrayerTimes(data);
-        setNextPrayer(getNextPrayer(data, timezone));
-        // Background refresh if stale
-        if (Date.now() - ts > STALE_MS) doFetch().catch(() => {});
-        return;
-      }
-    } catch { /* ignore */ }
+    const cached = getCached<PrayerTimes>(cacheKey, STALE_MS);
+    if (cached) {
+      setPrayerTimes(cached.data);
+      setNextPrayer(getNextPrayer(cached.data, timezone));
+      // Background refresh only when stale
+      if (cached.isStale) doFetch().catch(() => {});
+      return;
+    }
 
     await doFetch();
   };
@@ -61,6 +57,18 @@ export default function Home() {
   useEffect(() => {
     const fetchLocationAndPrayerTimes = async () => {
       setLoading(true);
+
+      // Fast boot: use last successful location immediately if available
+      const cachedLoc = getLastLocation(24 * 60 * 60 * 1000);
+      if (cachedLoc) {
+        const locationData: LocationData = {
+          latitude: cachedLoc.latitude,
+          longitude: cachedLoc.longitude,
+          timezone: cachedLoc.timezone,
+        };
+        setLocation(locationData);
+        fetchPrayerData(cachedLoc.latitude, cachedLoc.longitude, cachedLoc.timezone).catch(() => {});
+      }
 
       if (!('geolocation' in navigator)) {
         setLoading(false);
@@ -79,6 +87,12 @@ export default function Home() {
           };
 
           setLocation(locationData);
+          setLastLocation({
+            latitude,
+            longitude,
+            timezone,
+            accuracy: position.coords.accuracy,
+          });
 
           try {
             await fetchPrayerData(latitude, longitude, timezone);
@@ -108,6 +122,11 @@ export default function Home() {
           } finally {
             setLoading(false);
           }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 30000,
         }
       );
     };

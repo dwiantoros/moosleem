@@ -157,11 +157,18 @@ export async function GET(request: NextRequest) {
       });
     });
 
-    return NextResponse.json({
-      success: true,
-      data: deduped.slice(0, 20),
-      count: deduped.length,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: deduped.slice(0, 20),
+        count: deduped.length,
+      },
+      {
+        headers: {
+          'Cache-Control': 's-maxage=300, stale-while-revalidate=900',
+        },
+      }
+    );
   } catch (error) {
     console.error('Restaurants API error:', error);
     return NextResponse.json(

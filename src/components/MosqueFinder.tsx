@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { LocationData } from '@/types';
 import axios from 'axios';
+import { getCached, nearbyCacheKey, safeSet } from '@/utils/clientCache';
 
 interface Mosque {
   id: string;
@@ -29,6 +30,15 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
     if (!location?.latitude || !location?.longitude) return;
     setSelected(null);
 
+    const cacheKey = nearbyCacheKey('mosques', location.latitude, location.longitude);
+    const TTL_MS = 10 * 60 * 1000;
+
+    const cached = getCached<Mosque[]>(cacheKey, TTL_MS);
+    if (cached) {
+      setMosques(cached.data);
+      if (!cached.isStale) return;
+    }
+
     const fetch = async () => {
       setLoading(true);
       try {
@@ -36,7 +46,9 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
           params: { latitude: location.latitude, longitude: location.longitude, radius: 5000 },
           timeout: 20000,
         });
-        setMosques(res.data.data || []);
+        const data = res.data.data || [];
+        setMosques(data);
+        safeSet(cacheKey, data);
       } catch (e) {
         console.error('Mosque fetch error:', e);
       } finally {
@@ -75,7 +87,6 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
         <div className="space-y-3">
           {mosques.map((mosque) => {
             const isActive = selected?.id === mosque.id;
-            const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${location?.latitude},${location?.longitude}&destination=${mosque.latitude},${mosque.longitude}&destination_place_id=${encodeURIComponent(mosque.name)}`;
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mosque.name)}&ll=${mosque.latitude},${mosque.longitude}`;
 
             return (

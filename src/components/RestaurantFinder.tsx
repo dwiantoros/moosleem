@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { HalalRestaurant, LocationData } from '@/types';
 import axios from 'axios';
+import { getCached, nearbyCacheKey, safeSet } from '@/utils/clientCache';
 
 interface RestaurantsProps {
   location: LocationData | null;
@@ -16,6 +17,15 @@ export default function RestaurantFinder({ location }: RestaurantsProps) {
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) return;
 
+    const cacheKey = nearbyCacheKey('restaurants', location.latitude, location.longitude);
+    const TTL_MS = 10 * 60 * 1000;
+
+    const cached = getCached<HalalRestaurant[]>(cacheKey, TTL_MS);
+    if (cached) {
+      setRestaurants(cached.data);
+      if (!cached.isStale) return;
+    }
+
     const fetchRestaurants = async () => {
       setLoading(true);
       try {
@@ -27,7 +37,9 @@ export default function RestaurantFinder({ location }: RestaurantsProps) {
           },
           timeout: 15000,
         });
-        setRestaurants(response.data.data || []);
+        const data = response.data.data || [];
+        setRestaurants(data);
+        safeSet(cacheKey, data);
       } catch (error) {
         console.error('Error fetching restaurants:', error);
       } finally {
@@ -63,7 +75,6 @@ export default function RestaurantFinder({ location }: RestaurantsProps) {
           {restaurants.map((restaurant) => {
             const isSelected = selectedRestaurant?.id === restaurant.id;
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name)}&ll=${restaurant.latitude},${restaurant.longitude}`;
-            const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${location?.latitude},${location?.longitude}&destination=${restaurant.latitude},${restaurant.longitude}&destination_place_id=${encodeURIComponent(restaurant.name)}`;
 
             return (
               <div

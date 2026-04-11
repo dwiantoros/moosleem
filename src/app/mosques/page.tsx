@@ -5,6 +5,7 @@ import MosqueFinder from '@/components/MosqueFinder';
 import { LocationData } from '@/types';
 import PageHeaderActions from '@/components/PageHeaderActions';
 import Link from 'next/link';
+import { getLastLocation, setLastLocation } from '@/utils/clientCache';
 
 export default function MosquesPage() {
   const [location, setLocation] = React.useState<LocationData | null>(null);
@@ -13,8 +14,14 @@ export default function MosquesPage() {
   React.useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+    const cached = getLastLocation(12 * 60 * 60 * 1000);
+    if (cached) {
+      setLocation({ latitude: cached.latitude, longitude: cached.longitude, timezone: cached.timezone });
+      setLoading(false);
+    }
+
     if (!('geolocation' in navigator)) {
-      setLocation({ latitude: -6.2, longitude: 106.816, timezone });
+      if (!cached) setLocation({ latitude: -6.2, longitude: 106.816, timezone });
       setLoading(false);
       return;
     }
@@ -22,13 +29,19 @@ export default function MosquesPage() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, timezone });
+        setLastLocation({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          timezone,
+          accuracy: pos.coords.accuracy,
+        });
         setLoading(false);
       },
       () => {
-        setLocation({ latitude: -6.2, longitude: 106.816, timezone });
+        if (!cached) setLocation({ latitude: -6.2, longitude: 106.816, timezone });
         setLoading(false);
       },
-      { timeout: 8000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   }, []);
 
