@@ -10,22 +10,22 @@ interface Inspiration {
 
 const inspirations: Inspiration[] = [
   {
-    arabic: 'من سار على الدرب وصل',
+    arabic: 'مِن سَارَ عَلَى الدَّرْبِ وَصَل',
     translation: 'Barang siapa berjalan di atas jalan akan sampai ke tujuan',
     reference: 'Pepatah Arab',
   },
   {
-    arabic: 'يسروا ولا تعسروا وبشروا ولا تنفروا',
+    arabic: 'يَسِّرُوا وَلَا تُعَسِّرُوا وَبَشِّرُوا وَلَا تُنَفِّرُوا',
     translation: 'Mudahkanlah dan jangan dipersulit, berikanlah kabar gembira dan jangan membuat orang lari',
     reference: 'Hadis Sahih Bukhari',
   },
   {
-    arabic: 'أفضل الجهاد جهاد النفس',
+    arabic: 'أَفْضَلُ الْجِهَادِ جِهَادُ النَّفْسِ',
     translation: 'Jihad terbaik adalah jihad melawan hawa nafsu',
     reference: 'Hadis Riwayat At-Tirmidzi',
   },
   {
-    arabic: 'الدعاء هو العبادة',
+    arabic: 'الدُّعَاءُ هُوَ الْعِبَادَةُ',
     translation: 'Doa adalah ibadah',
     reference: 'Hadis Riwayat At-Tirmidzi',
   },
