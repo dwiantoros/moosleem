@@ -49,6 +49,7 @@ export default function NotificationBell() {
   const [reminderOn, setReminderOn] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const upcoming = useMemo(() => {
@@ -68,11 +69,20 @@ export default function NotificationBell() {
 
   useEffect(() => {
     setMounted(true);
+    setIsDark(document.documentElement.classList.contains('dark'));
+
+    const obs = new MutationObserver(() =>
+      setIsDark(document.documentElement.classList.contains('dark'))
+    );
+    obs.observe(document.documentElement, { attributeFilter: ['class'] });
+
     if ('Notification' in window) {
       setPermission(Notification.permission);
       const saved = localStorage.getItem('azanReminderEnabled');
       if (Notification.permission === 'granted' && saved === 'true') setReminderOn(true);
     }
+
+    return () => obs.disconnect();
   }, []);
 
   // Close on outside click
@@ -115,7 +125,9 @@ export default function NotificationBell() {
     <div className="relative" ref={panelRef}>
       {bellOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-950/35 backdrop-blur-[3px]"
+          className={`fixed inset-0 z-40 backdrop-blur-[3px] ${
+            isDark ? 'bg-slate-950/35' : 'bg-slate-900/18'
+          }`}
           onClick={() => setBellOpen(false)}
         />
       )}
@@ -138,16 +150,22 @@ export default function NotificationBell() {
       </button>
 
       <div
-        className="fixed right-4 top-20 z-50 w-[min(92vw,380px)] max-h-[72vh] overflow-y-auto rounded-[1.6rem] p-4 shadow-2xl transition-all duration-300"
+        className="fixed right-4 top-20 z-50 w-[min(92vw,360px)] min-h-[320px] max-h-[80vh] overflow-y-auto rounded-[1.6rem] p-4 shadow-2xl transition-all duration-300"
         style={{
           transform: bellOpen ? 'translateX(0)' : 'translateX(115%)',
           opacity: bellOpen ? 1 : 0,
           pointerEvents: bellOpen ? 'auto' : 'none',
-          background: 'rgba(8,16,30,0.94)',
+          background: isDark
+            ? 'rgba(8,16,30,0.94)'
+            : 'rgba(248,252,255,0.97)',
           backdropFilter: 'blur(28px) saturate(155%)',
           WebkitBackdropFilter: 'blur(28px) saturate(155%)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          boxShadow: '0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)',
+          border: isDark
+            ? '1px solid rgba(255,255,255,0.1)'
+            : '1px solid rgba(255,255,255,0.9)',
+          boxShadow: isDark
+            ? '0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)'
+            : '0 24px 60px rgba(15,23,42,0.2), inset 0 1px 0 rgba(255,255,255,0.95)',
         }}
       >
           {/* Header + toggle */}
