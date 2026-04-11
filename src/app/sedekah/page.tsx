@@ -5,16 +5,92 @@ import Link from 'next/link';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
 const QUICK_AMOUNTS = [10000, 25000, 50000, 100000, 250000];
+const QRIS_STATIC_PAYLOAD = process.env.NEXT_PUBLIC_QRIS_STATIC_PAYLOAD ?? '';
 
 function formatIDR(value: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
 }
 
+type Tlv = { tag: string; value: string };
+
+function parseTlv(payload: string): Tlv[] {
+  const chunks: Tlv[] = [];
+  let i = 0;
+
+  while (i + 4 <= payload.length) {
+    const tag = payload.slice(i, i + 2);
+    const lenStr = payload.slice(i + 2, i + 4);
+    const len = Number.parseInt(lenStr, 10);
+    if (Number.isNaN(len) || i + 4 + len > payload.length) break;
+
+    const value = payload.slice(i + 4, i + 4 + len);
+    chunks.push({ tag, value });
+    i += 4 + len;
+  }
+
+  return chunks;
+}
+
+function encodeTlv(tag: string, value: string): string {
+  return `${tag}${String(value.length).padStart(2, '0')}${value}`;
+}
+
+function crc16Ccitt(text: string): string {
+  let crc = 0xffff;
+  for (let i = 0; i < text.length; i++) {
+    crc ^= text.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      if (crc & 0x8000) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc <<= 1;
+      }
+      crc &= 0xffff;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function buildDynamicQris(staticPayload: string, amount: number): string | null {
+  if (!staticPayload) return null;
+
+  const chunks = parseTlv(staticPayload).filter((c) => c.tag !== '63');
+  const amountValue = Math.max(1, Math.floor(amount)).toString();
+
+  let hasTag01 = false;
+  let hasTag54 = false;
+
+  for (const chunk of chunks) {
+    if (chunk.tag === '01') {
+      chunk.value = '12';
+      hasTag01 = true;
+    }
+    if (chunk.tag === '54') {
+      chunk.value = amountValue;
+      hasTag54 = true;
+    }
+  }
+
+  if (!hasTag01) {
+    chunks.splice(1, 0, { tag: '01', value: '12' });
+  }
+
+  if (!hasTag54) {
+    chunks.push({ tag: '54', value: amountValue });
+  }
+
+  const withoutCrc = chunks.map((chunk) => encodeTlv(chunk.tag, chunk.value)).join('');
+  const crcInput = `${withoutCrc}6304`;
+  return `${crcInput}${crc16Ccitt(crcInput)}`;
+}
+
 export default function SedekahPage() {
   const [selectedAmount, setSelectedAmount] = useState<number>(QUICK_AMOUNTS[1]);
   const [qrisError, setQrisError] = useState(false);
-
-  const qrisStaticPath = '/qris-sedekah.png';
+  const dynamicPayload = buildDynamicQris(QRIS_STATIC_PAYLOAD, selectedAmount);
+  const qrImageUrl = dynamicPayload
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(dynamicPayload)}`
+    : '/qris-sedekah.png';
 
   const whatsappMessage = encodeURIComponent(
     `Assalamu alaikum, saya ingin konfirmasi sedekah sebesar ${formatIDR(selectedAmount)}.`
@@ -63,34 +139,34 @@ export default function SedekahPage() {
         <section className="glass-panel rounded-[1.5rem] p-5 sm:p-6">
           <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">2. Scan QRIS</h2>
           <div className="mt-4 rounded-2xl border border-slate-200 bg-white/70 p-4">
-            <p className="text-sm font-semibold text-slate-900">Pembayaran QRIS</p>
-            <p className="mt-1 text-xs text-slate-500">Scan menggunakan aplikasi m-banking atau e-wallet apa saja yang mendukung QRIS.</p>
+            <p className="text-sm font-semibold text-slate-900">Pembayaran QRIS Otomatis</p>
+            <p className="mt-1 text-xs text-slate-500">Nominal mengikuti pilihan Anda secara otomatis. Scan menggunakan m-banking atau e-wallet apa saja yang mendukung QRIS.</p>
 
             {!qrisError ? (
               <img
-                src={qrisStaticPath}
+                src={qrImageUrl}
                 alt="QRIS Sedekah"
                 className="mx-auto mt-4 w-full max-w-[300px] rounded-2xl border border-slate-200 bg-white p-3"
                 onError={() => setQrisError(true)}
               />
             ) : (
               <div className="mx-auto mt-4 flex h-[320px] w-full max-w-[300px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-xs text-slate-500">
-                File QRIS belum tersedia.<br />
-                Upload gambar QRIS Anda ke<br />
-                `public/qris-sedekah.png`
+                QRIS otomatis belum aktif.<br />
+                Isi env `NEXT_PUBLIC_QRIS_STATIC_PAYLOAD`<br />
+                atau sediakan fallback di `public/qris-sedekah.png`.
               </div>
             )}
 
             <div className="mt-4 flex flex-wrap gap-2">
               <a
-                href={qrisStaticPath}
+                href={qrImageUrl}
                 download
                 className="rounded-xl bg-teal-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-teal-700"
               >
                 Unduh QRIS
               </a>
               <a
-                href={qrisStaticPath}
+                href={qrImageUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -98,6 +174,11 @@ export default function SedekahPage() {
                 Buka QRIS
               </a>
             </div>
+            {dynamicPayload && (
+              <p className="mt-3 text-[11px] text-slate-500">
+                Nominal QR aktif: <span className="font-semibold text-teal-700">{formatIDR(selectedAmount)}</span>
+              </p>
+            )}
           </div>
         </section>
 
@@ -119,7 +200,7 @@ export default function SedekahPage() {
         </section>
 
         <div className="glass-subtle rounded-2xl px-4 py-3 text-xs text-slate-400">
-          Info: Gunakan QRIS statis agar paling mudah untuk user. Nominal bisa disesuaikan dari aplikasi pembayaran.
+          Info: Untuk QRIS otomatis, set env `NEXT_PUBLIC_QRIS_STATIC_PAYLOAD` dengan payload QRIS statis merchant Anda.
         </div>
       </div>
     </div>
