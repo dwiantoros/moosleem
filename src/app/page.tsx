@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import Link from 'next/link';
 import AzanReminder from '@/components/AzanReminder';
 import DailyInspiration from '@/components/DailyInspiration';
 import PrayerScheduleList from '@/components/PrayerScheduleList';
@@ -21,6 +22,7 @@ export default function Home() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [districtLabel, setDistrictLabel] = useState<string | null>(null);
   // Track initial minutes when a new prayer window starts (for progress bar %)
   const initialMinsRef = useRef<number | null>(null);
   const lastPrayerNameRef = useRef<string | null>(null);
@@ -172,6 +174,36 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [prayerTimes, location]);
 
+  // Resolve district/kecamatan for homepage nearby shortcuts with local cache
+  useEffect(() => {
+    if (!location?.latitude || !location?.longitude) return;
+
+    const key = `district-${location.latitude.toFixed(3)}-${location.longitude.toFixed(3)}`;
+    const TTL_MS = 24 * 60 * 60 * 1000;
+
+    const hydrate = async () => {
+      const cached = getCached<{ district: string | null }>(key, TTL_MS);
+      if (cached) {
+        setDistrictLabel(cached.data.district ?? null);
+        if (!cached.isStale) return;
+      }
+
+      try {
+        const res = await axios.get('/api/location-context', {
+          params: { latitude: location.latitude, longitude: location.longitude },
+          timeout: 10000,
+        });
+        const district = (res.data?.district as string | null) ?? null;
+        setDistrictLabel(district);
+        safeSet(key, { district });
+      } catch {
+        // ignore reverse geocode failures
+      }
+    };
+
+    hydrate();
+  }, [location?.latitude, location?.longitude]);
+
   // Reset progress-bar denominator whenever the next prayer changes
   useEffect(() => {
     if (!nextPrayer) return;
@@ -290,6 +322,28 @@ export default function Home() {
                     <path d="M20 4v6h-6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
+              </div>
+
+              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <Link
+                  href="/restaurants"
+                  className="glass-subtle rounded-2xl p-4 transition hover:bg-white/60"
+                >
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Halal Nearby</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {districtLabel ? `Anda berada di ${districtLabel}` : 'Menentukan lokasi distrik...'}
+                  </p>
+                </Link>
+
+                <Link
+                  href="/mosques"
+                  className="glass-subtle rounded-2xl p-4 transition hover:bg-white/60"
+                >
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Masjid Terdekat</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {districtLabel ? `Anda berada di ${districtLabel}` : 'Menentukan lokasi distrik...'}
+                  </p>
+                </Link>
               </div>
             </div>
 
