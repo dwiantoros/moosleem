@@ -38,14 +38,16 @@ export default function RestaurantsPage() {
       <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Terdekat</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Halal Nearby</h1>
-          </div>
           <div className="flex items-center gap-3">
-            <PageHeaderActions />
-            <Link href="/" className="glass-subtle rounded-full px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300">Kembali</Link>
+            <Link href="/" className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </Link>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Terdekat</p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Halal Nearby</h1>
+            </div>
           </div>
+          <PageHeaderActions />
         </div>
 
         {/* GPS badge */}
@@ -55,7 +57,7 @@ export default function RestaurantsPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
             </span>
-            GPS aktif Â· {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+            GPS aktif &middot; {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
           </div>
         )}
 
@@ -71,7 +73,7 @@ export default function RestaurantsPage() {
         )}
 
         <footer className="mt-10 border-t border-slate-200 dark:border-slate-700 pt-6 text-center text-sm text-slate-500">
-          <p>Data lokasi dari OpenStreetMap Â· Selalu verifikasi status halal secara langsung</p>
+          <p>Data lokasi dari OpenStreetMap &middot; Selalu verifikasi status halal secara langsung</p>
         </footer>
       </main>
     </div>

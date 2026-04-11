@@ -125,24 +125,14 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
                         </a>
                       )}
                       <a
-                        href={directionsUrl}
+                        href={mapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white/80 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:bg-slate-700/60 dark:text-slate-200"
                       >
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-                        Petunjuk Arah
-                      </a>
-                      <a
-                        href={mapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white/80 text-slate-600 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:bg-slate-700/60 dark:text-slate-200"
-                        title="Lihat di Maps"
-                      >
                         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Buka Maps
                       </a>
                     </div>
                   </div>

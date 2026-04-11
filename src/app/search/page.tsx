@@ -135,14 +135,16 @@ export default function SearchPage() {
       <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
       <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Search</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Cari Surah & Fitur</h1>
-          </div>
           <div className="flex items-center gap-3">
-            <PageHeaderActions />
-            <Link href="/" className="glass-subtle rounded-full px-4 py-2 text-sm font-medium text-slate-700">Kembali</Link>
+            <Link href="/" className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </Link>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Search</p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Cari Surah &amp; Fitur</h1>
+            </div>
           </div>
+          <PageHeaderActions />
         </div>
 
         <section className="glass-panel rounded-[1.8rem] p-5 sm:p-6">
