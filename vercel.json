@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/push-prayer",
-      "schedule": "* * * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }
