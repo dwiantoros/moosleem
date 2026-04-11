@@ -147,6 +147,95 @@ const GUIDES: PrayerGuide[] = [
       { title: '2–13. Sama persis seperti Dzuhur', note: '4 rakaat, tasyahud awal di rakaat ke-2, tasyahud akhir di rakaat ke-4, salam.' },
     ],
   },
+  {
+    name: 'Jamak Taqdir',
+    arabic: 'الجَمْعُ التَّقْدِيرُ',
+    rakaat: 0,
+    color: '#16a34a',
+    time: 'Dalam satu waktu sholat',
+    steps: [
+      {
+        title: 'Apa itu Jamak Taqdir?',
+        note: 'Jamak Taqdir adalah menggabungkan dua sholat (biasanya Dzuhur + Ashar atau Maghrib + Isya\') dalam waktu salah satu dari keduanya dengan satu adzan dan iqamat. Boleh dilakukan saat ada uzur (kesulitan), seperti perjalanan, sakit, hujan deras, atau keadaan darurat.',
+      },
+      {
+        title: 'Macam-macam Jamak Taqdir',
+        note: 'Ada dua kombinasi utama:\n• Jamak Taqdim: Mengerjakan Ashar lebih awal di waktu Dzuhur\n• Jamak Ta\'khir: Mengerjakan Dzuhur lebih lambat di waktu Ashar\n\nBegitu pula untuk Maghrib + Isya\'.',
+      },
+      {
+        title: 'Syarat-syarat Jamak Taqdir',
+        note: 'Harus ada uzur (alasan kuat) yang sah secara Syariat seperti:\n• Perjalanan jauh\n• Sakit atau kondisi medis\n• Bekerja yang memerlukan fokus\n• Hujan deras atau badai\n• Darurat sipil',
+      },
+      {
+        title: 'Cara Melakukan Jamak Taqdir',
+        note: 'Di waktu sholat pertama:\n1. Agama satu adzan dan iqamat\n2. Sholat pertama dengan raka\'at penuh (misal Dzuhur 4 rakaat)\n3. Setelah selesai, tidak keluar dari tempat sholat\n4. Langsung sholat kedua dengan iqamat kedua (misal Ashar 4 rakaat)\n\nAir wudhu tidak perlu diulang jika belum hadats (merusak wudhu).',
+      },
+      {
+        title: 'Kombinasi Jamak Taqdir yang Diakui',
+        note: 'Menurut mayoritas ulama:\n• Dzuhur + Ashar — dilakukan saat ada uzur\n• Maghrib + Isya\' — dilakukan saat ada uzur\n\nSholat Subuh tidak bisa dijamak dengan sholat apapun karena temponya yang jauh.',
+      },
+      {
+        title: 'Jamak saat Menghadapi Fenomena Alam',
+        note: 'Jamak dibolehkan ketika:\n• Hujan deras dan jalan becek\n• Badai atau angin kencang\n• Banjir atau bencana alam\n• Salju tebal atau cuaca ekstrem\n\nDalam kondisi seperti ini, orang diizinkan jamak untuk memudahkan ibadah mereka.',
+      },
+      {
+        title: 'Hukum Jamak Taqdir',
+        note: 'Jamak Taqdir sebagian besar ulama mengatakan DIBOLEHKAN (mubah) dengan syarat ada uzur yang sah. Mayoritas fuqaha setuju dengan pendapat ini, terutama dalam mazhab Syafi\'i dan Maliki.',
+      },
+    ],
+  },
+  {
+    name: 'Qadha (Sholat Tertinggal)',
+    arabic: 'اَلْقَضَاءُ',
+    rakaat: 0,
+    color: '#be123c',
+    time: 'Kapan saja setelah waktu sholat',
+    steps: [
+      {
+        title: 'Apa itu Qadha?',
+        note: 'Qadha adalah mengulang sholat fardhu yang tertinggal (terlewatkan) karena alasan tertentu, seperti tidur, lupa, atau kondisi yang tidak memungkinkan. Sholat qadha harus dikerjakan dengan segera setelah sadar atau setelah kondisi membaik.',
+      },
+      {
+        title: 'Penyebab Sholat Tertinggal',
+        note: 'Sholat dapat tertinggal karena:\n• Tidur tanpa alarm\n• Lupa sama sekali\n• Sakit berkepanjangan\n• Koma atau pingsan\n• Kondisi darurat yang tidak memungkinkan\n• Terpaksa perjalanan panjang tanpa istirahat\n\nRasa malas TIDAK termasuk alasan yang diterima.',
+      },
+      {
+        title: 'Niat Qadha',
+        arabic: 'أُصَلِّي قَضَاءَ فَرْضَ الظُّهْرِ (أو غيره) أَدَاءً لِلَّهِ تَعَالَى',
+        latin: 'Ushalli qadhaa fardhlad-dhuhri (atau sholat lainnya) adaa-an lillahi ta\'ala',
+        meaning: 'Aku niat mengerjakan qadha sholat Dzuhur (atau sholat yang tertinggal) karena Allah Ta\'ala',
+        note: 'Niat qadha cukup dalam hati saja, tidak perlu diucapkan.',
+      },
+      {
+        title: 'Cara Melakukan Qadha',
+        note: '1. Berwudu dan suci dari hadats\n2. Membaca niat qadha dalam hati\n3. Memilih tempat yang suci dari najis\n4. Melakukan sholat dengan gerakan dan bacaan penuh (sama seperti sholat waktunya)\n5. Jika banyak sholat tertinggal, prioritaskan dari yang paling lama\n6. Bisa dikerjakan kapan saja, tetapi segera setelah sadar adalah lebih baik',
+      },
+      {
+        title: 'Waktu Terbaik Qadha',
+        note: 'Idealnya qadha dikerjakan:\n• SEGERA setelah sadar atau kondisi memungkinkan\n• JANGAN menunda hingga berhari-hari atau berminggu-minggu\n• Boleh dikerjakan di luar waktu sholat wajib (tidak ada larangan waktu)\n• Hindari waktu terlarang (saat terbit dan terbenam matahari, saat matahari tepat di atas kepala)',
+      },
+      {
+        title: 'Batasan Waktu Qadha yang Diizinkan',
+        note: 'Menurut ulama:\n• Qadha untuk beberapa hari atau minggu MASIH diakui sah\n• Jika tertinggal bertahun-tahun, masih harus dikerjakan jika masih ingat\n• Jika sudah LUPA berapa banyak yang tertinggal, estimasikan dan kerjakan qadha dengan niat ikhlas\n• Ada pendapat bahwa jika sudah tua/sakit dan tidak mampu, boleh meminta orang lain mengerjakan sedekah untuk dirinya',
+      },
+      {
+        title: 'Cara Menghitung Banyaknya Sholat Qadha',
+        note: 'Jika tertinggal berminggu-minggu:\n• Hitung dari hari pertama tertinggal\n• Kalikan jumlah hari dengan 5 sholat per hari\n• Misalnya: 10 hari tertinggal = 10 × 5 = 50 sholat\n• Kerjakan qadha secara bertahap, tidak harus sekaligus dalam satu hari',
+      },
+      {
+        title: 'Doa saat Mengerjakan Qadha',
+        note: 'Bacaan gerakan dan bacaan sholat qadha SAMA PERSIS dengan sholat wajib. Tidak ada bacaan khusus atau berbeda. Apa yang membedakan hanya NIAT, yaitu niat untuk mengqadhakan sholat yang tertinggal.',
+      },
+      {
+        title: 'Qadha Berjamaah',
+        note: 'Boleh melakukan qadha sendiri atau berjamaah dengan jamaah lain yang juga melakukan qadha. Jika mengikuti imam yang sedang melakukan sholat wajib waktu, qadha Anda tidak sah dan harus diulang kembali.',
+      },
+      {
+        title: 'Hukum Mengabaikan Qadha',
+        note: 'Mengabaikan sholat qadha adalah dosa besar, terutama jika:\n• Mampu tetapi sengaja menunda\n• Terus menambah hutang sholat\n• Wafat tanpa mengerjakan qadha\n\nOleh sebab itu, sangat dianjurkan untuk segera mengqadhakan sholat yang tertinggal sebelum terlambat.',
+      },
+    ],
+  },
 ];
 
 export default function PanduanSholatPage() {

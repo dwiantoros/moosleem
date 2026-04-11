@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
@@ -109,6 +109,9 @@ const ASMAUL_HUSNA = [
 export default function AsmaulHusnaPage() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<(typeof ASMAUL_HUSNA)[0] | null>(null);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -120,6 +123,45 @@ export default function AsmaulHusnaPage() {
         String(n.no).includes(q)
     );
   }, [search]);
+
+  const handleSwipe = () => {
+    if (!selected) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      // Next
+      const currentIndex = ASMAUL_HUSNA.findIndex(n => n.no === selected.no);
+      if (currentIndex < ASMAUL_HUSNA.length - 1) {
+        setSelected(ASMAUL_HUSNA[currentIndex + 1]);
+      }
+    } else if (isRightSwipe) {
+      // Previous
+      const currentIndex = ASMAUL_HUSNA.findIndex(n => n.no === selected.no);
+      if (currentIndex > 0) {
+        setSelected(ASMAUL_HUSNA[currentIndex - 1]);
+      }
+    }
+  };
+
+  const goToPrevious = () => {
+    if (!selected) return;
+    const currentIndex = ASMAUL_HUSNA.findIndex(n => n.no === selected.no);
+    if (currentIndex > 0) {
+      setSelected(ASMAUL_HUSNA[currentIndex - 1]);
+    }
+  };
+
+  const goToNext = () => {
+    if (!selected) return;
+    const currentIndex = ASMAUL_HUSNA.findIndex(n => n.no === selected.no);
+    if (currentIndex < ASMAUL_HUSNA.length - 1) {
+      setSelected(ASMAUL_HUSNA[currentIndex + 1]);
+    }
+  };
+
+  const currentIndex = selected ? ASMAUL_HUSNA.findIndex(n => n.no === selected.no) : -1;
 
   return (
     <div className="relative min-h-screen px-4 py-8 sm:px-6">
@@ -193,16 +235,44 @@ export default function AsmaulHusnaPage() {
           className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center"
           style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
           onClick={() => setSelected(null)}
+          onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
+          onTouchEnd={(e) => {
+            setTouchEnd(e.changedTouches[0].clientX);
+            handleSwipe();
+          }}
         >
           <div
+            ref={modalRef}
             className="glass-panel w-full max-w-sm rounded-[2rem] p-8 text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl text-xl font-bold text-white"
-              style={{ backgroundColor: selected.color }}
-            >
-              {selected.no}
+            <div className="mb-4 flex items-center justify-between">
+              <button
+                onClick={goToPrevious}
+                disabled={currentIndex <= 0}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white/70 text-slate-600 transition hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-700/60 dark:text-slate-300"
+                title="Sebelumnya (atau swipe kanan)"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6"/>
+                </svg>
+              </button>
+              <div
+                className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl text-xl font-bold text-white"
+                style={{ backgroundColor: selected.color }}
+              >
+                {selected.no}
+              </div>
+              <button
+                onClick={goToNext}
+                disabled={currentIndex >= ASMAUL_HUSNA.length - 1}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white/70 text-slate-600 transition hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed dark:border-slate-600 dark:bg-slate-700/60 dark:text-slate-300"
+                title="Berikutnya (atau swipe kiri)"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
             </div>
             <p
               className="font-arabic text-5xl leading-[2] mb-2"
@@ -212,7 +282,8 @@ export default function AsmaulHusnaPage() {
               {selected.arabic}
             </p>
             <p className="text-xl font-bold text-slate-900 mb-1">{selected.latin}</p>
-            <p className="text-base text-slate-500 mb-6">{selected.meaning}</p>
+            <p className="text-base text-slate-500 mb-4">{selected.meaning}</p>
+            <p className="text-xs text-slate-400 mb-6">({selected.no}/99) · Swipe untuk navigasi →</p>
             <button
               onClick={() => setSelected(null)}
               className="w-full rounded-2xl py-3 text-sm font-medium text-slate-500 transition hover:bg-slate-100"

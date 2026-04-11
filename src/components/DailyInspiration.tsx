@@ -33,8 +33,10 @@ const inspirations: Inspiration[] = [
 
 export default function DailyInspiration() {
   const inspiration = useMemo(() => {
-    const today = new Date().getDate();
-    return inspirations[today % inspirations.length];
+    // Get a unique number for today (changes every calendar day)
+    const today = new Date();
+    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
+    return inspirations[dayOfYear % inspirations.length];
   }, []);
 
   return (

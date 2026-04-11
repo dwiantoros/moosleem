@@ -186,8 +186,8 @@ export default function QuranReader({ initialSurah = 1 }: QuranReaderProps) {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Al-Quran</p>
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Quran Reader</h2>
-          <p className="text-sm text-slate-500">Arabic script with translation</p>
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Pembaca Quran</h2>
+          <p className="text-sm text-slate-500">Naskah Arab dengan terjemahan</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Reading timer */}
@@ -274,15 +274,10 @@ export default function QuranReader({ initialSurah = 1 }: QuranReaderProps) {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                   </div>
-                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                    <span className="rounded-full bg-slate-100/80 px-2.5 py-0.5 dark:bg-slate-700/60">{selectedSurahInfo.englishName}</span>
-                    <span className="rounded-full bg-slate-100/80 px-2.5 py-0.5 capitalize dark:bg-slate-700/60">{selectedSurahInfo.revelationType}</span>
-                    {readingSecs > 0 && (
-                      <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400">
-                        ⏱ {formatTime(readingSecs)}
-                      </span>
-                    )}
-                  </div>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="rounded-full bg-slate-100/80 px-2.5 py-0.5 dark:bg-slate-700/60">{selectedSurahInfo.englishName}</span>
+                <span className="rounded-full bg-slate-100/80 px-2.5 py-0.5 capitalize dark:bg-slate-700/60">{selectedSurahInfo.revelationType}</span>
+              </div>
                 </div>
               )}
 
@@ -320,7 +315,7 @@ export default function QuranReader({ initialSurah = 1 }: QuranReaderProps) {
                   className="flex items-center gap-2 rounded-2xl border border-slate-200/60 bg-white/95 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                  {prevSurahInfo ? `${prevSurahInfo.number}. ${prevSurahInfo.latinName}` : 'Previous'}
+                  {prevSurahInfo ? `${prevSurahInfo.number}. ${prevSurahInfo.latinName}` : 'Sebelumnya'}
                 </button>
                 <span className="text-xs text-slate-400">{selectedSurah} / 114</span>
                 <button
@@ -328,7 +323,7 @@ export default function QuranReader({ initialSurah = 1 }: QuranReaderProps) {
                   disabled={!nextSurah}
                   className="flex items-center gap-2 rounded-2xl border border-slate-200/60 bg-white/95 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-white hover:shadow-sm disabled:opacity-30 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300"
                 >
-                  {nextSurahInfo ? `${nextSurahInfo.number}. ${nextSurahInfo.latinName}` : 'Next'}
+                  {nextSurahInfo ? `${nextSurahInfo.number}. ${nextSurahInfo.latinName}` : 'Berikutnya'}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
               </div>
