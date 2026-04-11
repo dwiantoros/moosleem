@@ -57,6 +57,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.75,
     },
     {
+      url: 'https://muslim-traveler.com/sedekah',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.76,
+    },
+    {
       url: 'https://muslim-traveler.com/asmaul-husna',
       lastModified: new Date(),
       changeFrequency: 'monthly',

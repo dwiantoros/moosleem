@@ -116,6 +116,14 @@ const ROUTE_META: Record<string, RouteMeta> = {
       { name: 'Search', path: '/search' },
     ],
   },
+  '/sedekah': {
+    title: 'Sedekah Mudah',
+    description: 'Halaman sedekah mudah dengan metode transfer bank dan e-wallet.',
+    breadcrumbs: [
+      { name: 'Home', path: '/' },
+      { name: 'Sedekah', path: '/sedekah' },
+    ],
+  },
   '/tasbih': {
     title: 'Tasbih Digital',
     description: 'Tasbih digital untuk dzikir harian dengan hitungan mudah.',
@@ -290,6 +298,11 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
       name: 'Kalkulator Zakat',
       category: 'FinanceApplication',
       description: 'Perhitungan zakat maal dan penghasilan.',
+    },
+    '/sedekah': {
+      name: 'Sedekah Mudah',
+      category: 'FinanceApplication',
+      description: 'Panduan dan metode pembayaran sedekah secara cepat.',
     },
   };
 

@@ -75,6 +75,13 @@ const featureItems: SearchItem[] = [
     href: '/notes',
     category: 'Fitur',
   },
+  {
+    id: 'feature-sedekah',
+    title: 'Sedekah',
+    description: 'Bayar sedekah dengan mudah via transfer bank atau e-wallet.',
+    href: '/sedekah',
+    category: 'Fitur',
+  },
 ];
 
 export default function SearchPage() {
