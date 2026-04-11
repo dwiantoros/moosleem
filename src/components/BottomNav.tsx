@@ -40,26 +40,22 @@ const PRIMARY = [
     ),
   },
   {
-    id: 'tasbih',
-    label: 'Tasbih',
-    href: '/tasbih',
+    id: 'halal',
+    label: 'Halal',
+    href: '/restaurants',
     icon: (
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="3" />
-        <path d="M12 11v4" />
-        <path d="M9 18c0-1.7 1.3-3 3-3s3 1.3 3 3" />
-        <circle cx="12" cy="19" r="1" fill="currentColor" stroke="none" />
+        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
       </svg>
     ),
   },
   {
-    id: 'qibla',
-    label: 'Qibla',
-    href: '/qibla',
+    id: 'mosques',
+    label: 'Masjid',
+    href: '/mosques',
     icon: (
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="7" />
-        <path d="m12 9 2 3-3 2" />
+        <path d="M3 21h18M4 21V8l8-5 8 5v13M9 21v-5a3 3 0 0 1 6 0v5"/>
       </svg>
     ),
   },
@@ -96,12 +92,12 @@ const MORE_ITEMS = [
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/></svg>,
   },
   {
-    id: 'halal', label: 'Halal Nearby', href: '/restaurants',
-    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>,
+    id: 'tasbih', label: 'Tasbih', href: '/tasbih',
+    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><path d="M7 12h3M12 7v3M17 12h-3M12 17v-3"/></svg>,
   },
   {
-    id: 'mosques', label: 'Masjid Terdekat', href: '/mosques',
-    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13M9 21v-5a3 3 0 0 1 6 0v5"/></svg>,
+    id: 'qibla', label: 'Qibla', href: '/qibla',
+    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 12l-3-5"/></svg>,
   },
   {
     id: 'notes', label: 'Catatan', href: '/notes',
