@@ -1,18 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import MosqueFinder from '@/components/MosqueFinder';
 import { LocationData } from '@/types';
 import PageHeaderActions from '@/components/PageHeaderActions';
+import Link from 'next/link';
 
 export default function MosquesPage() {
-  const router = useRouter();
-  const [location, setLocation] = useState<LocationData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const watchIdRef = useRef<number | null>(null);
+  const [location, setLocation] = React.useState<LocationData | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     if (!('geolocation' in navigator)) {
@@ -30,23 +28,8 @@ export default function MosquesPage() {
         setLocation({ latitude: -6.2, longitude: 106.816, timezone });
         setLoading(false);
       },
-      { timeout: 8000, maximumAge: 30000 }
+      { timeout: 8000, maximumAge: 60000 }
     );
-
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, timezone });
-        setLoading(false);
-      },
-      () => {},
-      { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 }
-    );
-
-    return () => {
-      if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-      }
-    };
   }, []);
 
   return (
@@ -55,21 +38,14 @@ export default function MosquesPage() {
       <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 18l-6-6 6-6"/>
-              </svg>
-            </button>
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Terdekat</p>
-              <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Masjid Terdekat</h1>
-            </div>
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Terdekat</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Masjid Terdekat</h1>
           </div>
-          <PageHeaderActions />
+          <div className="flex items-center gap-3">
+            <PageHeaderActions />
+            <Link href="/" className="glass-subtle rounded-full px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300">Kembali</Link>
+          </div>
         </div>
 
         {/* GPS badge */}
