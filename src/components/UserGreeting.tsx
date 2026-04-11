@@ -85,7 +85,7 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
         </div>
         <div className="flex items-center gap-2">
           {/* Dark mode toggle */}
-          <button onClick={toggleTheme} className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60" aria-label="Toggle dark mode" suppressHydrationWarning>
+          <button onClick={toggleTheme} className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300" aria-label="Toggle dark mode" suppressHydrationWarning>
             <HeaderIcon>
               {mounted && theme === 'dark' ? (
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -101,7 +101,7 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
           </button>
 
           {/* Search */}
-          <Link href="/search" className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60" aria-label="Open search">
+          <Link href="/search" className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300" aria-label="Open search">
             <HeaderIcon>
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <circle cx="11" cy="11" r="6.5" />

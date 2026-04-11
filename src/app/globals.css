@@ -174,3 +174,48 @@ html.dark .page-bg {
     radial-gradient(circle at top left, rgba(30, 41, 59, 0.28), transparent 34%),
     radial-gradient(circle at top right, rgba(45, 212, 191, 0.08), transparent 24%);
 }
+
+/* ── Dark mode hover overrides ───────────────────────────────────────────────
+   Prevent light/white hover-bg from flashing bright on dark backgrounds.
+   These rules use higher specificity than Tailwind utilities so they always win.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* glass-subtle interactive elements: subtle lift instead of white flash */
+html.dark .glass-subtle:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.06)) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Ensure glass-subtle text is readable by default in dark mode */
+html.dark .glass-subtle {
+  color: #c7d5e5;
+}
+
+/* White/light hover → dark slate equivalent */
+html.dark .hover\:bg-white\/60:hover,
+html.dark .hover\:bg-white\/50:hover,
+html.dark .hover\:bg-white\/80:hover,
+html.dark .hover\:bg-white:hover {
+  background-color: rgba(30, 41, 59, 0.82) !important;
+}
+
+html.dark .hover\:bg-slate-50:hover {
+  background-color: rgba(30, 41, 59, 0.80) !important;
+}
+
+html.dark .hover\:bg-slate-100:hover {
+  background-color: rgba(30, 41, 59, 0.75) !important;
+}
+
+html.dark .hover\:bg-slate-200:hover {
+  background-color: rgba(51, 65, 85, 0.90) !important;
+}
+
+/* Hover text: prevent going dark on a dark background */
+html.dark .hover\:text-slate-700:hover {
+  color: #e2ecf6 !important;
+}
+
+html.dark .hover\:border-slate-300\/60:hover {
+  border-color: rgba(148, 163, 184, 0.25) !important;
+}
