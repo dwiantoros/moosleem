@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 
 interface Inspiration {
   arabic: string;
@@ -32,16 +32,10 @@ const inspirations: Inspiration[] = [
 ];
 
 export default function DailyInspiration() {
-  const [inspiration, setInspiration] = useState<Inspiration | null>(null);
-
-  useEffect(() => {
-    // Select random inspiration based on day
+  const inspiration = useMemo(() => {
     const today = new Date().getDate();
-    const selected = inspirations[today % inspirations.length];
-    setInspiration(selected);
+    return inspirations[today % inspirations.length];
   }, []);
-
-  if (!inspiration) return null;
 
   return (
     <div className="glass-panel rounded-[1.5rem] p-5 sm:p-6">

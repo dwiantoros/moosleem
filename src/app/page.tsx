@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import AzanReminder from '@/components/AzanReminder';
-import DailyInspiration from '@/components/DailyInspiration';
+import dynamic from 'next/dynamic';
 import PrayerScheduleList from '@/components/PrayerScheduleList';
 import UserGreeting from '@/components/UserGreeting';
 import HijriDateBanner from '@/components/HijriDateBanner';
@@ -11,6 +9,37 @@ import { LocationData, PrayerTimes } from '@/types';
 import { AZAN_REMINDER_EVENT, AzanReminderSnapshot, readAzanReminderSnapshot } from '@/utils/azanReminder';
 import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
 import { getCached, getLastLocation, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
+
+const DailyInspiration = dynamic(() => import('@/components/DailyInspiration'), {
+  loading: () => <div className="glass-panel rounded-[1.5rem] p-5 sm:p-6 text-sm text-slate-500">Memuat inspirasi...</div>,
+});
+
+const AzanReminder = dynamic(() => import('@/components/AzanReminder'), {
+  loading: () => <div className="glass-panel rounded-[1.5rem] p-5 sm:p-6 text-sm text-slate-500">Menyiapkan reminder...</div>,
+});
+
+async function fetchJson<T>(url: string, params: Record<string, string | number>, timeoutMs = 9000): Promise<T> {
+  const query = new URLSearchParams(
+    Object.entries(params).map(([key, value]) => [key, String(value)])
+  );
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(`${url}?${query.toString()}`, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Request failed (${response.status})`);
+    }
+
+    return (await response.json()) as T;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
 
 export default function Home() {
   const [location, setLocation] = useState<LocationData | null>(null);
@@ -32,14 +61,11 @@ export default function Home() {
     const STALE_MS = 6 * 60 * 60 * 1000; // refresh after 6h
 
     const doFetch = async () => {
-      const response = await axios.get('/api/prayer-times', {
-        params: { latitude, longitude },
-        timeout: 8000,
-      });
-      if (response.data) {
-        safeSet(cacheKey, response.data);
-        setPrayerTimes(response.data);
-        setNextPrayer(getNextPrayer(response.data, timezone));
+      const response = await fetchJson<PrayerTimes>('/api/prayer-times', { latitude, longitude }, 8000);
+      if (response) {
+        safeSet(cacheKey, response);
+        setPrayerTimes(response);
+        setNextPrayer(getNextPrayer(response, timezone));
       }
     };
 
@@ -59,16 +85,19 @@ export default function Home() {
   useEffect(() => {
     const fetchLocationAndPrayerTimes = async () => {
       setLoading(true);
+      let hasWarmStart = false;
 
       // Fast boot: use last successful location immediately if available
       const cachedLoc = getLastLocation(24 * 60 * 60 * 1000);
       if (cachedLoc) {
+        hasWarmStart = true;
         const locationData: LocationData = {
           latitude: cachedLoc.latitude,
           longitude: cachedLoc.longitude,
           timezone: cachedLoc.timezone,
         };
         setLocation(locationData);
+        setLoading(false);
         fetchPrayerData(cachedLoc.latitude, cachedLoc.longitude, cachedLoc.timezone).catch(() => {});
       }
 
@@ -126,9 +155,10 @@ export default function Home() {
           }
         },
         {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 30000,
+          // Prioritize fast first fix instead of high-accuracy cold starts.
+          enableHighAccuracy: false,
+          timeout: hasWarmStart ? 8000 : 10000,
+          maximumAge: 5 * 60 * 1000,
         }
       );
     };
@@ -165,17 +195,15 @@ export default function Home() {
 
     setLoading(true);
     try {
-      const response = await axios.get('/api/prayer-times', {
-        params: {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        },
+      const response = await fetchJson<PrayerTimes>('/api/prayer-times', {
+        latitude: location.latitude,
+        longitude: location.longitude,
       });
 
-      setPrayerTimes(response.data);
+      setPrayerTimes(response);
       
-      if (response.data) {
-        const next = getNextPrayer(response.data, location.timezone || '');
+      if (response) {
+        const next = getNextPrayer(response, location.timezone || '');
         setNextPrayer(next);
       }
     } catch (error) {
@@ -212,11 +240,11 @@ export default function Home() {
       }
 
       try {
-        const res = await axios.get('/api/location-context', {
-          params: { latitude: location.latitude, longitude: location.longitude },
-          timeout: 10000,
-        });
-        const district = (res.data?.district as string | null) ?? null;
+        const res = await fetchJson<{ district?: string | null }>('/api/location-context', {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        }, 10000);
+        const district = res?.district ?? null;
         setDistrictLabel(district);
         safeSet(key, { district });
       } catch {

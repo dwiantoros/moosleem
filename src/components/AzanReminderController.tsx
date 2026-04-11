@@ -127,6 +127,27 @@ export default function AzanReminderController() {
   }, [snapshot.permission]);
 
   useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+
+    const onWorkerMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'STOP_AZAN') {
+        stopAzanSound();
+        setPopup(null);
+        clearPendingAzanWebsitePopup();
+      }
+
+      if (event.data?.type === 'OPEN_URL' && typeof event.data.url === 'string') {
+        window.location.assign(event.data.url);
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', onWorkerMessage);
+    return () => {
+      navigator.serviceWorker.removeEventListener('message', onWorkerMessage);
+    };
+  }, []);
+
+  useEffect(() => {
     void fetchPrayerData();
 
     const onReminderChanged = (event: Event) => {
@@ -224,6 +245,10 @@ export default function AzanReminderController() {
           tag: `azan-at-${prayer}`,
           requireInteraction: true,
           silent: false,
+          actions: [
+            { action: 'open-app', title: 'Buka' },
+            { action: 'stop-azan', title: 'Stop Adzan' },
+          ],
         });
       }, Math.max(msUntil, 0));
       timersRef.current.push(atTime);

@@ -61,6 +61,30 @@ npm run dev
 
 ## 🔧 Configuration
 
+### Server-side Web Push (Adzan when website is closed)
+
+This project now supports server-side Web Push delivery via:
+
+- `POST /api/push/subscribe` (store subscription + location)
+- `POST /api/push/unsubscribe`
+- `GET /api/push/public-key`
+- `GET /api/cron/push-prayer` (triggered every minute by `vercel.json` cron)
+
+Set these environment variables in Vercel (or `.env.local` for local testing):
+
+```bash
+PUSH_VAPID_PUBLIC_KEY=...
+PUSH_VAPID_PRIVATE_KEY=...
+PUSH_VAPID_SUBJECT=mailto:you@example.com
+CRON_SECRET=your-random-secret
+```
+
+Notes:
+
+- In production, use a Redis/KV integration so subscriptions are durable across serverless invocations.
+- If KV credentials are not present, the app falls back to in-memory subscription storage (good for local/dev only).
+- Browser notification action `Stop Adzan` is available and will stop adzan audio for active clients.
+
 ### API Keys Required
 
 Update the following in `src/utils/prayerTimes.ts`:

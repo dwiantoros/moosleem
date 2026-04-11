@@ -32,6 +32,74 @@ interface AzanReminderProps {
   onToggle: (enabled: boolean) => void;
 }
 
+function base64UrlToUint8Array(base64Url: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64Url.length % 4)) % 4);
+  const base64 = (base64Url + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; i += 1) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+
+  return outputArray;
+}
+
+async function enableServerSidePushSubscription(): Promise<void> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  const locationRaw = localStorage.getItem('mt:last-location');
+  if (!locationRaw) return;
+
+  let location: { latitude: number; longitude: number; timezone: string } | null = null;
+  try {
+    location = JSON.parse(locationRaw) as { latitude: number; longitude: number; timezone: string };
+  } catch {
+    location = null;
+  }
+  if (!location) return;
+
+  const keyRes = await fetch('/api/push/public-key', { cache: 'no-store' });
+  if (!keyRes.ok) return;
+  const keyData = (await keyRes.json()) as { publicKey?: string };
+  if (!keyData.publicKey) return;
+
+  const registration = await navigator.serviceWorker.ready;
+  let subscription = await registration.pushManager.getSubscription();
+
+  if (!subscription) {
+    subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: base64UrlToUint8Array(keyData.publicKey) as BufferSource,
+    });
+  }
+
+  await fetch('/api/push/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      subscription: subscription.toJSON(),
+      location,
+    }),
+  });
+}
+
+async function disableServerSidePushSubscription(): Promise<void> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  if (!subscription) return;
+
+  await fetch('/api/push/unsubscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ endpoint: subscription.endpoint }),
+  }).catch(() => {});
+
+  await subscription.unsubscribe().catch(() => {});
+}
+
 export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggle }: AzanReminderProps) {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [supported, setSupported] = useState(false);
@@ -122,6 +190,15 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
     return () => clearInterval(interval);
   }, [enabled]);
 
+  useEffect(() => {
+    if (!enabled || permission !== 'granted') {
+      void disableServerSidePushSubscription();
+      return;
+    }
+
+    void enableServerSidePushSubscription();
+  }, [enabled, permission]);
+
   const requestPermission = async () => {
     if (!supported) return;
     void ensureAzanServiceWorker().catch(() => {});
@@ -149,6 +226,10 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
     broadcastAzanReminderState(writeAzanReminderEnabled(next));
     if (next && soundEnabled) {
       void primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined);
+    }
+
+    if (!next) {
+      void disableServerSidePushSubscription();
     }
   };
 

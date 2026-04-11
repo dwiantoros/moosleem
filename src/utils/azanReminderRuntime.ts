@@ -2,6 +2,16 @@
 
 import { PrayerTimes } from '@/types';
 
+export interface AzanNotificationAction {
+  action: string;
+  title: string;
+  icon?: string;
+}
+
+export interface AzanNotificationOptions extends NotificationOptions {
+  actions?: AzanNotificationAction[];
+}
+
 export interface IslamicEventNotif {
   hijriMonth: number;
   hijriDay: number;
@@ -288,7 +298,7 @@ export async function ensureAzanServiceWorker(): Promise<void> {
   await navigator.serviceWorker.ready;
 }
 
-export async function sendNotification(title: string, options: NotificationOptions): Promise<void> {
+export async function sendNotification(title: string, options: AzanNotificationOptions): Promise<void> {
   try {
     if ('serviceWorker' in navigator) {
       await ensureAzanServiceWorker();
