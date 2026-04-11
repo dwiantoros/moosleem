@@ -43,7 +43,7 @@ const HALAL_LOGOS: HalalLogoItem[] = [
         <text x="20" y="27" textAnchor="middle" fontSize="4.6" fontWeight="700" fill="#1D4ED8">QINGZHEN</text>
       </svg>
     ),
-    languageTag: 'Mandarin',
+    languageTag: 'Mandarin (Latin: qingzhen)',
     note: 'Penanda halal umum di China: 清真 (qingzhen).',
   },
   {
@@ -188,7 +188,6 @@ export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id
           ))}
         </div>
         <div className="mt-3 rounded-xl border border-slate-200/70 bg-white/70 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/55">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Logo Aktif</p>
           <div className="mt-1 flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{activeLogo.label}</p>
             <span className="rounded-full bg-teal-100 px-3 py-2 dark:bg-teal-900/40">{activeLogo.mark}</span>
