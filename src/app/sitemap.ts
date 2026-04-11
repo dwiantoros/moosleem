@@ -15,12 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: 'https://muslim-traveler.com/schedule',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.85,
-    },
-    {
       url: 'https://muslim-traveler.com/doa',
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -91,6 +85,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.82,
+    },
+    {
+      url: 'https://muslim-traveler.com/tentang',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: 'https://muslim-traveler.com/bantuan',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.74,
     },
   ];
 }

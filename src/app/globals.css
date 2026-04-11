@@ -38,6 +38,34 @@ body {
   background-attachment: fixed;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.26;
+  background-image:
+    radial-gradient(circle at 14% 18%, rgba(15, 118, 110, 0.14), transparent 13%),
+    radial-gradient(circle at 82% 16%, rgba(20, 184, 166, 0.12), transparent 12%),
+    radial-gradient(circle at 86% 80%, rgba(16, 185, 129, 0.08), transparent 14%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(15, 118, 110, 0.045) 0,
+      rgba(15, 118, 110, 0.045) 1px,
+      transparent 1px,
+      transparent 16px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(15, 118, 110, 0.045) 0,
+      rgba(15, 118, 110, 0.045) 1px,
+      transparent 1px,
+      transparent 16px
+    );
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.2));
+}
+
 html.dark {
   color-scheme: dark;
   --background: #07111d;
@@ -57,6 +85,38 @@ html.dark body {
     radial-gradient(circle at 88% 14%, rgba(20, 184, 166, 0.14), transparent 22%),
     radial-gradient(circle at 82% 82%, rgba(56, 189, 248, 0.12), transparent 22%),
     linear-gradient(180deg, #06101b 0%, #081321 42%, #0a1625 100%);
+}
+
+html.dark body::before {
+  opacity: 0.2;
+  background-image:
+    radial-gradient(circle at 14% 18%, rgba(94, 234, 212, 0.14), transparent 13%),
+    radial-gradient(circle at 82% 16%, rgba(45, 212, 191, 0.12), transparent 12%),
+    radial-gradient(circle at 86% 80%, rgba(45, 212, 191, 0.09), transparent 14%),
+    repeating-linear-gradient(
+      45deg,
+      rgba(94, 234, 212, 0.04) 0,
+      rgba(94, 234, 212, 0.04) 1px,
+      transparent 1px,
+      transparent 16px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(94, 234, 212, 0.04) 0,
+      rgba(94, 234, 212, 0.04) 1px,
+      transparent 1px,
+      transparent 16px
+    );
+}
+
+.islamic-divider {
+  height: 1px;
+  width: 100%;
+  background-image: linear-gradient(90deg, transparent 0%, rgba(15, 118, 110, 0.35) 25%, rgba(15, 118, 110, 0.55) 50%, rgba(15, 118, 110, 0.35) 75%, transparent 100%);
+}
+
+html.dark .islamic-divider {
+  background-image: linear-gradient(90deg, transparent 0%, rgba(45, 212, 191, 0.32) 25%, rgba(94, 234, 212, 0.45) 50%, rgba(45, 212, 191, 0.32) 75%, transparent 100%);
 }
 
 .glass-panel {
