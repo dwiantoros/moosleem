@@ -71,7 +71,7 @@ const actions: QuickAction[] = [
   {
     id: 'halal',
     label: 'Halal',
-    href: '/restaurants',
+    href: '/restoran-halal',
     icon: (
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M8 4v7" strokeLinecap="round" />

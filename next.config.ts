@@ -48,7 +48,18 @@ const nextConfig: NextConfig = {
 
   // Redirects for old routes
   async redirects() {
-    return [];
+    return [
+      {
+        source: '/mosques',
+        destination: '/masjid',
+        permanent: true,
+      },
+      {
+        source: '/restaurants',
+        destination: '/restoran-halal',
+        permanent: true,
+      },
+    ];
   },
 };
 

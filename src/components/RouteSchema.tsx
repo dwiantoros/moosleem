@@ -52,12 +52,12 @@ const ROUTE_META: Record<string, RouteMeta> = {
       { name: 'Kalender Hijriah', path: '/kalender' },
     ],
   },
-  '/mosques': {
+  '/masjid': {
     title: 'Masjid Terdekat',
     description: 'Pencarian masjid dan musholla terdekat berdasarkan lokasi pengguna.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
-      { name: 'Masjid', path: '/mosques' },
+      { name: 'Masjid', path: '/masjid' },
     ],
   },
   '/notes': {
@@ -100,12 +100,12 @@ const ROUTE_META: Record<string, RouteMeta> = {
       { name: 'Quran', path: '/quran' },
     ],
   },
-  '/restaurants': {
+  '/restoran-halal': {
     title: 'Restoran Halal Terdekat',
     description: 'Temukan restoran halal terdekat berdasarkan lokasi Anda.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
-      { name: 'Restoran Halal', path: '/restaurants' },
+      { name: 'Restoran Halal', path: '/restoran-halal' },
     ],
   },
   '/search': {
@@ -325,7 +325,7 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
       name: 'Doa Harian',
       description: 'Kumpulan doa harian untuk aktivitas Muslim.',
     },
-    '/restaurants': {
+    '/restoran-halal': {
       name: 'Restoran Halal Terdekat',
       description: 'Daftar restoran halal berdasarkan lokasi pengguna.',
     },
@@ -401,7 +401,7 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
     ];
   }
 
-  if (pathname === '/mosques') {
+  if (pathname === '/masjid') {
     return [
       {
         '@context': 'https://schema.org',

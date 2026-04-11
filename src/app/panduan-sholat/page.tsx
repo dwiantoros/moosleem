@@ -148,39 +148,76 @@ const GUIDES: PrayerGuide[] = [
     ],
   },
   {
-    name: 'Jamak Taqdir',
-    arabic: 'الجَمْعُ التَّقْدِيرُ',
+    name: 'Jamak Taqdim',
+    arabic: 'الجَمْعُ التَّقْدِيمُ',
     rakaat: 0,
     color: '#16a34a',
-    time: 'Dalam satu waktu sholat',
+    time: 'Dikerjakan di waktu sholat pertama',
     steps: [
       {
-        title: 'Apa itu Jamak Taqdir?',
-        note: 'Jamak Taqdir adalah menggabungkan dua sholat (biasanya Dzuhur + Ashar atau Maghrib + Isya\') dalam waktu salah satu dari keduanya dengan satu adzan dan iqamat. Boleh dilakukan saat ada uzur (kesulitan), seperti perjalanan, sakit, hujan deras, atau keadaan darurat.',
+        title: 'Apa itu Jamak Taqdim?',
+        note: 'Jamak taqdim adalah menggabungkan dua sholat fardhu dan dikerjakan di waktu sholat yang pertama. Contohnya Dzuhur digabung dengan Ashar lalu dikerjakan saat waktu Dzuhur, atau Maghrib digabung dengan Isya lalu dikerjakan saat waktu Maghrib.',
       },
       {
-        title: 'Macam-macam Jamak Taqdir',
-        note: 'Ada dua kombinasi utama:\n• Jamak Taqdim: Mengerjakan Ashar lebih awal di waktu Dzuhur\n• Jamak Ta\'khir: Mengerjakan Dzuhur lebih lambat di waktu Ashar\n\nBegitu pula untuk Maghrib + Isya\'.',
+        title: 'Pasangan sholat yang bisa dijamak',
+        note: 'Pasangan yang dibolehkan dijamak adalah:\n• Dzuhur dengan Ashar\n• Maghrib dengan Isya\n\nSholat Subuh tidak bisa dijamak dengan sholat lain.',
       },
       {
-        title: 'Syarat-syarat Jamak Taqdir',
-        note: 'Harus ada uzur (alasan kuat) yang sah secara Syariat seperti:\n• Perjalanan jauh\n• Sakit atau kondisi medis\n• Bekerja yang memerlukan fokus\n• Hujan deras atau badai\n• Darurat sipil',
+        title: 'Syarat jamak taqdim',
+        note: 'Jamak taqdim dilakukan ketika ada uzur syar\'i seperti safar, sakit, hujan deras, atau kondisi sulit lainnya. Niat jamak dilakukan sejak sholat pertama dan kedua sholat dikerjakan berurutan tanpa jeda panjang.',
       },
       {
-        title: 'Cara Melakukan Jamak Taqdir',
-        note: 'Di waktu sholat pertama:\n1. Agama satu adzan dan iqamat\n2. Sholat pertama dengan raka\'at penuh (misal Dzuhur 4 rakaat)\n3. Setelah selesai, tidak keluar dari tempat sholat\n4. Langsung sholat kedua dengan iqamat kedua (misal Ashar 4 rakaat)\n\nAir wudhu tidak perlu diulang jika belum hadats (merusak wudhu).',
+        title: 'Cara melakukan jamak taqdim',
+        note: 'Contoh Dzuhur dan Ashar di waktu Dzuhur:\n1. Kerjakan sholat Dzuhur lebih dahulu\n2. Setelah salam, langsung berdiri untuk sholat Ashar\n3. Jaga urutan sholat, jangan dibalik\n4. Jangan beri jeda panjang di antara dua sholat\n\nJika yang dijamak adalah Maghrib dan Isya, maka Maghrib dikerjakan dulu lalu Isya.',
       },
       {
-        title: 'Kombinasi Jamak Taqdir yang Diakui',
-        note: 'Menurut mayoritas ulama:\n• Dzuhur + Ashar — dilakukan saat ada uzur\n• Maghrib + Isya\' — dilakukan saat ada uzur\n\nSholat Subuh tidak bisa dijamak dengan sholat apapun karena temponya yang jauh.',
+        title: 'Contoh niat dan urutan',
+        note: 'Urutan dalam jamak taqdim harus tertib:\n• Dzuhur kemudian Ashar\n• Maghrib kemudian Isya\n\nTidak boleh mengerjakan Ashar sebelum Dzuhur atau Isya sebelum Maghrib dalam jamak taqdim.',
       },
       {
-        title: 'Jamak saat Menghadapi Fenomena Alam',
-        note: 'Jamak dibolehkan ketika:\n• Hujan deras dan jalan becek\n• Badai atau angin kencang\n• Banjir atau bencana alam\n• Salju tebal atau cuaca ekstrem\n\nDalam kondisi seperti ini, orang diizinkan jamak untuk memudahkan ibadah mereka.',
+        title: 'Catatan penting',
+        note: 'Jamak taqdim bukan untuk mempermudah tanpa alasan. Jika uzur telah hilang sebelum memulai, maka sholat dikerjakan seperti biasa pada waktunya masing-masing.',
       },
       {
-        title: 'Hukum Jamak Taqdir',
-        note: 'Jamak Taqdir sebagian besar ulama mengatakan DIBOLEHKAN (mubah) dengan syarat ada uzur yang sah. Mayoritas fuqaha setuju dengan pendapat ini, terutama dalam mazhab Syafi\'i dan Maliki.',
+        title: 'Hukum jamak taqdim',
+        note: 'Jamak taqdim dibolehkan menurut mayoritas ulama bila ada uzur yang sah. Tujuannya memberi kemudahan, bukan menggugurkan kewajiban sholat.',
+      },
+    ],
+  },
+  {
+    name: 'Jamak Takhir',
+    arabic: 'الجَمْعُ التَّأْخِيرُ',
+    rakaat: 0,
+    color: '#0f766e',
+    time: 'Dikerjakan di waktu sholat kedua',
+    steps: [
+      {
+        title: 'Apa itu Jamak Takhir?',
+        note: 'Jamak takhir adalah menggabungkan dua sholat fardhu dan dikerjakan di waktu sholat yang kedua. Contohnya Dzuhur diundur lalu digabung dengan Ashar saat waktu Ashar, atau Maghrib diundur lalu digabung dengan Isya saat waktu Isya.',
+      },
+      {
+        title: 'Pasangan sholat yang bisa dijamak',
+        note: 'Pasangan yang dibolehkan dijamak takhir adalah:\n• Dzuhur dengan Ashar\n• Maghrib dengan Isya\n\nSholat Subuh tidak termasuk jamak.',
+      },
+      {
+        title: 'Syarat jamak takhir',
+        note: 'Harus ada uzur syar\'i yang masih berlangsung sampai masuk waktu sholat kedua. Niat untuk menunda sholat pertama ke waktu kedua dilakukan saat waktu sholat pertama masih ada.',
+      },
+      {
+        title: 'Cara melakukan jamak takhir',
+        note: 'Contoh Dzuhur dan Ashar di waktu Ashar:\n1. Ketika masuk waktu Ashar, kerjakan Dzuhur terlebih dahulu\n2. Setelah selesai, langsung kerjakan Ashar\n3. Jaga tertib dan jangan memberi jeda panjang\n\nBegitu pula Maghrib dikerjakan dulu lalu Isya saat waktu Isya.',
+      },
+      {
+        title: 'Urutan dalam jamak takhir',
+        note: 'Yang lebih aman tetap menjaga urutan sholat:\n• Dzuhur lalu Ashar\n• Maghrib lalu Isya\n\nDengan begitu pelaksanaan jamak lebih tertib dan mudah dipahami.',
+      },
+      {
+        title: 'Catatan penting',
+        note: 'Jika uzur selesai sebelum habis waktu sholat pertama dan masih memungkinkan sholat normal, maka tidak perlu menunda ke jamak takhir. Jamak takhir dipakai ketika memang ada kebutuhan yang sah.',
+      },
+      {
+        title: 'Hukum jamak takhir',
+        note: 'Jamak takhir dibolehkan ketika ada uzur yang sah. Sholat tetap wajib dua kali, hanya waktunya yang digabung dalam waktu sholat kedua.',
       },
     ],
   },

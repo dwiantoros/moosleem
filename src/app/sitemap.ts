@@ -63,7 +63,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.75,
     },
     {
-      url: 'https://muslim-traveler.com/restaurants',
+      url: 'https://muslim-traveler.com/restoran-halal',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: 'https://muslim-traveler.com/masjid',
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,

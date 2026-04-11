@@ -13,7 +13,7 @@ const MENU_ITEMS = [
   { href: '/zakat',         label: 'Kalkulator Zakat', desc: 'Hitung zakat maal & penghasilan',   emoji: '💰' },
   { href: '/asmaul-husna',  label: 'Asmaul Husna',     desc: '99 nama-nama Allah',                emoji: '⭐' },
   { href: '/qibla',         label: 'Arah Qibla',       desc: 'Kompas qibla realtime',             emoji: '🧭' },
-  { href: '/restaurants',   label: 'Halal Nearby',     desc: 'Restoran halal terdekat',           emoji: '🍽️' },
+  { href: '/restoran-halal',label: 'Halal Nearby',     desc: 'Restoran halal terdekat',           emoji: '🍽️' },
   { href: '/notes',         label: 'Catatan',          desc: 'Checklist dan catatan ibadah',      emoji: '📝' },
   { href: '/kalender',      label: 'Kalender Hijriah', desc: 'Kalender Islam & hari penting',     emoji: '🗓️' },
   { href: '/panduan-sholat',label: 'Panduan Sholat',   desc: 'Tata cara sholat lengkap',          emoji: '📋' },

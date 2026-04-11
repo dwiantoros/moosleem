@@ -65,7 +65,7 @@ const featureItems: SearchItem[] = [
     id: 'feature-halal',
     title: 'Halal Nearby',
     description: 'Cari restoran dan tempat makan halal terdekat.',
-    href: '/restaurants',
+    href: '/restoran-halal',
     category: 'Fitur',
   },
   {
