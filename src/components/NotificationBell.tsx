@@ -150,7 +150,7 @@ export default function NotificationBell() {
       </button>
 
       <div
-        className="fixed right-4 top-20 z-50 w-[min(92vw,360px)] min-h-[320px] max-h-[80vh] overflow-y-auto rounded-[1.6rem] p-4 shadow-2xl transition-all duration-300"
+        className="fixed right-4 top-20 z-50 flex w-[min(92vw,360px)] min-h-[320px] max-h-[80vh] flex-col overflow-y-auto rounded-[1.6rem] p-4 shadow-2xl transition-all duration-300"
         style={{
           transform: bellOpen ? 'translateX(0)' : 'translateX(115%)',
           opacity: bellOpen ? 1 : 0,
@@ -194,7 +194,9 @@ export default function NotificationBell() {
 
           {/* Upcoming events */}
           {upcoming.length > 0 ? (
-            <div className="space-y-2">
+            <div className="rounded-xl border border-white/20 bg-white/[0.04] p-2.5">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Event Hijriah</p>
+              <div className="space-y-2">
               {upcoming.map(({ name, desc, daysUntil }, i) => (
                 <div
                   key={i}
@@ -211,14 +213,16 @@ export default function NotificationBell() {
                   <p className="mt-0.5 text-xs" style={{ color: '#92400e', opacity: 0.85 }}>{desc}</p>
                 </div>
               ))}
+              </div>
             </div>
           ) : (
-            <div className="rounded-xl bg-slate-50 dark:bg-white/5 px-3 py-4 text-center">
+            <div className="rounded-xl border border-white/20 bg-white/[0.04] px-3 py-4 text-center">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Event Hijriah</p>
               <p className="text-xs text-slate-500">Tidak ada event Hijriah dalam 3 hari ke depan</p>
             </div>
           )}
 
-          <div className="mt-3 border-t border-white/30 pt-3">
+          <div className="mt-auto border-t border-white/30 pt-3">
             <p className="text-[11px] text-slate-400">
               {isActive
                 ? '✓ Kamu akan dapat notifikasi adzan & event Hijriah'
