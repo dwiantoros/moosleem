@@ -52,8 +52,52 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [districtLabel, setDistrictLabel] = useState<string | null>(null);
+  const [nowTick, setNowTick] = useState(Date.now());
+
+  const remainingSeconds = useMemo(() => {
+    if (!nextPrayer || !prayerTimes) return null;
+
+    const parseToMinute = (value: string): number | null => {
+      const match = value.match(/^(\d{1,2}):(\d{2})/);
+      if (!match) return null;
+      return Number(match[1]) * 60 + Number(match[2]);
+    };
+
+    const nextMinuteRaw = parseToMinute(nextPrayer.time);
+    if (nextMinuteRaw === null) return null;
+
+    const now = new Date(nowTick);
+    const target = new Date(now);
+    target.setHours(Math.floor(nextMinuteRaw / 60), nextMinuteRaw % 60, 0, 0);
+
+    const nowMinute = now.getHours() * 60 + now.getMinutes();
+    const ishaMinute = parseToMinute(prayerTimes.Isha ?? '');
+    if (nextPrayer.name === 'Fajr' && ishaMinute !== null && nowMinute >= ishaMinute) {
+      target.setDate(target.getDate() + 1);
+    } else if (target.getTime() <= now.getTime()) {
+      target.setDate(target.getDate() + 1);
+    }
+
+    return Math.max(0, Math.ceil((target.getTime() - now.getTime()) / 1000));
+  }, [nextPrayer, prayerTimes, nowTick]);
+
+  const remainingLabel = useMemo(() => {
+    if (remainingSeconds === null) return '--';
+    const hours = Math.floor(remainingSeconds / 3600);
+    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+    const seconds = remainingSeconds % 60;
+
+    if (hours > 0) return `${hours}j ${minutes}m ${seconds}d`;
+    return `${minutes}m ${seconds}d`;
+  }, [remainingSeconds]);
+
+  const remainingMinutesRounded = useMemo(() => {
+    if (remainingSeconds === null) return null;
+    return Math.floor(remainingSeconds / 60);
+  }, [remainingSeconds]);
+
   const prayerWindowProgress = useMemo(() => {
-    if (!prayerTimes || !nextPrayer) return null;
+    if (!prayerTimes || !nextPrayer || remainingSeconds === null) return null;
 
     const parseToMinute = (value: string): number | null => {
       const match = value.match(/^(\d{1,2}):(\d{2})/);
@@ -82,9 +126,9 @@ export default function Home() {
     const totalWindow = nextMinute - prevMinute;
     if (totalWindow <= 0) return null;
 
-    const elapsed = totalWindow - nextPrayer.minutesUntil;
+    const elapsed = totalWindow - remainingSeconds / 60;
     return Math.min(100, Math.max(2, (elapsed / totalWindow) * 100));
-  }, [nextPrayer, prayerTimes]);
+  }, [nextPrayer, prayerTimes, remainingSeconds]);
 
   const fetchPrayerData = async (latitude: number, longitude: number, timezone: string) => {
     const cacheKey = prayerCacheKey(latitude, longitude);
@@ -243,14 +287,23 @@ export default function Home() {
     }
   };
 
-  // Update next prayer every 10 s for live countdown
+  // Tick every second for realtime countdown and progress animation
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowTick(Date.now());
+    }, 1_000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Update next prayer every second so transition at prayer boundary feels realtime
   useEffect(() => {
     const interval = setInterval(() => {
       if (prayerTimes && location?.timezone) {
         const next = getNextPrayer(prayerTimes, location.timezone);
         setNextPrayer(next);
       }
-    }, 10_000);
+    }, 1_000);
 
     return () => clearInterval(interval);
   }, [prayerTimes, location]);
@@ -348,9 +401,10 @@ export default function Home() {
                 </div>
                 <div className="text-right">
                   <div className="text-4xl font-semibold tracking-tight text-teal-700 sm:text-5xl">
-                    {nextPrayer ? `${nextPrayer.minutesUntil}` : '--'}
+                    {remainingMinutesRounded !== null ? `${remainingMinutesRounded}` : '--'}
                   </div>
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">menit lagi</p>
+                  <p className="mt-1 text-xs text-slate-500">{remainingLabel}</p>
                 </div>
               </div>
 
