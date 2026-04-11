@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
 const QUICK_AMOUNTS = [10000, 25000, 50000, 100000, 250000];
 const QRIS_STATIC_PAYLOAD = process.env.NEXT_PUBLIC_QRIS_STATIC_PAYLOAD ?? '';
+const LOCAL_QRIS_KEY = 'qrisStaticPayload';
 
 function formatIDR(value: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
@@ -54,7 +55,9 @@ function crc16Ccitt(text: string): string {
 function buildDynamicQris(staticPayload: string, amount: number): string | null {
   if (!staticPayload) return null;
 
-  const chunks = parseTlv(staticPayload).filter((c) => c.tag !== '63');
+  const normalized = staticPayload.replace(/\s+/g, '');
+  const chunks = parseTlv(normalized).filter((c) => c.tag !== '63');
+  if (chunks.length === 0) return null;
   const amountValue = Math.max(1, Math.floor(amount)).toString();
 
   let hasTag01 = false;
@@ -87,10 +90,43 @@ function buildDynamicQris(staticPayload: string, amount: number): string | null 
 export default function SedekahPage() {
   const [selectedAmount, setSelectedAmount] = useState<number>(QUICK_AMOUNTS[1]);
   const [qrisError, setQrisError] = useState(false);
-  const dynamicPayload = buildDynamicQris(QRIS_STATIC_PAYLOAD, selectedAmount);
+  const [payloadInput, setPayloadInput] = useState('');
+  const [payloadSaved, setPayloadSaved] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(LOCAL_QRIS_KEY) ?? '';
+    setPayloadInput(saved || QRIS_STATIC_PAYLOAD);
+  }, []);
+
+  const activePayload = useMemo(() => {
+    const fromLocal = payloadInput.trim();
+    if (fromLocal) return fromLocal;
+    return QRIS_STATIC_PAYLOAD;
+  }, [payloadInput]);
+
+  const dynamicPayload = buildDynamicQris(activePayload, selectedAmount);
   const qrImageUrl = dynamicPayload
     ? `https://api.qrserver.com/v1/create-qr-code/?size=420x420&data=${encodeURIComponent(dynamicPayload)}`
     : '/qris-sedekah.png';
+
+  const savePayload = () => {
+    const normalized = payloadInput.replace(/\s+/g, '').trim();
+    if (!normalized) {
+      localStorage.removeItem(LOCAL_QRIS_KEY);
+      setPayloadInput('');
+      setPayloadSaved(false);
+      return;
+    }
+    localStorage.setItem(LOCAL_QRIS_KEY, normalized);
+    setPayloadInput(normalized);
+    setPayloadSaved(true);
+    setTimeout(() => setPayloadSaved(false), 1800);
+  };
+
+  const clearPayload = () => {
+    localStorage.removeItem(LOCAL_QRIS_KEY);
+    setPayloadInput('');
+  };
 
   const whatsappMessage = encodeURIComponent(
     `Assalamu alaikum, saya ingin konfirmasi sedekah sebesar ${formatIDR(selectedAmount)}.`
@@ -116,6 +152,34 @@ export default function SedekahPage() {
       </div>
 
       <div className="mx-auto max-w-3xl space-y-5">
+        {!QRIS_STATIC_PAYLOAD && (
+          <section className="glass-panel rounded-[1.5rem] p-5 sm:p-6">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Setup QRIS Otomatis</h2>
+            <p className="mt-2 text-sm text-slate-600">Paste payload QRIS statis merchant Anda sekali saja. Data disimpan di browser ini.</p>
+            <textarea
+              value={payloadInput}
+              onChange={(e) => setPayloadInput(e.target.value)}
+              rows={4}
+              placeholder="000201010211..."
+              className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                onClick={savePayload}
+                className="rounded-xl bg-teal-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-teal-700"
+              >
+                {payloadSaved ? 'Tersimpan' : 'Simpan Payload'}
+              </button>
+              <button
+                onClick={clearPayload}
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Hapus Payload
+              </button>
+            </div>
+          </section>
+        )}
+
         <section className="glass-panel rounded-[1.5rem] p-5 sm:p-6">
           <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">1. Pilih Nominal</h2>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -152,7 +216,7 @@ export default function SedekahPage() {
             ) : (
               <div className="mx-auto mt-4 flex h-[320px] w-full max-w-[300px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-xs text-slate-500">
                 QRIS otomatis belum aktif.<br />
-                Isi env `NEXT_PUBLIC_QRIS_STATIC_PAYLOAD`<br />
+                Isi payload di panel setup atas<br />
                 atau sediakan fallback di `public/qris-sedekah.png`.
               </div>
             )}
@@ -200,7 +264,7 @@ export default function SedekahPage() {
         </section>
 
         <div className="glass-subtle rounded-2xl px-4 py-3 text-xs text-slate-400">
-          Info: Untuk QRIS otomatis, set env `NEXT_PUBLIC_QRIS_STATIC_PAYLOAD` dengan payload QRIS statis merchant Anda.
+          Info: Untuk production paling aman tetap set env `NEXT_PUBLIC_QRIS_STATIC_PAYLOAD`. Panel setup dipakai agar cepat aktif saat testing.
         </div>
       </div>
     </div>
