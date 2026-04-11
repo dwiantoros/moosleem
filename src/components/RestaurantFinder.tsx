@@ -51,19 +51,19 @@ export default function RestaurantFinder({ location }: RestaurantsProps) {
 
   return (
     <div className="glass-panel rounded-[1.75rem] p-6">
-      <h2 className="text-lg font-semibold text-slate-900 mb-5">ðŸ½ï¸ Restoran Halal Terdekat</h2>
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-5">Restoran Halal Terdekat</h2>
 
       {restaurants.length === 0 ? (
         <div className="py-12 text-center text-slate-500">
-          <div className="text-4xl mb-3">ðŸ”</div>
+          <svg className="mx-auto mb-3 h-10 w-10 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
           <p className="text-sm">Tidak ada restoran halal ditemukan di sekitar Anda.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {restaurants.map((restaurant) => {
             const isSelected = selectedRestaurant?.id === restaurant.id;
-            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name)}&query_place_id=${encodeURIComponent(restaurant.address)}&ll=${restaurant.latitude},${restaurant.longitude}`;
-            const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${restaurant.latitude},${restaurant.longitude}&destination_place_id=${encodeURIComponent(restaurant.name)}`;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.name)}&ll=${restaurant.latitude},${restaurant.longitude}`;
+            const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${location?.latitude},${location?.longitude}&destination=${restaurant.latitude},${restaurant.longitude}&destination_place_id=${encodeURIComponent(restaurant.name)}`;
 
             return (
               <div
@@ -88,7 +88,7 @@ export default function RestaurantFinder({ location }: RestaurantsProps) {
                   <div className="flex-shrink-0 text-right">
                     {restaurant.rating > 0 && (
                       <div className="flex items-center gap-1 justify-end">
-                        <span className="text-yellow-400 text-xs">â­</span>
+                        <span className="text-yellow-400 text-xs">&#9733;</span>
                         <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{restaurant.rating.toFixed(1)}</span>
                       </div>
                     )}
@@ -123,7 +123,7 @@ export default function RestaurantFinder({ location }: RestaurantsProps) {
                         className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white/80 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 active:scale-95 dark:border-slate-600 dark:bg-slate-700/60 dark:text-slate-200"
                       >
                         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-                        Directions
+                        Petunjuk Arah
                       </a>
                       <a
                         href={mapsUrl}
