@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sedekah Mudah | Muslim Traveler',
-  description: 'Sedekah cepat dan mudah melalui QRIS.',
+  title: 'Sedekah Sementara Nonaktif | Muslim Traveler',
+  description: 'Fitur sedekah sedang dinonaktifkan sementara sampai akun QRIS siap.',
 };
 
 export default function SedekahLayout({ children }: { children: React.ReactNode }) {

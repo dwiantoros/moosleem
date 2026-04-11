@@ -136,19 +136,6 @@ const actions: QuickAction[] = [
     bgColor: 'bg-green-50',
   },
   {
-    id: 'sedekah',
-    label: 'Sedekah',
-    href: '/sedekah',
-    icon: (
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10Z" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M8 12h8" strokeLinecap="round" />
-      </svg>
-    ),
-    color: 'text-emerald-700',
-    bgColor: 'bg-emerald-50',
-  },
-  {
     id: 'asmaul-husna',
     label: 'Asmaul Husna',
     href: '/asmaul-husna',

@@ -18,7 +18,6 @@ const MENU_ITEMS = [
   { href: '/kalender',      label: 'Kalender Hijriah', desc: 'Kalender Islam & hari penting',     emoji: '🗓️' },
   { href: '/panduan-sholat',label: 'Panduan Sholat',   desc: 'Tata cara sholat lengkap',          emoji: '📋' },
   { href: '/puasa',         label: 'Tracker Puasa',    desc: 'Catat dan pantau puasa sunnah',     emoji: '🌙' },
-  { href: '/sedekah',       label: 'Sedekah',          desc: 'Sedekah cepat via QRIS',             emoji: '🫶' },
 ];
 
 interface UserGreetingProps {
