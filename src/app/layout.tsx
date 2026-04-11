@@ -3,6 +3,7 @@ import { Manrope, Noto_Naskh_Arabic } from "next/font/google";
 import "./globals.css";
 import AzanReminderController from "@/components/AzanReminderController";
 import BottomNav from "@/components/BottomNav";
+import RouteSchema from "@/components/RouteSchema";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -50,6 +51,11 @@ export const metadata: Metadata = {
     description: "Your comprehensive Islamic companion app for traveling Muslims",
     images: ["/twitter-image.png"],
   },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    shortcut: ["/favicon.svg"],
+    apple: ["/favicon.svg"],
+  },
 };
 
 export const viewport: Viewport = {
@@ -69,6 +75,7 @@ export default function RootLayout({
     name: "Muslim Traveler",
     description: "Aplikasi komprehensif untuk Muslim yang bepergian dengan fitur jadwal shalat, baca Quran, pengingat azan, dan pencarian halal",
     url: "https://muslim-traveler.com",
+    image: "https://muslim-traveler.com/logo-muslim-traveler.svg",
     applicationCategory: "Travel",
     offers: {
       "@type": "Offer",
@@ -93,7 +100,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Muslim Traveler" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -107,6 +114,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col pb-24">
         <div className="islamic-calligraphy" aria-hidden="true">السلام عليكم</div>
         <div className="app-shell min-h-full flex flex-col pb-24">
+          <RouteSchema />
           <AzanReminderController />
           {children}
           <BottomNav />

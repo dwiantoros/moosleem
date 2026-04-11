@@ -1,0 +1,14 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="170" fill="rgba(255,255,255,0.06)"/>
+  <path d="M286 143C227 143 179 191 179 250C179 309 227 357 286 357C321 357 353 340 373 313C356 322 337 327 317 327C252 327 199 274 199 209C199 188 204 168 214 150C236 146 260 143 286 143Z" fill="#99F6E4"/>
+  <circle cx="334" cy="208" r="14" fill="#CCFBF1"/>
+  <path d="M256 196L274 236L318 240L284 269L294 311L256 288L218 311L228 269L194 240L238 236L256 196Z" fill="#2DD4BF"/>
+  <text x="256" y="402" text-anchor="middle" fill="#E6FFFA" font-family="Arial, sans-serif" font-size="40" font-weight="700">Muslim Traveler</text>
+  <defs>
+    <linearGradient id="bg" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#115E59"/>
+    </linearGradient>
+  </defs>
+</svg>
