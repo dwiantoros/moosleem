@@ -96,7 +96,11 @@ const MORE_ITEMS = [
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z"/></svg>,
   },
   {
-    id: 'halal', label: 'Halal & Masjid', href: '/restaurants',
+    id: 'halal', label: 'Halal Nearby', href: '/restaurants',
+    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>,
+  },
+  {
+    id: 'mosques', label: 'Masjid Terdekat', href: '/mosques',
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M4 21V8l8-5 8 5v13M9 21v-5a3 3 0 0 1 6 0v5"/></svg>,
   },
   {

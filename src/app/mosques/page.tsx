@@ -1,12 +1,12 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import RestaurantFinder from '@/components/RestaurantFinder';
+import MosqueFinder from '@/components/MosqueFinder';
 import { LocationData } from '@/types';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
-export default function RestaurantsPage() {
+export default function MosquesPage() {
   const router = useRouter();
   const [location, setLocation] = useState<LocationData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export default function RestaurantsPage() {
             </button>
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Terdekat</p>
-              <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Halal Nearby</h1>
+              <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Masjid Terdekat</h1>
             </div>
           </div>
           <PageHeaderActions />
@@ -78,23 +78,23 @@ export default function RestaurantsPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
             </span>
-            GPS aktif Â· {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+            GPS aktif · {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
           </div>
         )}
 
         {loading ? (
           <div className="glass-panel rounded-[1.75rem] p-6 space-y-4">
             <div className="h-6 bg-slate-200/80 rounded-lg w-1/3 animate-pulse" />
-            {[...Array(3)].map((_, i) => (
+            {[...Array(4)].map((_, i) => (
               <div key={i} className="h-20 bg-slate-100/80 rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : (
-          <RestaurantFinder location={location} />
+          <MosqueFinder location={location} />
         )}
 
         <footer className="mt-10 border-t border-slate-200 dark:border-slate-700 pt-6 text-center text-sm text-slate-500">
-          <p>Data lokasi dari OpenStreetMap Â· Selalu verifikasi status halal secara langsung</p>
+          <p>Data lokasi dari OpenStreetMap · Selalu verifikasi jadwal sholat secara langsung</p>
         </footer>
       </main>
     </div>
