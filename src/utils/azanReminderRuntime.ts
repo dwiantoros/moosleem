@@ -262,6 +262,21 @@ export async function playAzanSound(type: 'azan' | 'before' | 'test' = 'azan', p
   playSynthChime(isShort);
 }
 
+export function stopAzanSound(): void {
+  const stopAudio = (audio: HTMLAudioElement | null) => {
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+  };
+
+  stopAudio(azanAudioGeneral);
+  stopAudio(azanAudioSubuh);
+
+  if (audioCtxRef && audioCtxRef.state === 'running') {
+    void audioCtxRef.suspend();
+  }
+}
+
 export async function ensureAzanServiceWorker(): Promise<void> {
   if (!('serviceWorker' in navigator)) return;
 

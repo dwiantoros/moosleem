@@ -13,6 +13,7 @@ import {
   gregorianToHijri,
   parsePrayerMs,
   playAzanSound,
+  stopAzanSound,
   sendNotification,
   ensureAzanServiceWorker,
 } from '@/utils/azanReminderRuntime';
@@ -305,6 +306,16 @@ export default function AzanReminderController() {
 
   const popupTitle = useMemo(() => popup?.title ?? '', [popup]);
 
+  const closePopup = () => {
+    clearPendingAzanWebsitePopup();
+    setPopup(null);
+  };
+
+  const stopAndClosePopup = () => {
+    stopAzanSound();
+    closePopup();
+  };
+
   if (!popup) {
     return null;
   }
@@ -324,12 +335,23 @@ export default function AzanReminderController() {
             <h2 className="mt-1 text-sm font-semibold text-slate-900">{popupTitle}</h2>
             <p className="mt-1 text-sm text-slate-600">{popup.body}</p>
             <p className="mt-2 text-[11px] font-medium text-slate-500">Masuk pada {popup.timeLabel}</p>
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                onClick={closePopup}
+                className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
+              >
+                Tutup
+              </button>
+              <button
+                onClick={stopAndClosePopup}
+                className="rounded-lg bg-rose-600 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-700"
+              >
+                Stop Adzan
+              </button>
+            </div>
           </div>
           <button
-            onClick={() => {
-              clearPendingAzanWebsitePopup();
-              setPopup(null);
-            }}
+            onClick={closePopup}
             className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
             aria-label="Tutup popup adzan"
           >
