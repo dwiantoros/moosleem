@@ -26,10 +26,14 @@ export async function GET(request: NextRequest) {
           longitude: parseFloat(longitude),
           method: parseInt(method),
         },
+        timeout: 8000,
       }
     );
 
-    return NextResponse.json(response.data.data.timings);
+    const res = NextResponse.json(response.data.data.timings);
+    // Cache for the rest of the day (~6 h), revalidate every hour
+    res.headers.set('Cache-Control', 's-maxage=3600, stale-while-revalidate=21600');
+    return res;
   } catch (error) {
     console.error('Prayer times API error:', error);
     return NextResponse.json(

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import PageHeaderActions from '@/components/PageHeaderActions';
 
 const prayers = [
   {
@@ -34,7 +35,10 @@ export default function DoaPage() {
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Doa</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Doa Harian Pilihan</h1>
           </div>
-          <Link href="/" className="glass-subtle rounded-full px-4 py-2 text-sm font-medium text-slate-700">Kembali</Link>
+          <div className="flex items-center gap-3">
+            <PageHeaderActions />
+            <Link href="/" className="glass-subtle rounded-full px-4 py-2 text-sm font-medium text-slate-700">Kembali</Link>
+          </div>
         </div>
 
         <section className="space-y-4">

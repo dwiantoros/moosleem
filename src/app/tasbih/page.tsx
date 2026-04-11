@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import PageHeaderActions from '@/components/PageHeaderActions';
 
 const DHIKR_LIST = [
   {
@@ -140,7 +141,8 @@ export default function TasbihPage() {
   return (
     <div className="min-h-screen px-4 py-8 sm:px-6">
       {/* Header */}
-      <div className="mx-auto mb-8 flex max-w-lg items-center gap-4">
+      <div className="mx-auto mb-8 flex max-w-lg items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
         <Link
           href="/"
           className="glass-subtle flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl text-slate-600 transition hover:bg-white/60"
@@ -153,6 +155,8 @@ export default function TasbihPage() {
           <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Ibadah</p>
           <h1 className="text-2xl font-semibold text-slate-900">Tasbih Digital</h1>
         </div>
+        </div>
+        <PageHeaderActions />
       </div>
 
       <div className="mx-auto max-w-lg space-y-5">

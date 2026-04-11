@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import RestaurantFinder from '@/components/RestaurantFinder';
 import { LocationData } from '@/types';
+import PageHeaderActions from '@/components/PageHeaderActions';
 
 export default function RestaurantsPage() {
   const router = useRouter();
@@ -45,7 +46,8 @@ export default function RestaurantsPage() {
     <div className="min-h-screen pb-8">
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
             className="h-10 w-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition"
@@ -56,6 +58,8 @@ export default function RestaurantsPage() {
             <p className="text-sm text-slate-600">Muslim Traveler</p>
             <h1 className="text-2xl font-semibold text-slate-900">Halal Nearby</h1>
           </div>
+          </div>
+          <PageHeaderActions />
         </div>
 
         {/* Restaurant Finder */}

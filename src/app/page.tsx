@@ -25,19 +25,36 @@ export default function Home() {
   const lastPrayerNameRef = useRef<string | null>(null);
 
   const fetchPrayerData = async (latitude: number, longitude: number, timezone: string) => {
-    const response = await axios.get('/api/prayer-times', {
-      params: {
-        latitude,
-        longitude,
-      },
-    });
+    const today = new Date().toDateString();
+    const cacheKey = `prayer-${latitude.toFixed(3)}-${longitude.toFixed(3)}-${today}`;
+    const STALE_MS = 30 * 60 * 1000; // refresh background after 30 min
 
-    setPrayerTimes(response.data);
+    const doFetch = async () => {
+      const response = await axios.get('/api/prayer-times', {
+        params: { latitude, longitude },
+        timeout: 8000,
+      });
+      if (response.data) {
+        const entry = { data: response.data, ts: Date.now() };
+        try { localStorage.setItem(cacheKey, JSON.stringify(entry)); } catch { /* ignore */ }
+        setPrayerTimes(response.data);
+        setNextPrayer(getNextPrayer(response.data, timezone));
+      }
+    };
 
-    if (response.data) {
-      const next = getNextPrayer(response.data, timezone);
-      setNextPrayer(next);
-    }
+    try {
+      const raw = localStorage.getItem(cacheKey);
+      if (raw) {
+        const { data, ts } = JSON.parse(raw);
+        setPrayerTimes(data);
+        setNextPrayer(getNextPrayer(data, timezone));
+        // Background refresh if stale
+        if (Date.now() - ts > STALE_MS) doFetch().catch(() => {});
+        return;
+      }
+    } catch { /* ignore */ }
+
+    await doFetch();
   };
 
   // Get user location and fetch prayer times

@@ -29,6 +29,7 @@ export interface HalalRestaurant {
   imageUrl?: string;
   phone?: string;
   website?: string;
+  halalLikely?: boolean;
 }
 
 export interface QuranChapter {

@@ -32,11 +32,19 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
   const [userName, setUserName] = useState('Muslim Traveler');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('userName');
     if (saved) setUserName(saved);
-    setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    // Read the actual class applied by the inline theme script in <head>
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+    // Persist light as default if nothing saved yet (guarantees refresh works)
+    if (!localStorage.getItem('theme')) {
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+    setMounted(true);
   }, []);
 
   // Close menu on outside click
@@ -76,9 +84,9 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
         </div>
         <div className="flex items-center gap-2">
           {/* Dark mode toggle */}
-          <button onClick={toggleTheme} className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60" aria-label="Toggle dark mode">
+          <button onClick={toggleTheme} className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60" aria-label="Toggle dark mode" suppressHydrationWarning>
             <HeaderIcon>
-              {theme === 'dark' ? (
+              {mounted && theme === 'dark' ? (
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                   <circle cx="12" cy="12" r="4.5" />
                   <path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77" strokeLinecap="round" />
@@ -117,54 +125,8 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
             )}
           </button>
 
-          {/* Menu button */}
-          <div className="relative" data-menu>
-            <button
-              onClick={() => setMenuOpen((o) => !o)}
-              className={`glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 ${menuOpen ? 'bg-white/60' : ''}`}
-              aria-label="Menu fitur"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <line x1="4" y1="7" x2="20" y2="7" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="17" x2="20" y2="17" />
-              </svg>
-            </button>
-
-            {/* Dropdown menu — always mounted, animated in/out */}
-            <div
-              data-menu
-              className="glass-panel absolute right-0 top-12 z-50 w-72 max-w-[calc(100vw-2rem)] rounded-[1.5rem] p-3 shadow-xl"
-              style={{
-                maxHeight: menuOpen ? '80vh' : '0px',
-                overflowY: menuOpen ? 'auto' : 'hidden',
-                overflowX: 'hidden',
-                opacity: menuOpen ? 1 : 0,
-                transform: menuOpen ? 'translateY(0) scale(1)' : 'translateY(-8px) scale(0.97)',
-                pointerEvents: menuOpen ? 'auto' : 'none',
-                transformOrigin: 'top right',
-                transition: 'opacity 0.22s cubic-bezier(0.16,1,0.3,1), transform 0.22s cubic-bezier(0.16,1,0.3,1), max-height 0.28s cubic-bezier(0.16,1,0.3,1)',
-              }}
-            >
-                <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Fitur</p>
-                <div className="space-y-0.5">
-                  {MENU_ITEMS.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-white/60"
-                    >
-                      <span className="text-xl leading-none">{item.emoji}</span>
-                      <div>
-                        <p className="text-sm font-medium text-slate-900">{item.label}</p>
-                        <p className="text-xs text-slate-500">{item.desc}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-          </div>
+          {/* Menu button — hidden (BottomNav handles navigation) */}
+          {/* Keeping state but rendering nothing to avoid breaking existing close-on-outside-click logic */}
         </div>
       </div>
     </>

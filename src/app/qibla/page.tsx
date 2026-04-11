@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { LocationData } from '@/types';
 import { calculateQiblaBearing } from '@/utils/prayerTimes';
+import PageHeaderActions from '@/components/PageHeaderActions';
 
 type PermState = 'unsupported' | 'prompt' | 'granted' | 'denied';
 
@@ -14,11 +15,14 @@ type CompassEvent = DeviceOrientationEvent & {
 
 type IOSOrientation = { requestPermission?: () => Promise<'granted' | 'denied'> };
 
-// Low-pass filter — handles 0°/360° wraparound for smooth shortest-path rotation
-function lowPass(prev: number, next: number, alpha = 0.12): number {
+// Adaptive low-pass filter — faster response on large jumps, smoother for small ones
+function lowPass(prev: number, next: number): number {
   let diff = next - prev;
   if (diff > 180) diff -= 360;
   if (diff < -180) diff += 360;
+  // Use higher alpha (faster) for big jumps, lower alpha (smoother) for tiny adjustments
+  const absDiff = Math.abs(diff);
+  const alpha = absDiff > 30 ? 0.35 : absDiff > 10 ? 0.18 : 0.08;
   return prev + alpha * diff;
 }
 
@@ -47,10 +51,11 @@ export default function QiblaPage() {
         smoothedHeadingRef.current = smoothed;
         const qibla = qiblaBearingRef.current;
         if (qibla !== null && needleRef.current) {
-          needleRef.current.style.transform = `rotate(${qibla - smoothed}deg)`;
+          const angle = qibla - smoothed;
+          needleRef.current.style.transform = `rotate(${angle}deg)`;
         }
         if (headingDisplayRef.current) {
-          headingDisplayRef.current.textContent = `${smoothed.toFixed(1)}°`;
+          headingDisplayRef.current.textContent = `${Math.round(smoothed)}°`;
         }
       }
       rafRef.current = requestAnimationFrame(tick);
@@ -60,16 +65,33 @@ export default function QiblaPage() {
   }, []);
 
   const attachOrientation = useCallback(() => {
+    let hasAbsolute = false; // once absolute events arrive, ignore relative ones
+    const accuracyTimerRef = { last: 0 }; // throttle accuracy React state update
+
     const handler = (e: Event) => {
       const ev = e as CompassEvent;
+      const isAbsoluteEvent = e.type === 'deviceorientationabsolute';
+
+      // Ignore relative events once we've received an absolute one
+      if (!isAbsoluteEvent && hasAbsolute) return;
+      if (isAbsoluteEvent) hasAbsolute = true;
+
       let hdg: number | null = null;
 
       if (typeof ev.webkitCompassHeading === 'number' && !isNaN(ev.webkitCompassHeading)) {
+        // iOS — webkitCompassHeading is already magnetic north heading
         hdg = ev.webkitCompassHeading;
-        if (typeof ev.webkitCompassAccuracy === 'number') setAccuracy(ev.webkitCompassAccuracy);
-      } else if ((e as DeviceOrientationEvent & { absolute?: boolean }).absolute && typeof ev.alpha === 'number' && ev.alpha !== null) {
+        // Throttle accuracy updates to every 2s to avoid excessive re-renders
+        const now = Date.now();
+        if (typeof ev.webkitCompassAccuracy === 'number' && now - accuracyTimerRef.last > 2000) {
+          accuracyTimerRef.last = now;
+          setAccuracy(ev.webkitCompassAccuracy);
+        }
+      } else if (isAbsoluteEvent && typeof ev.alpha === 'number' && ev.alpha !== null) {
+        // Android absolute orientation — alpha is CCW from true north relative to device
         hdg = (360 - ev.alpha + 360) % 360;
       } else if (typeof ev.alpha === 'number' && ev.alpha !== null) {
+        // Relative fallback
         hdg = (360 - ev.alpha + 360) % 360;
       }
 
@@ -132,7 +154,8 @@ export default function QiblaPage() {
     <div className="relative min-h-screen pb-32">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.92),transparent_34%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_24%)]" />
       <main className="mx-auto max-w-lg px-4 py-8 sm:px-6">
-        <div className="mb-8 flex items-center gap-4">
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
           <Link href="/" className="glass-subtle flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl text-slate-600 transition hover:bg-white/60">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </Link>
@@ -140,6 +163,8 @@ export default function QiblaPage() {
             <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Navigasi</p>
             <h1 className="text-2xl font-semibold text-slate-900">Arah Qibla</h1>
           </div>
+          </div>
+          <PageHeaderActions />
         </div>
 
         {permState === 'prompt' && (
@@ -196,7 +221,7 @@ export default function QiblaPage() {
               <div
                 ref={needleRef}
                 className="pointer-events-none absolute inset-0 flex items-center justify-center"
-                style={{ transform: `rotate(${qiblaBearing ?? 0}deg)` }}
+                style={{ transform: `rotate(${qiblaBearing ?? 0}deg)`, willChange: 'transform', transition: 'transform 80ms linear' }}
               >
                 <div className="absolute top-5 flex flex-col items-center gap-0">
                   {/* Arrowhead */}

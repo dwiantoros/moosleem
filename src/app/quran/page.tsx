@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import QuranReader from '@/components/QuranReader';
+import PageHeaderActions from '@/components/PageHeaderActions';
 
 export default async function QuranPage({
   searchParams,
@@ -15,7 +16,8 @@ export default async function QuranPage({
     <div className="min-h-screen pb-8">
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
           <Link href="/" className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60">
             <span>←</span>
           </Link>
@@ -23,6 +25,8 @@ export default async function QuranPage({
             <p className="text-sm text-slate-600">Muslim Traveler</p>
             <h1 className="text-2xl font-semibold text-slate-900">Al-Quran</h1>
           </div>
+          </div>
+          <PageHeaderActions />
         </div>
 
         {/* Quran Reader */}
