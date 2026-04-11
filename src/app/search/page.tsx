@@ -69,6 +69,13 @@ const featureItems: SearchItem[] = [
     category: 'Fitur',
   },
   {
+    id: 'feature-artikel',
+    title: 'Artikel Islami',
+    description: 'Baca artikel, panduan, dan insight terbaru dari Muslim Traveler.',
+    href: '/artikel',
+    category: 'Fitur',
+  },
+  {
     id: 'feature-notes',
     title: 'Catatan Pribadi',
     description: 'Simpan checklist ibadah dan catatan perjalanan Muslim.',

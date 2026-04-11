@@ -1,6 +1,17 @@
 import { MetadataRoute } from 'next';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+import { listArticles } from '@/server/cms/repository';
+import { type CmsArticle } from '@/server/cms/types';
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  let articles: CmsArticle[] = [];
+  try {
+    articles = await listArticles();
+  } catch (error) {
+    // Database not available during build - that's okay
+    console.log('Sitemap: Database not available, skipping articles');
+  }
+
   return [
     {
       url: 'https://muslim-traveler.com',
@@ -63,6 +74,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.75,
     },
     {
+      url: 'https://muslim-traveler.com/artikel',
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.78,
+    },
+    {
       url: 'https://muslim-traveler.com/restoran-halal',
       lastModified: new Date(),
       changeFrequency: 'daily',
@@ -104,5 +121,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.74,
     },
+    ...articles.map((article) => ({
+      url: `https://muslim-traveler.com/artikel/${article.slug}`,
+      lastModified: new Date(article.updatedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.76,
+    })),
   ];
 }

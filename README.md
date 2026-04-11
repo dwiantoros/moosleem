@@ -61,6 +61,64 @@ npm run dev
 
 ## 🔧 Configuration
 
+### CMS Artikel + SEO Admin
+
+Project ini sekarang punya CMS artikel sederhana di `/admin/login` dengan fitur:
+
+- Login admin berbasis env
+- CRUD artikel
+- Visual editor ala WordPress + mode HTML
+- Upload gambar langsung ke database CMS
+- SEO per artikel: slug, SEO title, SEO description, keywords, canonical URL, OG image
+- SEO default untuk halaman indeks artikel
+- Halaman publik artikel di `/artikel` dan `/artikel/[slug]`
+
+#### Setup cepat local
+
+1. Copy env dari `.env.example` ke `.env.local`
+2. Isi minimal:
+
+```bash
+CMS_ADMIN_USERNAME=admin
+CMS_ADMIN_PASSWORD=password-aman
+CMS_SESSION_SECRET=random-string-panjang
+```
+
+3. Jalankan app seperti biasa:
+
+```bash
+npm run dev
+```
+
+Saat development, CMS otomatis memakai database lokal `local-cms.db`.
+
+#### Setup database gratis untuk production: Turso
+
+Turso cocok untuk Next.js dan punya free tier. Langkah setup:
+
+```bash
+npm install -g @turso/cli
+turso auth login
+turso db create muslim-traveler-cms
+turso db show muslim-traveler-cms --url
+turso db tokens create muslim-traveler-cms
+```
+
+Lalu isi env di Vercel:
+
+```bash
+CMS_ADMIN_USERNAME=admin
+CMS_ADMIN_PASSWORD=password-aman
+CMS_SESSION_SECRET=random-string-panjang
+TURSO_DATABASE_URL=libsql://...
+TURSO_AUTH_TOKEN=...
+```
+
+Catatan:
+
+- Kalau `TURSO_DATABASE_URL` tidak diisi di production, halaman artikel tetap hidup tapi CMS tidak bisa menyimpan data baru.
+- `src/app/robots.ts` saat ini masih `Disallow: /`, jadi metadata SEO artikel sudah siap, tapi bot mesin pencari tetap diblok sampai aturan robots dibuka lagi.
+
 ### Server-side Web Push (Adzan when website is closed)
 
 This project now supports server-side Web Push delivery via:

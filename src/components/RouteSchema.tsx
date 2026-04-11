@@ -108,6 +108,14 @@ const ROUTE_META: Record<string, RouteMeta> = {
       { name: 'Restoran Halal', path: '/restoran-halal' },
     ],
   },
+  '/artikel': {
+    title: 'Artikel Muslim Traveler',
+    description: 'Artikel Islami, panduan ibadah, dan insight Muslim Traveler yang siap dioptimalkan untuk SEO.',
+    breadcrumbs: [
+      { name: 'Home', path: '/' },
+      { name: 'Artikel', path: '/artikel' },
+    ],
+  },
   '/search': {
     title: 'Pencarian',
     description: 'Cari fitur, konten Quran, dan halaman penting di Muslim Traveler.',

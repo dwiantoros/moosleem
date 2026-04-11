@@ -258,6 +258,112 @@ html.dark .text-teal-800 {
   color: #5eead4 !important;
 }
 
+.admin-editor-shell .ProseMirror {
+  min-height: 24rem;
+  color: #0f172a;
+}
+
+.admin-editor-shell .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.admin-editor-shell .ProseMirror h2 {
+  margin-top: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.admin-editor-shell .ProseMirror h3 {
+  margin-top: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.admin-editor-shell .ProseMirror p {
+  margin-top: 0.9rem;
+  line-height: 1.9;
+}
+
+.admin-editor-shell .ProseMirror ul,
+.admin-editor-shell .ProseMirror ol {
+  margin-top: 1rem;
+  padding-left: 1.4rem;
+}
+
+.admin-editor-shell .ProseMirror blockquote {
+  margin-top: 1rem;
+  border-left: 4px solid #14b8a6;
+  background: rgba(20, 184, 166, 0.08);
+  padding: 0.85rem 1rem;
+  border-radius: 0 1rem 1rem 0;
+}
+
+.admin-editor-shell .ProseMirror pre {
+  margin-top: 1rem;
+  overflow-x: auto;
+  border-radius: 1rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1rem;
+}
+
+.admin-editor-shell .ProseMirror img {
+  margin-top: 1.25rem;
+  border-radius: 1rem;
+}
+
+.article-content img {
+  margin-top: 1.5rem;
+  width: 100%;
+  border-radius: 1.25rem;
+}
+
+.article-content h2 {
+  margin-top: 2rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #020617;
+}
+
+.article-content h3 {
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #020617;
+}
+
+.article-content p {
+  margin-top: 1rem;
+}
+
+.article-content ul,
+.article-content ol {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+}
+
+.article-content blockquote {
+  margin-top: 1.25rem;
+  border-left: 4px solid #14b8a6;
+  background: rgba(20, 184, 166, 0.08);
+  padding: 1rem 1.1rem;
+  border-radius: 0 1rem 1rem 0;
+}
+
+.article-content pre {
+  margin-top: 1.25rem;
+  overflow-x: auto;
+  border-radius: 1rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1rem;
+}
+
 html.dark .border-slate-300,
 html.dark .border-slate-200,
 html.dark .border-slate-100 {
