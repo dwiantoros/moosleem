@@ -4,39 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
-type PaymentMethod = {
-  id: string;
-  title: string;
-  accountName: string;
-  accountNumber: string;
-  note: string;
-};
-
 const QUICK_AMOUNTS = [10000, 25000, 50000, 100000, 250000];
-
-const PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: 'bsi',
-    title: 'Transfer Bank Syariah Indonesia (BSI)',
-    accountName: 'Yayasan Muslim Traveler',
-    accountNumber: '7123456789',
-    note: 'Metode paling aman untuk nominal besar. Gunakan berita: SEDEKAH',
-  },
-  {
-    id: 'dana',
-    title: 'DANA',
-    accountName: 'Muslim Traveler',
-    accountNumber: '081234567890',
-    note: 'Praktis untuk sedekah cepat dari HP.',
-  },
-  {
-    id: 'gopay',
-    title: 'GoPay',
-    accountName: 'Muslim Traveler',
-    accountNumber: '081298765432',
-    note: 'Bisa dipakai langsung dari aplikasi Gojek.',
-  },
-];
 
 function formatIDR(value: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
@@ -44,17 +12,9 @@ function formatIDR(value: number): string {
 
 export default function SedekahPage() {
   const [selectedAmount, setSelectedAmount] = useState<number>(QUICK_AMOUNTS[1]);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [qrisError, setQrisError] = useState(false);
 
-  const handleCopy = async (id: string, text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      // ignore clipboard errors
-    }
-  };
+  const qrisStaticPath = '/qris-sedekah.png';
 
   const whatsappMessage = encodeURIComponent(
     `Assalamu alaikum, saya ingin konfirmasi sedekah sebesar ${formatIDR(selectedAmount)}.`
@@ -73,7 +33,7 @@ export default function SedekahPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Kebaikan</p>
             <h1 className="text-2xl font-semibold text-slate-900">Sedekah Mudah</h1>
-            <p className="mt-1 text-sm text-slate-500">Pilih nominal dan bayar dengan cara paling cepat.</p>
+            <p className="mt-1 text-sm text-slate-500">Pilih nominal lalu scan QRIS untuk bayar cepat.</p>
           </div>
         </div>
         <PageHeaderActions />
@@ -101,24 +61,43 @@ export default function SedekahPage() {
         </section>
 
         <section className="glass-panel rounded-[1.5rem] p-5 sm:p-6">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">2. Pilih Metode Pembayaran</h2>
-          <div className="mt-4 space-y-3">
-            {PAYMENT_METHODS.map((method) => (
-              <article key={method.id} className="rounded-2xl border border-slate-200 bg-white/70 p-4">
-                <p className="text-sm font-semibold text-slate-900">{method.title}</p>
-                <p className="mt-1 text-xs text-slate-500">a.n {method.accountName}</p>
-                <div className="mt-3 flex items-center justify-between gap-2 rounded-xl bg-slate-100 px-3 py-2">
-                  <p className="text-sm font-semibold tracking-wide text-slate-800">{method.accountNumber}</p>
-                  <button
-                    onClick={() => handleCopy(method.id, method.accountNumber)}
-                    className="rounded-lg bg-teal-600 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-700"
-                  >
-                    {copiedId === method.id ? 'Tersalin' : 'Salin'}
-                  </button>
-                </div>
-                <p className="mt-2 text-xs text-slate-500">{method.note}</p>
-              </article>
-            ))}
+          <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">2. Scan QRIS</h2>
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-white/70 p-4">
+            <p className="text-sm font-semibold text-slate-900">Pembayaran QRIS</p>
+            <p className="mt-1 text-xs text-slate-500">Scan menggunakan aplikasi m-banking atau e-wallet apa saja yang mendukung QRIS.</p>
+
+            {!qrisError ? (
+              <img
+                src={qrisStaticPath}
+                alt="QRIS Sedekah"
+                className="mx-auto mt-4 w-full max-w-[300px] rounded-2xl border border-slate-200 bg-white p-3"
+                onError={() => setQrisError(true)}
+              />
+            ) : (
+              <div className="mx-auto mt-4 flex h-[320px] w-full max-w-[300px] items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-xs text-slate-500">
+                File QRIS belum tersedia.<br />
+                Upload gambar QRIS Anda ke<br />
+                `public/qris-sedekah.png`
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href={qrisStaticPath}
+                download
+                className="rounded-xl bg-teal-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-teal-700"
+              >
+                Unduh QRIS
+              </a>
+              <a
+                href={qrisStaticPath}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Buka QRIS
+              </a>
+            </div>
           </div>
         </section>
 
@@ -140,7 +119,7 @@ export default function SedekahPage() {
         </section>
 
         <div className="glass-subtle rounded-2xl px-4 py-3 text-xs text-slate-400">
-          Info: Nomor rekening/e-wallet di halaman ini bisa Anda ubah sesuai akun lembaga Anda.
+          Info: Gunakan QRIS statis agar paling mudah untuk user. Nominal bisa disesuaikan dari aplikasi pembayaran.
         </div>
       </div>
     </div>

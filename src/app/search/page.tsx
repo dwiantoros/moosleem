@@ -78,7 +78,7 @@ const featureItems: SearchItem[] = [
   {
     id: 'feature-sedekah',
     title: 'Sedekah',
-    description: 'Bayar sedekah dengan mudah via transfer bank atau e-wallet.',
+    description: 'Bayar sedekah dengan mudah via scan QRIS.',
     href: '/sedekah',
     category: 'Fitur',
   },

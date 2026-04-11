@@ -118,7 +118,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   },
   '/sedekah': {
     title: 'Sedekah Mudah',
-    description: 'Halaman sedekah mudah dengan metode transfer bank dan e-wallet.',
+    description: 'Halaman sedekah mudah dengan metode pembayaran QRIS.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
       { name: 'Sedekah', path: '/sedekah' },
@@ -302,7 +302,7 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
     '/sedekah': {
       name: 'Sedekah Mudah',
       category: 'FinanceApplication',
-      description: 'Panduan dan metode pembayaran sedekah secara cepat.',
+      description: 'Panduan dan metode pembayaran sedekah dengan scan QRIS.',
     },
   };
 
