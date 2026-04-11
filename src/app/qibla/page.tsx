@@ -152,7 +152,7 @@ export default function QiblaPage() {
 
   return (
     <div className="relative min-h-screen pb-32">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.92),transparent_34%),radial-gradient(circle_at_top_right,rgba(56,189,248,0.16),transparent_24%)]" />
+      <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
       <main className="mx-auto max-w-lg px-4 py-8 sm:px-6">
         <div className="mb-8 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">

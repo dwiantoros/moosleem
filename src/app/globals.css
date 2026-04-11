@@ -161,3 +161,16 @@ html.dark .bg-amber-50\/60 {
 .font-arabic {
   font-family: var(--font-noto-arabic), serif;
 }
+
+/* ── Per-page top overlay — dark-mode aware ─────────────────────────────── */
+.page-bg {
+  background-image:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.55), transparent 34%),
+    radial-gradient(circle at top right, rgba(45, 212, 191, 0.14), transparent 24%);
+}
+
+html.dark .page-bg {
+  background-image:
+    radial-gradient(circle at top left, rgba(30, 41, 59, 0.28), transparent 34%),
+    radial-gradient(circle at top right, rgba(45, 212, 191, 0.08), transparent 24%);
+}

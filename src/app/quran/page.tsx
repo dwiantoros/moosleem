@@ -13,7 +13,8 @@ export default async function QuranPage({
   const initialSurah = Number.isFinite(surahParam) && surahParam > 0 ? surahParam : 1;
 
   return (
-    <div className="min-h-screen pb-8">
+    <div className="relative min-h-screen pb-8">
+      <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between gap-3">

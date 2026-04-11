@@ -107,7 +107,8 @@ export default function ZakatPage() {
   const isPertanian = type === 'pertanian';
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6">
+    <div className="relative min-h-screen px-4 py-8 sm:px-6">
+      <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
       {/* Header */}
       <div className="mx-auto mb-8 flex max-w-lg items-center justify-between gap-4">
         <div className="flex items-center gap-4">

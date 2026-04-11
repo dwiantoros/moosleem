@@ -91,7 +91,8 @@ export default function PuasaPage() {
   const selectedEntry = getEntry(selectedDate, selectedType);
 
   return (
-    <div className="min-h-screen px-4 py-8 sm:px-6">
+    <div className="relative min-h-screen px-4 py-8 sm:px-6">
+      <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
       <div className="mx-auto mb-8 flex max-w-lg items-center justify-between gap-4">
         <div className="flex items-center gap-4">
         <Link href="/" className="glass-subtle flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl text-slate-600 transition hover:bg-white/60">

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
+import NotificationBell from '@/components/NotificationBell';
 
 const MENU_ITEMS = [
   { href: '/schedule',      label: 'Jadwal Sholat',    desc: 'Waktu sholat sesuai lokasi',        emoji: '🕌' },
@@ -109,21 +110,8 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
             </HeaderIcon>
           </Link>
 
-          {/* Bell — wired to reminder toggle */}
-          <button
-            onClick={onReminderToggle}
-            className={`glass-subtle relative flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-white/60 ${reminderEnabled ? 'text-teal-600' : 'text-slate-700'}`}
-            aria-label={reminderEnabled ? 'Matikan adzan reminder' : 'Aktifkan adzan reminder'}
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7 2.5 7h-17S6 15 6 9Z" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M10 19a2 2 0 0 0 4 0" strokeLinecap="round" />
-            </svg>
-            {/* Active indicator dot */}
-            {reminderEnabled && (
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-teal-500 ring-2 ring-white" />
-            )}
-          </button>
+          {/* Bell — notification panel */}
+          <NotificationBell />
 
           {/* Menu button — hidden (BottomNav handles navigation) */}
           {/* Keeping state but rendering nothing to avoid breaking existing close-on-outside-click logic */}
