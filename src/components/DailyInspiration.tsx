@@ -53,7 +53,7 @@ export default function DailyInspiration() {
         </div>
         <div className="flex-1">
           <h3 className="text-sm uppercase tracking-[0.24em] text-slate-500 font-semibold">Inspirasi Harian</h3>
-          <p className="mt-4 text-right text-lg font-semibold leading-9 text-slate-900 font-arabic">{inspiration.arabic}</p>
+          <p className="mt-4 text-right font-arabic text-[1.75rem] leading-[2.2] text-slate-900 dark:text-slate-100" dir="rtl">{inspiration.arabic}</p>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">{inspiration.translation}</p>
           <p className="mt-3 text-xs text-slate-500">{inspiration.reference}</p>
         </div>

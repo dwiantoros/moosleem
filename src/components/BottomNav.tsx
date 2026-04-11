@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 const PRIMARY = [
   {
     id: 'home',
-    label: 'Home',
+    label: 'Beranda',
     href: '/',
     icon: (
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -66,11 +66,11 @@ const PRIMARY = [
 // All other items shown in the "More" sheet
 const MORE_ITEMS = [
   {
-    id: 'doa', label: 'Doa Harian', href: '/doa',
+    id: 'doa', label: 'Doa', href: '/doa',
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11c.5-2 2-3.5 3-3.5s2.5 1.5 3 3.5"/><path d="M6 14c0 3.3 2.7 6 6 6s6-2.7 6-6V9a6 6 0 0 0-12 0v5Z"/><path d="M6 14H4a2 2 0 0 1 0-4h2"/><path d="M18 14h2a2 2 0 0 0 0-4h-2"/></svg>,
   },
   {
-    id: 'tracker', label: 'Tracker Sholat', href: '/tracker',
+    id: 'tracker', label: 'Pelacak Sholat', href: '/tracker',
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>,
   },
   {
@@ -86,7 +86,7 @@ const MORE_ITEMS = [
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>,
   },
   {
-    id: 'panduan', label: 'Panduan Sholat', href: '/panduan-sholat',
+    id: 'panduan', label: 'Panduan Solat', href: '/panduan-sholat',
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>,
   },
   {
@@ -106,7 +106,7 @@ const MORE_ITEMS = [
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/><path d="m13 17 3-3-1.5-1.5L13 14l-2-2"/></svg>,
   },
   {
-    id: 'search', label: 'Cari Surah', href: '/search',
+    id: 'search', label: 'Pencarian', href: '/search',
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>,
   },
   {
