@@ -5,11 +5,12 @@ import MosqueFinder from '@/components/MosqueFinder';
 import { LocationData } from '@/types';
 import PageHeaderActions from '@/components/PageHeaderActions';
 import Link from 'next/link';
-import { getLastLocation, setLastLocation } from '@/utils/clientCache';
+import { getCached, getLastLocation, safeSet, setLastLocation } from '@/utils/clientCache';
 
 export default function MosquesPage() {
   const [location, setLocation] = React.useState<LocationData | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [districtLabel, setDistrictLabel] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -45,6 +46,37 @@ export default function MosquesPage() {
     );
   }, []);
 
+  React.useEffect(() => {
+    if (!location?.latitude || !location?.longitude) return;
+
+    const key = `district-${location.latitude.toFixed(3)}-${location.longitude.toFixed(3)}`;
+    const TTL_MS = 24 * 60 * 60 * 1000;
+
+    const hydrate = async () => {
+      const cached = getCached<{ district: string | null }>(key, TTL_MS);
+      if (cached) {
+        setDistrictLabel(cached.data.district ?? null);
+        if (!cached.isStale) return;
+      }
+
+      try {
+        const res = await fetch(
+          `/api/location-context?latitude=${location.latitude}&longitude=${location.longitude}`,
+          { cache: 'no-store' }
+        );
+        if (!res.ok) return;
+        const json = (await res.json()) as { district?: string | null };
+        const district = json.district ?? null;
+        setDistrictLabel(district);
+        safeSet(key, { district });
+      } catch {
+        // ignore
+      }
+    };
+
+    hydrate();
+  }, [location?.latitude, location?.longitude]);
+
   return (
     <div className="relative min-h-screen pb-8">
       <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
@@ -63,14 +95,16 @@ export default function MosquesPage() {
           <PageHeaderActions />
         </div>
 
-        {/* GPS badge */}
+        {/* District badge */}
         {location && (
-          <div className="mb-4 flex items-center gap-1.5 text-xs text-slate-500">
+          <div className="mb-4 flex items-center gap-2 text-xs">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
             </span>
-            GPS aktif · {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+            <span className="rounded-lg border border-teal-300/45 bg-gradient-to-r from-teal-500/12 to-cyan-500/10 px-2.5 py-1 font-semibold text-teal-700 dark:border-teal-700/55 dark:from-teal-400/20 dark:to-cyan-400/16 dark:text-teal-300">
+              Distrik: {districtLabel ?? 'Mendeteksi...'}
+            </span>
           </div>
         )}
 

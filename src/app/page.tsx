@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import Link from 'next/link';
 import AzanReminder from '@/components/AzanReminder';
 import DailyInspiration from '@/components/DailyInspiration';
 import PrayerScheduleList from '@/components/PrayerScheduleList';
@@ -258,6 +257,9 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+              <span className="rounded-xl border border-teal-300/45 bg-gradient-to-r from-teal-500/12 to-cyan-500/10 px-3 py-1.5 text-[11px] font-semibold text-teal-700 dark:border-teal-700/55 dark:from-teal-400/20 dark:to-cyan-400/16 dark:text-teal-300">
+                {districtLabel ? `Anda berada di ${districtLabel}` : 'Mencari distrik...'}
+              </span>
               <span className="glass-subtle rounded-full px-3 py-1.5">{location?.timezone ?? 'Timezone not detected'}</span>
               <span className="glass-subtle rounded-full px-3 py-1.5">Qibla {qiblaBearing !== null ? `${qiblaBearing.toFixed(1)}°` : '--'}</span>
             </div>
@@ -324,27 +326,6 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <Link
-                  href="/restaurants"
-                  className="glass-subtle rounded-2xl p-4 transition hover:bg-white/60"
-                >
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Halal Nearby</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
-                    {districtLabel ? `Anda berada di ${districtLabel}` : 'Menentukan lokasi distrik...'}
-                  </p>
-                </Link>
-
-                <Link
-                  href="/mosques"
-                  className="glass-subtle rounded-2xl p-4 transition hover:bg-white/60"
-                >
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Masjid Terdekat</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
-                    {districtLabel ? `Anda berada di ${districtLabel}` : 'Menentukan lokasi distrik...'}
-                  </p>
-                </Link>
-              </div>
             </div>
 
             <div className="glass-subtle rounded-[1.5rem] p-5">
