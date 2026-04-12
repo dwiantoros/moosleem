@@ -7,6 +7,11 @@ export const AZAN_REMINDER_EVENT = 'azan-reminder-changed';
 export const AZAN_WEBSITE_POPUP_EVENT = 'azan-website-popup';
 export const AZAN_PENDING_WEBSITE_POPUP_KEY = 'azanPendingWebsitePopup';
 
+// Daily Inspiration constants
+export const DAILY_INSPIRATION_NOTIF_KEY = 'dailyInspirationNotif';
+export const DAILY_INSPIRATION_NOTIF_EVENT = 'daily-inspiration-notif';
+export const DAILY_INSPIRATION_NOTIF_STORAGE_KEY = 'dailyInspirationNotifications';
+
 export type AzanReminderPermission = NotificationPermission | 'unsupported';
 
 export interface AzanReminderSnapshot {
@@ -19,6 +24,15 @@ export interface AzanWebsitePopupDetail {
   title: string;
   body: string;
   timeLabel: string;
+  createdAt: number;
+}
+
+export interface DailyInspirationNotif {
+  id: string;
+  date: string; // YYYY-MM-DD format
+  arabic: string;
+  translation: string;
+  reference: string;
   createdAt: number;
 }
 
@@ -114,4 +128,46 @@ export function readPendingAzanWebsitePopup(maxAgeMs = 15 * 60 * 1000): AzanWebs
 
 export function clearPendingAzanWebsitePopup(): void {
   localStorage.removeItem(AZAN_PENDING_WEBSITE_POPUP_KEY);
+}
+
+// Daily Inspiration Notification Functions
+export function getDailyInspirationNotifications(): DailyInspirationNotif[] {
+  const raw = localStorage.getItem(DAILY_INSPIRATION_NOTIF_STORAGE_KEY);
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw) as DailyInspirationNotif[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    localStorage.removeItem(DAILY_INSPIRATION_NOTIF_STORAGE_KEY);
+    return [];
+  }
+}
+
+export function saveDailyInspirationNotif(notif: DailyInspirationNotif): void {
+  const existing = getDailyInspirationNotifications();
+  // Remove if already exists (update)
+  const filtered = existing.filter(n => n.date !== notif.date);
+  // Add new one at top
+  const updated = [notif, ...filtered];
+  // Keep only last 30 days
+  const limited = updated.slice(0, 30);
+  localStorage.setItem(DAILY_INSPIRATION_NOTIF_STORAGE_KEY, JSON.stringify(limited));
+}
+
+export function deleteDailyInspirationNotif(date: string): void {
+  const existing = getDailyInspirationNotifications();
+  const filtered = existing.filter(n => n.date !== date);
+  if (filtered.length === 0) {
+    localStorage.removeItem(DAILY_INSPIRATION_NOTIF_STORAGE_KEY);
+  } else {
+    localStorage.setItem(DAILY_INSPIRATION_NOTIF_STORAGE_KEY, JSON.stringify(filtered));
+  }
+  broadcastDailyInspirationNotifUpdate();
+}
+
+export function broadcastDailyInspirationNotifUpdate(): void {
+  window.dispatchEvent(new CustomEvent(DAILY_INSPIRATION_NOTIF_EVENT, {
+    detail: getDailyInspirationNotifications(),
+  }));
 }

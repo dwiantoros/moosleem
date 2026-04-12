@@ -7,6 +7,10 @@ import {
   broadcastAzanReminderState,
   readAzanReminderSnapshot,
   writeAzanReminderEnabled,
+  DAILY_INSPIRATION_NOTIF_EVENT,
+  getDailyInspirationNotifications,
+  deleteDailyInspirationNotif,
+  DailyInspirationNotif,
 } from '@/utils/azanReminder';
 
 // ── Hijri conversion ─────────────────────────────────────────────────────────
@@ -57,6 +61,7 @@ export default function NotificationBell() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [mounted, setMounted] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [inspirationNotifs, setInspirationNotifs] = useState<DailyInspirationNotif[]>([]);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const upcoming = useMemo(() => {
@@ -73,12 +78,21 @@ export default function NotificationBell() {
   }, []);
 
   const hasToday = upcoming.some(e => e.daysUntil === 0);
+  const hasAnyNotif = inspirationNotifs.length > 0;
+
+  const handleDeleteInspiration = (date: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteDailyInspirationNotif(date);
+  };
 
   useEffect(() => {
     const syncSnapshot = () => {
       const snapshot = readAzanReminderSnapshot();
       setReminderOn(snapshot.enabled);
       setPermission(snapshot.permission === 'unsupported' ? 'default' : snapshot.permission);
+    };
+const syncInspirationNotifs = () => {
+      setInspirationNotifs(getDailyInspirationNotifications());
     };
 
     setMounted(true);
@@ -90,6 +104,7 @@ export default function NotificationBell() {
     obs.observe(document.documentElement, { attributeFilter: ['class'] });
 
     syncSnapshot();
+    syncInspirationNotifs();
 
     const onReminderChanged = (event: Event) => {
       const custom = event as CustomEvent<AzanReminderSnapshot>;
@@ -101,18 +116,30 @@ export default function NotificationBell() {
       syncSnapshot();
     };
 
+    const onInspirationUpdate = (event: Event) => {
+      const custom = event as CustomEvent<DailyInspirationNotif[]>;
+      if (custom.detail) {
+        setInspirationNotifs(custom.detail);
+      } else {
+        syncInspirationNotifs();
+      }
+    };
+
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         syncSnapshot();
+        syncInspirationNotifs();
       }
     };
 
     window.addEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
+    window.addEventListener(DAILY_INSPIRATION_NOTIF_EVENT, onInspirationUpdate as EventListener);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       obs.disconnect();
       window.removeEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
+      window.removeEventListener(DAILY_INSPIRATION_NOTIF_EVENT, onInspirationUpdate as EventListener);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, []);
@@ -218,6 +245,46 @@ export default function NotificationBell() {
               </button>
             </div>
           </div>
+
+          {/* Daily Inspirations */}
+          {inspirationNotifs.length > 0 ? (
+            <div className="mb-4 rounded-xl border border-white/20 bg-white/[0.04] p-2.5">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">✨ Inspirasi Harian</p>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {inspirationNotifs.map(({ date, arabic, translation, reference }) => (
+                  <div
+                    key={date}
+                    className="rounded-xl px-3 py-2.5"
+                    style={{
+                      backgroundColor: 'rgba(168,85,247,0.08)',
+                      border: '1px solid rgba(168,85,247,0.2)',
+                    }}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-right font-arabic text-[0.9rem] leading-[1.6] text-slate-900 dark:text-slate-100" dir="rtl">
+                          {arabic}
+                        </p>
+                        <p className="mt-1.5 text-xs leading-[1.5] text-slate-600 dark:text-slate-400">
+                          {translation}
+                        </p>
+                        <p className="mt-1 text-[10px] text-slate-500">{reference}</p>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteInspiration(date, e)}
+                        aria-label="Hapus notifikasi inspirasi"
+                        className="flex-shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-white/20 hover:text-slate-600 dark:hover:text-slate-300"
+                      >
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                          <path d="M6 6l12 12M18 6 6 18" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           {permission === 'denied' && (
             <p className="mb-3 rounded-xl bg-red-50 px-3 py-2 text-xs text-red-700">

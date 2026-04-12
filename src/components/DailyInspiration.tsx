@@ -1,6 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
+import {
+  DAILY_INSPIRATION_NOTIF_EVENT,
+  DailyInspirationNotif,
+  saveDailyInspirationNotif,
+  broadcastDailyInspirationNotifUpdate,
+} from '@/utils/azanReminder';
+import { sendNotification } from '@/utils/azanReminderRuntime';
 
 interface Inspiration {
   arabic: string;
@@ -31,13 +38,67 @@ const inspirations: Inspiration[] = [
   },
 ];
 
+function getTodayDateString(): string {
+  const now = new Date();
+  return now.toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
 export default function DailyInspiration() {
-  const inspiration = useMemo(() => {
-    // Get a unique number for today (changes every calendar day)
+  const dayOfYear = useMemo(() => {
     const today = new Date();
-    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
-    return inspirations[dayOfYear % inspirations.length];
+    const dayOfYearNum = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
+    return dayOfYearNum;
   }, []);
+
+  const inspiration = useMemo(() => {
+    return inspirations[dayOfYear % inspirations.length];
+  }, [dayOfYear]);
+
+  const [lastNotifiedDate, setLastNotifiedDate] = useState<string | null>(null);
+
+  // Trigger notification on mount when date changes
+  useEffect(() => {
+    const todayStr = getTodayDateString();
+
+    // Check if we've already notified today
+    const storedLastDate = localStorage.getItem('lastInspirationNotifDate');
+    if (storedLastDate === todayStr) {
+      setLastNotifiedDate(todayStr);
+      return;
+    }
+
+    // New day detected - send notifications and save
+    const notif: DailyInspirationNotif = {
+      id: `inspiration-${todayStr}-${Date.now()}`,
+      date: todayStr,
+      arabic: inspiration.arabic,
+      translation: inspiration.translation,
+      reference: inspiration.reference,
+      createdAt: Date.now(),
+    };
+
+    // Save to storage
+    saveDailyInspirationNotif(notif);
+    localStorage.setItem('lastInspirationNotifDate', todayStr);
+    setLastNotifiedDate(todayStr);
+
+    // Send push notification
+    void sendNotification('✨ Inspirasi Harian Baru', {
+      body: inspiration.translation,
+      tag: `daily-inspiration-${todayStr}`,
+      requireInteraction: false,
+      silent: false,
+    });
+
+    // Trigger website popup alert
+    const popupEvent = new CustomEvent(DAILY_INSPIRATION_NOTIF_EVENT, {
+      detail: [notif],
+    });
+    window.dispatchEvent(popupEvent);
+
+    // Broadcast to bell for UI update
+    broadcastDailyInspirationNotifUpdate();
+  }, [inspiration]);
 
   return (
     <div className="glass-panel rounded-[1.5rem] p-5 sm:p-6">
