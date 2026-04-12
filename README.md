@@ -126,7 +126,7 @@ This project now supports server-side Web Push delivery via:
 - `POST /api/push/subscribe` (store subscription + location)
 - `POST /api/push/unsubscribe`
 - `GET /api/push/public-key`
-- `GET /api/cron/push-prayer` (triggered every minute by `vercel.json` cron)
+- `GET|POST /api/cron/push-prayer` (triggered by external cron scheduler)
 
 Set these environment variables in Vercel (or `.env.local` for local testing):
 
@@ -139,9 +139,37 @@ CRON_SECRET=your-random-secret
 
 Notes:
 
-- In production, use a Redis/KV integration so subscriptions are durable across serverless invocations.
-- If KV credentials are not present, the app falls back to in-memory subscription storage (good for local/dev only).
+- In production, use Vercel KV for best durability at scale.
+- If KV credentials are not present, the app now falls back to Turso/libsql storage.
+- In-memory fallback is only used as last resort (typically local/dev without KV and without Turso).
 - Browser notification action `Stop Adzan` is available and will stop adzan audio for active clients.
+
+#### External cron setup (Vercel Hobby compatible)
+
+Vercel Hobby tidak mendukung cron per-menit. Gunakan scheduler eksternal (misalnya cron-job.org, EasyCron, UptimeRobot, GitHub Actions) untuk memanggil endpoint ini setiap 1 menit:
+
+```bash
+https://muslim-traveler.vercel.app/api/cron/push-prayer?secret=CRON_SECRET_ANDA
+```
+
+Alternatif auth yang didukung endpoint:
+
+- Query param: `?secret=...`
+- Header `Authorization: Bearer <CRON_SECRET>`
+- Header `x-cron-secret: <CRON_SECRET>`
+- Header `x-api-key: <CRON_SECRET>`
+
+Respons sukses berisi ringkasan:
+
+```json
+{
+  "ok": true,
+  "triggeredAt": "2026-04-12T10:00:00.000Z",
+  "total": 10,
+  "sent": 3,
+  "removed": 1
+}
+```
 
 ### API Keys Required
 

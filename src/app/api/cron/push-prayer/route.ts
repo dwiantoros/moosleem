@@ -11,18 +11,32 @@ function isAuthorized(request: NextRequest): boolean {
   const bearer = request.headers.get('authorization');
   if (bearer === `Bearer ${secret}`) return true;
 
+  const xCronSecret = request.headers.get('x-cron-secret');
+  if (xCronSecret === secret) return true;
+
+  const xApiKey = request.headers.get('x-api-key');
+  if (xApiKey === secret) return true;
+
   return request.nextUrl.searchParams.get('secret') === secret;
 }
 
-export async function GET(request: NextRequest) {
+async function handleCron(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
     const result = await runPushPrayerCron();
-    return NextResponse.json({ ok: true, ...result });
+    return NextResponse.json({ ok: true, triggeredAt: new Date().toISOString(), ...result });
   } catch {
     return NextResponse.json({ error: 'Failed to run prayer push cron' }, { status: 500 });
   }
+}
+
+export async function GET(request: NextRequest) {
+  return handleCron(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handleCron(request);
 }
