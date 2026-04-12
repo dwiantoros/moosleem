@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useRef } from 'react';
 import {
   DAILY_INSPIRATION_NOTIF_EVENT,
   DailyInspirationNotif,
@@ -43,6 +43,41 @@ function getTodayDateString(): string {
   return now.toISOString().split('T')[0]; // YYYY-MM-DD
 }
 
+function getCurrentHour(): number {
+  return new Date().getHours();
+}
+
+function getScheduledTimes(): number[] {
+  // 8 AM (08:00) dan 6 PM (18:00)
+  return [8, 18];
+}
+
+function getNextScheduledTime(now: Date = new Date()): { hour: number; minutesUntil: number } {
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  const scheduledHours = getScheduledTimes();
+
+  // Find next scheduled hour
+  let nextHour = scheduledHours.find(h => h > currentHour);
+
+  // If no hour found today, use first hour tomorrow
+  if (nextHour === undefined) {
+    nextHour = scheduledHours[0];
+  }
+
+  // Calculate minutes until next scheduled time
+  const nextTime = new Date(now);
+  nextTime.setHours(nextHour, 0, 0, 0);
+
+  if (nextTime <= now) {
+    nextTime.setDate(nextTime.getDate() + 1);
+  }
+
+  const minutesUntil = Math.ceil((nextTime.getTime() - now.getTime()) / 1000 / 60);
+
+  return { hour: nextHour, minutesUntil };
+}
+
 export default function DailyInspiration() {
   const dayOfYear = useMemo(() => {
     const today = new Date();
@@ -54,22 +89,25 @@ export default function DailyInspiration() {
     return inspirations[dayOfYear % inspirations.length];
   }, [dayOfYear]);
 
-  const [lastNotifiedDate, setLastNotifiedDate] = useState<string | null>(null);
+  const [, setMounted] = useState(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // Trigger notification on mount when date changes
-  useEffect(() => {
+  const triggerInspirationNotification = (hour: number) => {
     const todayStr = getTodayDateString();
+    const timeKey = `lastInspirationNotif_${todayStr}_${hour}`;
 
-    // Check if we've already notified today
-    const storedLastDate = localStorage.getItem('lastInspirationNotifDate');
-    if (storedLastDate === todayStr) {
-      setLastNotifiedDate(todayStr);
-      return;
+    // Prevent duplicate notifications within same hour
+    const lastNotifTime = localStorage.getItem(timeKey);
+    const now = Date.now();
+    if (lastNotifTime && now - Number(lastNotifTime) < 60 * 60 * 1000) {
+      return; // Already notified in this hour window
     }
 
-    // New day detected - send notifications and save
+    // Mark as notified
+    localStorage.setItem(timeKey, String(now));
+
     const notif: DailyInspirationNotif = {
-      id: `inspiration-${todayStr}-${Date.now()}`,
+      id: `inspiration-${todayStr}-${hour}-${Date.now()}`,
       date: todayStr,
       arabic: inspiration.arabic,
       translation: inspiration.translation,
@@ -77,15 +115,17 @@ export default function DailyInspiration() {
       createdAt: Date.now(),
     };
 
+    // Determine time label
+    const timeLabel = hour === 8 ? 'Pagi' : 'Sore';
+    const timeDisplay = hour === 8 ? '08:00' : '18:00';
+
     // Save to storage
     saveDailyInspirationNotif(notif);
-    localStorage.setItem('lastInspirationNotifDate', todayStr);
-    setLastNotifiedDate(todayStr);
 
     // Send push notification
-    void sendNotification('✨ Inspirasi Harian Baru', {
+    void sendNotification(`✨ Inspirasi ${timeLabel} (${timeDisplay})`, {
       body: inspiration.translation,
-      tag: `daily-inspiration-${todayStr}`,
+      tag: `daily-inspiration-${todayStr}-${hour}`,
       requireInteraction: false,
       silent: false,
     });
@@ -98,6 +138,68 @@ export default function DailyInspiration() {
 
     // Broadcast to bell for UI update
     broadcastDailyInspirationNotifUpdate();
+  };
+
+  const clearTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  };
+
+  // Setup 2x daily scheduled notifications
+  useEffect(() => {
+    setMounted(true);
+    clearTimers();
+
+    const setupScheduledNotifs = () => {
+      const now = new Date();
+      const scheduledHours = getScheduledTimes();
+
+      scheduledHours.forEach((hour) => {
+        const nextTime = new Date(now);
+        nextTime.setHours(hour, 0, 0, 0);
+
+        // If this hour already passed today, schedule for tomorrow
+        if (nextTime <= now) {
+          nextTime.setDate(nextTime.getDate() + 1);
+        }
+
+        const msUntil = nextTime.getTime() - now.getTime();
+
+        const timer = setTimeout(() => {
+          triggerInspirationNotification(hour);
+
+          // Reschedule for next day same time
+          setupScheduledNotifs();
+        }, msUntil);
+
+        timersRef.current.push(timer);
+      });
+    };
+
+    setupScheduledNotifs();
+
+    // Also check on visibility change
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const now = new Date();
+        const scheduledHours = getScheduledTimes();
+
+        // Check if we missed any scheduled times
+        scheduledHours.forEach((hour) => {
+          if (getCurrentHour() === hour) {
+            // We're in the hour, trigger notification
+            triggerInspirationNotification(hour);
+          }
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearTimers();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [inspiration]);
 
   return (
