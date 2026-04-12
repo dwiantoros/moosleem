@@ -19,8 +19,19 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
 export const metadata: Metadata = {
   title: "Muslim Traveler - Prayer Times, Quran & Halal Finder",
   description: "Muslim Traveler adalah aplikasi komprehensif untuk Muslim yang bepergian: jadwal shalat akurat real-time, baca Al-Quran Arab dengan terjemahan, pengingat azan, dan rekomendasi restoran halal terdekat di lokasi Anda.",
-  keywords: "jadwal shalatأق, quran arabic, azan reminder, halal restaurants, muslim travel, islamic app, prayer times",
+  keywords: "jadwal shalat, quran arabic, azan reminder, halal restaurants, muslim travel, islamic app, prayer times",
   metadataBase: new URL("https://muslim-traveler.com"),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
   alternates: {
     canonical: "https://muslim-traveler.com",
     languages: {
@@ -61,7 +72,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default function RootLayout({

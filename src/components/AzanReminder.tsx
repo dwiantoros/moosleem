@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { PrayerTimes } from '@/types';
+import PermissionPromptModal from '@/components/PermissionPromptModal';
 import {
-  AZAN_PROMPT_DISMISSED_KEY,
   AZAN_REMINDER_EVENT,
   AzanReminderSnapshot,
   broadcastAzanReminderState,
@@ -12,6 +12,7 @@ import {
   writeAzanReminderEnabled,
   writeAzanSoundEnabled,
 } from '@/utils/azanReminder';
+import { activateAllPermissionsInOneClick, PermissionStep } from '@/utils/permissionCenter';
 import {
   EVENT_NOTIFY,
   MINUTES_BEFORE,
@@ -106,7 +107,28 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
   const [showPrompt, setShowPrompt] = useState(false);
   const [testSent, setTestSent] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [activatingPermissions, setActivatingPermissions] = useState(false);
+  const [permissionStatusMessage, setPermissionStatusMessage] = useState('Siap mengaktifkan semua izin.');
+  const [locationFlowState, setLocationFlowState] = useState<'idle' | 'pending' | 'granted' | 'denied' | 'unsupported'>('idle');
+  const [notificationFlowState, setNotificationFlowState] = useState<'idle' | 'pending' | 'granted' | 'denied' | 'unsupported'>('idle');
+  const [reminderFlowState, setReminderFlowState] = useState<'idle' | 'pending' | 'enabled' | 'disabled'>('idle');
   const [nowTick, setNowTick] = useState(() => Date.now());
+  const repromptTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearRepromptTimer = () => {
+    if (!repromptTimerRef.current) return;
+    clearTimeout(repromptTimerRef.current);
+    repromptTimerRef.current = null;
+  };
+
+  const scheduleReprompt = () => {
+    clearRepromptTimer();
+    repromptTimerRef.current = setTimeout(() => {
+      if ('Notification' in window && Notification.permission === 'default') {
+        setShowPrompt(true);
+      }
+    }, 10 * 60 * 1000);
+  };
 
   // Upcoming Hijri events (today + next 3 days) — always shown regardless of reminder state
   const upcomingEvents = useMemo(() => {
@@ -169,14 +191,14 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
     window.addEventListener('storage', onStorage);
 
     if (Notification.permission === 'default') {
-      const dismissed = localStorage.getItem(AZAN_PROMPT_DISMISSED_KEY);
-      if (!dismissed) setTimeout(() => setShowPrompt(true), 900);
+      setShowPrompt(true);
     }
 
     return () => {
       document.removeEventListener('visibilitychange', syncPerm);
       window.removeEventListener(AZAN_REMINDER_EVENT, onReminderChanged as EventListener);
       window.removeEventListener('storage', onStorage);
+      clearRepromptTimer();
     };
   }, []);
 
@@ -200,19 +222,78 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
   }, [enabled, permission]);
 
   const requestPermission = async () => {
-    if (!supported) return;
-    void ensureAzanServiceWorker().catch(() => {});
-    const result = await Notification.requestPermission();
-    setPermission(result);
-    if (result === 'granted') {
-      setShowPrompt(false);
-      localStorage.removeItem(AZAN_PROMPT_DISMISSED_KEY);
-      onToggle(true);
-      const snapshot = writeAzanReminderEnabled(true);
-      broadcastAzanReminderState(snapshot);
-      if (soundEnabled) {
-        await primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined);
+    if (!supported || activatingPermissions) return;
+
+    const handlePermissionStep = (step: PermissionStep) => {
+      if (step === 'requesting-location') {
+        setLocationFlowState('pending');
+        setPermissionStatusMessage('Meminta izin lokasi...');
+        return;
       }
+      if (step === 'location-granted') {
+        setLocationFlowState('granted');
+        setPermissionStatusMessage('Izin lokasi aktif.');
+        return;
+      }
+      if (step === 'location-denied') {
+        setLocationFlowState('denied');
+        setPermissionStatusMessage('Izin lokasi belum diaktifkan.');
+        return;
+      }
+      if (step === 'requesting-notification') {
+        setNotificationFlowState('pending');
+        setPermissionStatusMessage('Meminta izin notifikasi browser...');
+        return;
+      }
+      if (step === 'notification-granted') {
+        setNotificationFlowState('granted');
+        setPermissionStatusMessage('Izin notifikasi aktif.');
+        return;
+      }
+      if (step === 'notification-denied') {
+        setNotificationFlowState('denied');
+        setPermissionStatusMessage('Izin notifikasi belum diaktifkan.');
+        return;
+      }
+      if (step === 'enabling-reminder') {
+        setReminderFlowState('pending');
+        setPermissionStatusMessage('Mengaktifkan adzan reminder...');
+        return;
+      }
+
+      setPermissionStatusMessage('Proses izin selesai.');
+    };
+
+    setActivatingPermissions(true);
+    setPermissionStatusMessage('Menyiapkan aktivasi izin...');
+    setLocationFlowState('idle');
+    setNotificationFlowState('idle');
+    setReminderFlowState('idle');
+    try {
+      const result = await activateAllPermissionsInOneClick(handlePermissionStep);
+
+      if ('Notification' in window) {
+        setPermission(Notification.permission);
+      }
+
+      setNotificationFlowState(result.notificationPermission === 'granted' ? 'granted' : result.notificationPermission === 'denied' ? 'denied' : 'unsupported');
+      setReminderFlowState(result.notificationGranted ? 'enabled' : 'disabled');
+      setPermissionStatusMessage(result.notificationGranted
+        ? 'Semua izin penting sudah aktif.'
+        : 'Sebagian izin belum aktif. Anda bisa coba lagi.');
+
+      if (result.notificationGranted) {
+        setShowPrompt(false);
+        clearRepromptTimer();
+        onToggle(true);
+        const snapshot = writeAzanReminderEnabled(true);
+        broadcastAzanReminderState(snapshot);
+        if (soundEnabled) {
+          await primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined);
+        }
+      }
+    } finally {
+      setActivatingPermissions(false);
     }
   };
 
@@ -235,12 +316,7 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
 
   const dismissPrompt = () => {
     setShowPrompt(false);
-    localStorage.setItem(AZAN_PROMPT_DISMISSED_KEY, 'true');
-  };
-
-  const enableFromPrompt = () => {
-    dismissPrompt();
-    requestPermission();
+    scheduleReprompt();
   };
 
   const sendTest = async () => {
@@ -288,38 +364,16 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
 
   return (
     <>
-      {/* Prompt modal */}
-      {showPrompt && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/25 p-4 backdrop-blur-sm sm:items-center">
-          <div className="glass-panel w-full max-w-md rounded-[2rem] p-6">
-            <div className="mb-5 flex items-start gap-3">
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.8">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" strokeLinecap="round" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">Aktifkan Adzan Reminder?</h2>
-                <p className="mt-0.5 text-sm text-slate-500">
-                  Notifikasi {MINUTES_BEFORE} menit sebelum & tepat saat waktu sholat tiba.
-                </p>
-              </div>
-            </div>
-            <ul className="mb-5 space-y-1.5 text-xs text-slate-600">
-              {['Subuh', 'Dzuhur', 'Ashar', 'Maghrib', "Isya'"].map((p) => (
-                <li key={p} className="flex items-center gap-2">
-                  <span className="text-teal-500">✓</span> {p}
-                </li>
-              ))}
-            </ul>
-            <div className="flex gap-3">
-              <button onClick={dismissPrompt} className="glass-subtle flex-1 rounded-xl py-2.5 text-sm font-medium text-slate-600 hover:bg-white/60 transition">Nanti Saja</button>
-              <button onClick={enableFromPrompt} className="flex-1 rounded-xl bg-teal-600 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 transition">Aktifkan</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <PermissionPromptModal
+        open={showPrompt}
+        loading={activatingPermissions}
+        onClose={dismissPrompt}
+        onConfirm={requestPermission}
+        statusMessage={permissionStatusMessage}
+        locationState={locationFlowState}
+        notificationState={notificationFlowState}
+        reminderState={reminderFlowState}
+      />
 
       {/* Settings card */}
       <div className="glass-panel rounded-[1.75rem] p-5 sm:p-6">
@@ -444,9 +498,10 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
         {permission === 'default' && enabled && (
           <button
             onClick={requestPermission}
+            disabled={activatingPermissions}
             className="mt-4 w-full rounded-2xl bg-teal-600 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 transition"
           >
-            Izinkan Notifikasi Browser
+            {activatingPermissions ? 'Memproses izin...' : 'Aktifkan Semua Permission'}
           </button>
         )}
 

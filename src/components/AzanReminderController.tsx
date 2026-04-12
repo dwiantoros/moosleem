@@ -12,6 +12,7 @@ import {
   PRAYER_LABELS,
   gregorianToHijri,
   parsePrayerMs,
+  primeAzanAudio,
   playAzanSound,
   stopAzanSound,
   sendNotification,
@@ -29,6 +30,10 @@ import {
   readAzanReminderSnapshot,
   readPendingAzanWebsitePopup,
 } from '@/utils/azanReminder';
+import {
+  enableServerPushWithLastLocation,
+  LOCATION_PERMISSION_UPDATED_EVENT,
+} from '@/utils/permissionCenter';
 
 interface WebsitePopup {
   title: string;
@@ -40,6 +45,7 @@ export default function AzanReminderController() {
   const [snapshot, setSnapshot] = useState<AzanReminderSnapshot>(() => readAzanReminderSnapshot());
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
   const [popup, setPopup] = useState<WebsitePopup | null>(null);
+  const [isDark, setIsDark] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const popupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -119,12 +125,49 @@ export default function AzanReminderController() {
   }, []);
 
   useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (snapshot.permission === 'unsupported') {
       return;
     }
 
     void ensureAzanServiceWorker().catch(() => {});
   }, [snapshot.permission]);
+
+  useEffect(() => {
+    if (!snapshot.enabled || snapshot.permission !== 'granted') {
+      return;
+    }
+
+    // Keep server-side push subscription alive even if user enables reminder from non-home pages.
+    void enableServerPushWithLastLocation().catch(() => {});
+
+    const onLocationPermissionUpdated = () => {
+      void enableServerPushWithLastLocation().catch(() => {});
+    };
+
+    window.addEventListener(LOCATION_PERMISSION_UPDATED_EVENT, onLocationPermissionUpdated as EventListener);
+    return () => {
+      window.removeEventListener(LOCATION_PERMISSION_UPDATED_EVENT, onLocationPermissionUpdated as EventListener);
+    };
+  }, [snapshot.enabled, snapshot.permission]);
+
+  useEffect(() => {
+    if (!snapshot.enabled || snapshot.permission !== 'granted' || !snapshot.soundEnabled) {
+      return;
+    }
+
+    void primeAzanAudio().catch(() => {});
+  }, [snapshot.enabled, snapshot.permission, snapshot.soundEnabled]);
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
@@ -347,23 +390,27 @@ export default function AzanReminderController() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-4 z-[70] flex justify-center px-4">
-      <div className="pointer-events-auto w-full max-w-md rounded-[1.75rem] border border-teal-200/60 bg-white/95 p-4 shadow-[0_20px_60px_rgba(15,23,42,0.18)] backdrop-blur-xl">
+      <div className={`pointer-events-auto w-full max-w-md rounded-[1.75rem] p-4 backdrop-blur-xl ${
+        isDark
+          ? 'border border-teal-800/55 bg-slate-900/92 shadow-[0_20px_60px_rgba(2,6,23,0.52)]'
+          : 'border border-teal-200/60 bg-white/95 shadow-[0_20px_60px_rgba(15,23,42,0.18)]'
+      }`}>
         <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.8">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" strokeLinecap="round" />
             </svg>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-600">Reminder Adzan</p>
-            <h2 className="mt-1 text-sm font-semibold text-slate-900">{popupTitle}</h2>
-            <p className="mt-1 text-sm text-slate-600">{popup.body}</p>
-            <p className="mt-2 text-[11px] font-medium text-slate-500">Masuk pada {popup.timeLabel}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-300">Reminder Adzan</p>
+            <h2 className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{popupTitle}</h2>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{popup.body}</p>
+            <p className="mt-2 text-[11px] font-medium text-slate-500 dark:text-slate-400">Masuk pada {popup.timeLabel}</p>
             <div className="mt-3 flex items-center gap-2">
               <button
                 onClick={closePopup}
-                className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
+                className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Tutup
               </button>
@@ -377,7 +424,7 @@ export default function AzanReminderController() {
           </div>
           <button
             onClick={closePopup}
-            className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+            className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-300"
             aria-label="Tutup popup adzan"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

@@ -261,6 +261,8 @@ export async function playAzanSound(type: 'azan' | 'before' | 'test' = 'azan', p
     const audio = await loadAzanAudio(prayer);
     if (audio) {
       audio.muted = false;
+      audio.volume = 1;
+      audio.playbackRate = 1;
       audio.currentTime = 0;
       await audio.play();
       return;

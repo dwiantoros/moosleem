@@ -9,6 +9,7 @@ import { LocationData, PrayerTimes } from '@/types';
 import { AZAN_REMINDER_EVENT, AzanReminderSnapshot, readAzanReminderSnapshot } from '@/utils/azanReminder';
 import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
 import { getCached, getLastLocation, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
+import { LOCATION_PERMISSION_UPDATED_EVENT, LocationPermissionUpdatedDetail } from '@/utils/permissionCenter';
 
 const JAKARTA_FALLBACK = {
   latitude: -6.2088,
@@ -166,7 +167,7 @@ export default function Home() {
   useEffect(() => {
     const applyJakartaFallback = async () => {
       setUsingFallbackLocation(true);
-      setDistrictLabel('Lokasi tidak terdeteksi (fallback Jakarta)');
+      setDistrictLabel('Lokasi tidak terdeteksi');
 
       setLocation({
         latitude: JAKARTA_FALLBACK.latitude,
@@ -286,6 +287,35 @@ export default function Home() {
     };
   }, []);
 
+  // When user activates permissions from another surface, immediately refresh location-based data.
+  useEffect(() => {
+    const onLocationPermissionUpdated = (event: Event) => {
+      const custom = event as CustomEvent<LocationPermissionUpdatedDetail>;
+      const detail = custom.detail;
+      if (!detail) return;
+
+      const locationData: LocationData = {
+        latitude: detail.latitude,
+        longitude: detail.longitude,
+        timezone: detail.timezone,
+      };
+
+      setLocation(locationData);
+      setUsingFallbackLocation(false);
+      setDistrictLabel(null);
+      setLoading(true);
+
+      fetchPrayerData(detail.latitude, detail.longitude, detail.timezone)
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    };
+
+    window.addEventListener(LOCATION_PERMISSION_UPDATED_EVENT, onLocationPermissionUpdated as EventListener);
+    return () => {
+      window.removeEventListener(LOCATION_PERMISSION_UPDATED_EVENT, onLocationPermissionUpdated as EventListener);
+    };
+  }, []);
+
   // Refresh prayer times
   const handleRefresh = async () => {
     if (!location) return;
@@ -341,7 +371,7 @@ export default function Home() {
     const hydrate = async () => {
       const cached = getCached<{ district: string | null }>(key, TTL_MS);
       if (cached) {
-        setDistrictLabel(cached.data.district ?? (usingFallbackLocation ? 'Lokasi tidak terdeteksi (fallback Jakarta)' : null));
+        setDistrictLabel(cached.data.district ?? (usingFallbackLocation ? 'Lokasi tidak terdeteksi' : null));
         if (!cached.isStale) return;
       }
 
@@ -351,12 +381,12 @@ export default function Home() {
           longitude: location.longitude,
         }, 10000);
         const district = res?.district ?? null;
-        setDistrictLabel(district ?? (usingFallbackLocation ? 'Lokasi tidak terdeteksi (fallback Jakarta)' : null));
+        setDistrictLabel(district ?? (usingFallbackLocation ? 'Lokasi tidak terdeteksi' : null));
         safeSet(key, { district });
       } catch {
         // ignore reverse geocode failures
         if (usingFallbackLocation) {
-          setDistrictLabel('Lokasi tidak terdeteksi (fallback Jakarta)');
+          setDistrictLabel('Lokasi tidak terdeteksi');
         }
       }
     };
@@ -410,15 +440,12 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
               <span className="rounded-xl border border-teal-300/45 bg-gradient-to-r from-teal-500/12 to-cyan-500/10 px-3 py-1.5 text-[11px] font-semibold text-teal-700 dark:border-teal-700/55 dark:from-teal-400/20 dark:to-cyan-400/16 dark:text-teal-300">
-                {districtLabel
-                  ? districtLabel.startsWith('Lokasi tidak terdeteksi')
-                    ? districtLabel
-                    : `Anda berada di ${districtLabel}`
-                  : usingFallbackLocation
-                    ? 'Lokasi tidak terdeteksi (fallback Jakarta)'
+                {usingFallbackLocation
+                  ? 'Lokasi tidak terdeteksi'
+                  : districtLabel
+                    ? `Anda sedang berada di '${districtLabel}'`
                     : 'Mencari distrik...'}
               </span>
-              <span className="glass-subtle rounded-full px-3 py-1.5">{location?.timezone ?? 'Timezone not detected'}</span>
               <span className="glass-subtle rounded-full px-3 py-1.5">Qibla {qiblaBearing !== null ? `${qiblaBearing.toFixed(1)}°` : '--'}</span>
             </div>
           </div>
@@ -457,7 +484,7 @@ export default function Home() {
                   <p className="mt-2 text-sm font-semibold text-slate-900">
                     {location
                       ? usingFallbackLocation
-                        ? 'Fallback Jakarta'
+                        ? 'Jakarta (Default)'
                         : 'Lokasi aktif'
                       : 'Mendeteksi lokasi'}
                   </p>
