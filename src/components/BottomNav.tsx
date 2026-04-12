@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-// Primary 5 shown in bar always
+// Primary items shown in floating bar
 const PRIMARY = [
   {
     id: 'home',
@@ -61,6 +61,18 @@ const PRIMARY = [
       </svg>
     ),
   },
+  {
+    id: 'artikel',
+    label: 'Artikel',
+    href: '/artikel',
+    icon: (
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+        <path d="M14 3v5h5"/>
+        <path d="M8 13h8M8 17h6"/>
+      </svg>
+    ),
+  },
 ];
 
 // All other items shown in the "More" sheet
@@ -80,10 +92,6 @@ const MORE_ITEMS = [
   {
     id: 'asmaul-husna', label: 'Asmaul Husna', href: '/asmaul-husna',
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 18l-6.2 3 1.2-6.8-5-4.9 6.9-1Z"/></svg>,
-  },
-  {
-    id: 'kalender', label: 'Kalender Hijriah', href: '/kalender',
-    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>,
   },
   {
     id: 'panduan', label: 'Panduan Solat', href: '/panduan-sholat',
