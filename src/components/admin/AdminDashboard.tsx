@@ -116,18 +116,15 @@ function formatFileSize(sizeBytes: number) {
   return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function AdminDashboard({ initialArticles, initialSettings, initialAssets, storageMode, profileHref = '/bukan-admin/profil' }: AdminDashboardProps) {
+export default function AdminDashboard({ initialArticles, initialSettings: _initialSettings, initialAssets, storageMode, profileHref = '/bukan-admin/profil' }: AdminDashboardProps) {
   const router = useRouter();
   const [articles, setArticles] = useState(initialArticles);
   const [assets, setAssets] = useState(initialAssets);
   const [selectedId, setSelectedId] = useState(initialArticles[0]?.id || 'new');
   const [draft, setDraft] = useState<ArticleDraft>(fromArticle(initialArticles[0]));
-  const [settings, setSettings] = useState(initialSettings);
-  const [tab, setTab] = useState<'articles' | 'settings'>('articles');
+  const [tab, setTab] = useState<'articles'>('articles');
   const [articleMessage, setArticleMessage] = useState('');
-  const [settingsMessage, setSettingsMessage] = useState('');
   const [savingArticle, setSavingArticle] = useState(false);
-  const [savingSettings, setSavingSettings] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
 
@@ -249,33 +246,6 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
     }
   }
 
-  async function handleSaveSettings() {
-    setSavingSettings(true);
-    setSettingsMessage('');
-
-    try {
-      const response = await fetch('/api/admin/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(settings),
-      });
-      const data = (await response.json().catch(() => ({}))) as { settings?: CmsSettings; error?: string };
-
-      if (!response.ok || !data.settings) {
-        setSettingsMessage(data.error || 'Gagal menyimpan pengaturan SEO.');
-        return;
-      }
-
-      setSettings(data.settings);
-      setSettingsMessage('Pengaturan SEO blog berhasil diperbarui.');
-      router.refresh();
-    } finally {
-      setSavingSettings(false);
-    }
-  }
-
   async function handleLogout() {
     setLoggingOut(true);
 
@@ -331,50 +301,51 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Dashboard</p>
-            <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">CMS Artikel</h1>
+            <h1 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">CMS Artikel</h1>
           </div>
           <button
             type="button"
             onClick={handleLogout}
-            className="rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white/70"
+            className="rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-white/70 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
             disabled={loggingOut}
           >
             {loggingOut ? 'Keluar...' : 'Logout'}
           </button>
         </div>
 
-        <div className="mt-5 rounded-[1.4rem] border border-white/60 bg-white/70 px-4 py-3 text-sm text-slate-600">
-          <span className="font-semibold text-slate-900">Database:</span>{' '}
+        <div className="mt-5 rounded-[1.4rem] border border-white/60 bg-white/70 px-4 py-3 text-sm text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+          <span className="font-semibold text-slate-900 dark:text-slate-100">Database:</span>{' '}
           {storageMode === 'turso' ? 'Turso remote gratis' : storageMode === 'local' ? 'File lokal development' : 'Belum siap untuk production'}
         </div>
 
-        <div className="mt-5 flex gap-2 rounded-full bg-white/70 p-1">
-          {[
-            ['articles', 'Artikel'],
-            ['settings', 'SEO'],
-          ].map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setTab(value as 'articles' | 'settings')}
-              className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${tab === value ? 'bg-teal-700 text-white' : 'text-slate-600 hover:bg-white/90'}`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="mt-5 flex gap-2 rounded-full bg-white/70 p-1 dark:bg-white/5">
+          <button
+            key="articles"
+            type="button"
+            onClick={() => setTab('articles')}
+            className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${tab === 'articles' ? 'bg-teal-700 text-white' : 'text-slate-600 hover:bg-white/90 dark:text-slate-300 dark:hover:bg-white/10'}`}
+          >
+            Artikel
+          </button>
+          <Link
+            href="/bukan-admin/seo"
+            className="flex-1 rounded-full px-4 py-2 text-center text-sm font-medium text-slate-600 transition hover:bg-white/90 dark:text-slate-300 dark:hover:bg-white/10"
+          >
+            SEO
+          </Link>
         </div>
 
-        <Link href={profileHref} className="mt-3 flex items-center justify-between rounded-[1.3rem] border border-white/60 bg-white/70 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-white/90">
+        <Link href={profileHref} className="mt-3 flex items-center justify-between rounded-[1.3rem] border border-white/60 bg-white/70 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-white/90 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">
           <span>Profil author</span>
           <span aria-hidden="true">→</span>
         </Link>
 
         <div className="mt-5 flex items-center justify-between">
-          <p className="text-sm font-semibold text-slate-900">Daftar artikel</p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Daftar artikel</p>
           <button
             type="button"
             onClick={() => selectArticle('new')}
-            className="rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+            className="rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500"
           >
             Artikel baru
           </button>
@@ -389,34 +360,34 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
                 setTab('articles');
                 selectArticle(article.id);
               }}
-              className={`w-full rounded-[1.4rem] border px-4 py-3 text-left transition ${selectedId === article.id ? 'border-teal-400 bg-teal-50' : 'border-white/60 bg-white/70 hover:bg-white/90'}`}
+              className={`w-full rounded-[1.4rem] border px-4 py-3 text-left transition ${selectedId === article.id ? 'border-teal-400 bg-teal-50 dark:border-teal-500 dark:bg-teal-500/10' : 'border-white/60 bg-white/70 hover:bg-white/90 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10'}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-slate-900">{article.title}</span>
+                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.title}</span>
                 <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${article.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                   {formatStatus(article.status)}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-slate-500">/{article.slug}</p>
-              <p className="mt-2 text-xs text-slate-500">{formatDate(article.publishedAt)}</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">/{article.slug}</p>
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{formatDate(article.publishedAt)}</p>
             </button>
           ))}
 
           {articles.length === 0 ? (
-            <div className="rounded-[1.4rem] border border-dashed border-slate-300 px-4 py-5 text-sm text-slate-500">
+            <div className="rounded-[1.4rem] border border-dashed border-slate-300 px-4 py-5 text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
               Belum ada artikel. Buat artikel pertama dari tombol di atas.
             </div>
           ) : null}
         </div>
 
-        <div className="mt-6 rounded-[1.4rem] border border-white/60 bg-white/70 p-4 text-sm text-slate-600">
-          <p className="font-semibold text-slate-900">Link publik</p>
+        <div className="mt-6 rounded-[1.4rem] border border-white/60 bg-white/70 p-4 text-sm text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+          <p className="font-semibold text-slate-900 dark:text-slate-100">Link publik</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Link href="/artikel" target="_blank" className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+            <Link href="/artikel" target="_blank" className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
               Halaman artikel
             </Link>
             {selectedArticle?.status === 'published' ? (
-              <Link href={`/artikel/${selectedArticle.slug}`} target="_blank" className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+              <Link href={`/artikel/${selectedArticle.slug}`} target="_blank" className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
                 Buka artikel ini
               </Link>
             ) : null}
@@ -425,65 +396,64 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
       </aside>
 
       <section className="glass-panel rounded-[2rem] p-5 sm:p-6 lg:p-7">
-        {tab === 'articles' ? (
-          <div>
+        <div>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Editor Artikel</p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">
                   {draft.id ? 'Edit artikel' : 'Tulis artikel baru'}
                 </h2>
-                <p className="mt-2 text-sm text-slate-600">Konten artikel mendukung Markdown. SEO per artikel bisa diatur langsung dari panel ini.</p>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Konten artikel mendukung Markdown. SEO per artikel bisa diatur langsung dari panel ini.</p>
               </div>
-              <div className="rounded-[1.2rem] border border-white/60 bg-white/70 px-4 py-3 text-xs text-slate-500">
+              <div className="rounded-[1.2rem] border border-white/60 bg-white/70 px-4 py-3 text-xs text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                 {draft.id ? `Status: ${formatStatus(draft.status)}` : 'Draft baru'}
               </div>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Judul artikel
                 <input
                   type="text"
                   value={draft.title}
                   onChange={(event) => updateDraft('title', event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </label>
 
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Slug URL
                 <input
                   type="text"
                   value={draft.slug}
                   onChange={(event) => updateDraft('slug', event.target.value)}
                   placeholder="akan dibuat otomatis jika kosong"
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </label>
 
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Kategori artikel
                 <input
                   type="text"
                   value={draft.category}
                   onChange={(event) => updateDraft('category', event.target.value)}
                   placeholder="Contoh: Panduan Ibadah"
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </label>
 
-              <label className="block text-sm font-medium text-slate-700 md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 md:col-span-2">
                 Ringkasan artikel
                 <textarea
                   value={draft.excerpt}
                   onChange={(event) => updateDraft('excerpt', event.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </label>
 
-              <label className="block text-sm font-medium text-slate-700 md:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 md:col-span-2">
                 Isi artikel
                 <div className="mt-2">
                   <RichTextEditor
@@ -494,16 +464,16 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
                 </div>
               </label>
 
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Cover image URL
                 <div className="mt-2 space-y-2">
                   <input
                     type="url"
                     value={draft.coverImage}
                     onChange={(event) => updateDraft('coverImage', event.target.value)}
-                    className="w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                    className="w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
-                  <label className="inline-flex cursor-pointer items-center rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                  <label className="inline-flex cursor-pointer items-center rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
                     Upload cover
                     <input
                       type="file"
@@ -524,16 +494,16 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
                 </div>
               </label>
 
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 OG image URL
                 <div className="mt-2 space-y-2">
                   <input
                     type="url"
                     value={draft.ogImage}
                     onChange={(event) => updateDraft('ogImage', event.target.value)}
-                    className="w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                    className="w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
-                  <label className="inline-flex cursor-pointer items-center rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                  <label className="inline-flex cursor-pointer items-center rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
                     Upload OG image
                     <input
                       type="file"
@@ -554,104 +524,104 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
                 </div>
               </label>
 
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Status publish
                 <select
                   value={draft.status}
                   onChange={(event) => updateDraft('status', event.target.value as 'draft' | 'published')}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100"
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                 </select>
               </label>
 
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Waktu publish
                 <input
                   type="datetime-local"
                   value={draft.publishedAt}
                   onChange={(event) => updateDraft('publishedAt', event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100"
                 />
               </label>
             </div>
 
-            <div className="mt-8 rounded-[1.8rem] border border-white/60 bg-white/70 p-5">
-              <p className="text-sm font-semibold text-slate-900">SEO per artikel</p>
+            <div className="mt-8 rounded-[1.8rem] border border-white/60 bg-white/70 p-5 dark:border-white/10 dark:bg-white/5">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">SEO per artikel</p>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <label className="block text-sm font-medium text-slate-700 md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 md:col-span-2">
                   SEO title
                   <input
                     type="text"
                     value={draft.seoTitle}
                     onChange={(event) => updateDraft('seoTitle', event.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-slate-700 md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 md:col-span-2">
                   SEO description
                   <textarea
                     value={draft.seoDescription}
                     onChange={(event) => updateDraft('seoDescription', event.target.value)}
                     rows={3}
-                    className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-slate-700">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                   SEO keywords
                   <input
                     type="text"
                     value={draft.seoKeywords}
                     onChange={(event) => updateDraft('seoKeywords', event.target.value)}
                     placeholder="pisahkan dengan koma"
-                    className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
                 </label>
 
-                <label className="block text-sm font-medium text-slate-700">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Canonical URL
                   <input
                     type="url"
                     value={draft.canonicalUrl}
                     onChange={(event) => updateDraft('canonicalUrl', event.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
                   />
                 </label>
               </div>
             </div>
 
-            <div className="mt-8 rounded-[1.8rem] border border-white/60 bg-white/70 p-5">
+            <div className="mt-8 rounded-[1.8rem] border border-white/60 bg-white/70 p-5 dark:border-white/10 dark:bg-white/5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">Media Library</p>
-                  <p className="mt-1 text-xs text-slate-500">Upload gambar tersimpan di database CMS, jadi tetap terbawa saat deploy tanpa storage tambahan.</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Media Library</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Upload gambar tersimpan di database CMS, jadi tetap terbawa saat deploy tanpa storage tambahan.</p>
                 </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-900 dark:text-slate-300">
                   {uploadingMedia ? 'Mengunggah...' : `${assets.length} file`}
                 </span>
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {assets.map((asset) => (
-                  <div key={asset.id} className="rounded-[1.3rem] border border-white/70 bg-white p-3">
+                  <div key={asset.id} className="rounded-[1.3rem] border border-white/70 bg-white p-3 dark:border-white/10 dark:bg-slate-950/40">
                     <img src={asset.url} alt={asset.altText || asset.filename} className="h-32 w-full rounded-[1rem] object-cover" />
-                    <p className="mt-3 truncate text-sm font-semibold text-slate-900">{asset.filename}</p>
-                    <p className="mt-1 text-xs text-slate-500">{formatFileSize(asset.sizeBytes)}</p>
+                    <p className="mt-3 truncate text-sm font-semibold text-slate-900 dark:text-slate-100">{asset.filename}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{formatFileSize(asset.sizeBytes)}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => updateDraft('coverImage', asset.url)}
-                        className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+                        className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                       >
                         Jadikan cover
                       </button>
                       <button
                         type="button"
                         onClick={() => updateDraft('ogImage', asset.url)}
-                        className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+                        className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                       >
                         Jadikan OG
                       </button>
@@ -660,14 +630,14 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
                 ))}
 
                 {assets.length === 0 ? (
-                  <div className="rounded-[1.3rem] border border-dashed border-slate-300 px-4 py-5 text-sm text-slate-500">
+                  <div className="rounded-[1.3rem] border border-dashed border-slate-300 px-4 py-5 text-sm text-slate-500 dark:border-white/15 dark:text-slate-400">
                     Belum ada media. Upload gambar dari toolbar editor atau tombol cover/OG.
                   </div>
                 ) : null}
               </div>
             </div>
 
-            {articleMessage ? <p className="mt-4 text-sm text-slate-600">{articleMessage}</p> : null}
+            {articleMessage ? <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{articleMessage}</p> : null}
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button
@@ -681,96 +651,13 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
               <button
                 type="button"
                 onClick={handleDeleteArticle}
-                className="rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-500/30 dark:text-rose-300 dark:hover:bg-rose-500/10"
                 disabled={savingArticle}
               >
                 {draft.id ? 'Hapus Artikel' : 'Reset Form'}
               </button>
             </div>
           </div>
-        ) : (
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">SEO Default</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">Pengaturan SEO blog artikel</h2>
-            <p className="mt-2 text-sm text-slate-600">Nilai di sini dipakai untuk halaman indeks artikel dan sebagai fallback saat SEO artikel kosong.</p>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <label className="block text-sm font-medium text-slate-700">
-                Judul blog artikel
-                <input
-                  type="text"
-                  value={settings.blogTitle}
-                  onChange={(event) => setSettings((current) => ({ ...current, blogTitle: event.target.value }))}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                Default SEO title
-                <input
-                  type="text"
-                  value={settings.defaultSeoTitle}
-                  onChange={(event) => setSettings((current) => ({ ...current, defaultSeoTitle: event.target.value }))}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700 md:col-span-2">
-                Deskripsi blog artikel
-                <textarea
-                  value={settings.blogDescription}
-                  onChange={(event) => setSettings((current) => ({ ...current, blogDescription: event.target.value }))}
-                  rows={3}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700 md:col-span-2">
-                Default SEO description
-                <textarea
-                  value={settings.defaultSeoDescription}
-                  onChange={(event) => setSettings((current) => ({ ...current, defaultSeoDescription: event.target.value }))}
-                  rows={3}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                Default keywords
-                <input
-                  type="text"
-                  value={settings.defaultKeywords}
-                  onChange={(event) => setSettings((current) => ({ ...current, defaultKeywords: event.target.value }))}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
-                />
-              </label>
-
-              <label className="block text-sm font-medium text-slate-700">
-                Default OG image
-                <input
-                  type="url"
-                  value={settings.defaultOgImage}
-                  onChange={(event) => setSettings((current) => ({ ...current, defaultOgImage: event.target.value }))}
-                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
-                />
-              </label>
-            </div>
-
-            {settingsMessage ? <p className="mt-4 text-sm text-slate-600">{settingsMessage}</p> : null}
-
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleSaveSettings}
-                className="rounded-2xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={savingSettings}
-              >
-                {savingSettings ? 'Menyimpan...' : 'Simpan Pengaturan SEO'}
-              </button>
-              <p className="text-sm text-slate-500">Perubahan ini langsung dipakai untuk metadata halaman artikel.</p>
-            </div>
-          </div>
-        )}
       </section>
     </div>
   );

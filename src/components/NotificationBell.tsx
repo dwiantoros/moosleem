@@ -230,7 +230,7 @@ const syncInspirationNotifs = () => {
       >
           {/* Header + toggle */}
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifikasi</h3>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifikasi</p>
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-500">
                 {permission === 'denied' ? '⚠️ Diblokir' : isActive ? 'Aktif' : 'Nonaktif'}

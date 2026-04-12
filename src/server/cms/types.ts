@@ -49,6 +49,16 @@ export type CmsSettings = {
   updatedAt: string;
 };
 
+export type PageSeoEntry = {
+  slug: string;
+  title: string;
+  description: string;
+  keywords: string;
+  ogImage: string;
+  faqs: Array<{ question: string; answer: string }>;
+  updatedAt: string;
+};
+
 export type CmsAsset = {
   id: string;
   filename: string;

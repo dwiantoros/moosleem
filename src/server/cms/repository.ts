@@ -10,6 +10,7 @@ import {
   type CmsArticleInput,
   type CmsArticleStatus,
   type CmsSettings,
+  type PageSeoEntry,
 } from '@/server/cms/types';
 
 function valueToString(value: unknown) {
@@ -551,4 +552,119 @@ export async function createAsset(input: {
     createdAt,
     url: `/api/cms/assets/${id}`,
   } satisfies CmsAsset;
+}
+
+function rowToPageSeo(row: Record<string, unknown>): PageSeoEntry {
+  let faqs: Array<{ question: string; answer: string }> = [];
+
+  try {
+    const parsed = JSON.parse(valueToString(row.faqJson) || '[]');
+    if (Array.isArray(parsed)) {
+      faqs = parsed
+        .map((item) => ({
+          question: cleanOptionalText((item as { question?: unknown }).question),
+          answer: cleanOptionalText((item as { answer?: unknown }).answer),
+        }))
+        .filter((item) => item.question || item.answer)
+        .slice(0, 10);
+    }
+  } catch {
+    faqs = [];
+  }
+
+  return {
+    slug: valueToString(row.slug),
+    title: valueToString(row.title),
+    description: valueToString(row.description),
+    keywords: valueToString(row.keywords),
+    ogImage: valueToString(row.ogImage),
+    faqs,
+    updatedAt: valueToString(row.updatedAt),
+  };
+}
+
+export async function getAllPageSeo(): Promise<PageSeoEntry[]> {
+  const db = await getCmsDb();
+
+  if (!db) {
+    return [];
+  }
+
+  await ensureCmsTables();
+
+  const result = await db.execute('SELECT * FROM cms_page_seo ORDER BY slug ASC');
+  return result.rows.map((row) => rowToPageSeo(row as Record<string, unknown>));
+}
+
+export async function getPageSeoEntry(slug: string): Promise<PageSeoEntry | null> {
+  const db = await getCmsDb();
+
+  if (!db) {
+    return null;
+  }
+
+  await ensureCmsTables();
+
+  const result = await db.execute({
+    sql: 'SELECT * FROM cms_page_seo WHERE slug = ?',
+    args: [slug],
+  });
+
+  if (!result.rows[0]) {
+    return null;
+  }
+
+  return rowToPageSeo(result.rows[0] as Record<string, unknown>);
+}
+
+export async function upsertPageSeo(
+  slug: string,
+  data: {
+    title: string;
+    description: string;
+    keywords: string;
+    ogImage: string;
+    faqs?: Array<{ question: string; answer: string }>;
+  },
+): Promise<PageSeoEntry> {
+  const db = await getCmsDb();
+
+  if (!db) {
+    throw new Error('Database not available');
+  }
+
+  await ensureCmsTables();
+
+  const updatedAt = new Date().toISOString();
+  const normalizedFaqs = (data.faqs || [])
+    .map((item) => ({
+      question: cleanOptionalText(item.question),
+      answer: cleanOptionalText(item.answer),
+    }))
+    .filter((item) => item.question || item.answer)
+    .slice(0, 10);
+  const faqJson = JSON.stringify(normalizedFaqs);
+
+  await db.execute({
+    sql: `INSERT INTO cms_page_seo (slug, title, description, keywords, ogImage, faqJson, updatedAt)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          ON CONFLICT(slug) DO UPDATE SET
+            title = excluded.title,
+            description = excluded.description,
+            keywords = excluded.keywords,
+            ogImage = excluded.ogImage,
+            faqJson = excluded.faqJson,
+            updatedAt = excluded.updatedAt`,
+    args: [slug, data.title.trim(), data.description.trim(), data.keywords.trim(), data.ogImage.trim(), faqJson, updatedAt],
+  });
+
+  return {
+    slug,
+    title: data.title.trim(),
+    description: data.description.trim(),
+    keywords: data.keywords.trim(),
+    ogImage: data.ogImage.trim(),
+    faqs: normalizedFaqs,
+    updatedAt,
+  };
 }

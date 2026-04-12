@@ -126,6 +126,20 @@ export async function ensureCmsTables() {
 
   await db.execute('CREATE INDEX IF NOT EXISTS cms_assets_created_idx ON cms_assets(createdAt DESC)');
 
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS cms_page_seo (
+      slug TEXT PRIMARY KEY,
+      title TEXT NOT NULL DEFAULT '',
+      description TEXT NOT NULL DEFAULT '',
+      keywords TEXT NOT NULL DEFAULT '',
+      ogImage TEXT NOT NULL DEFAULT '',
+      faqJson TEXT NOT NULL DEFAULT '[]',
+      updatedAt TEXT NOT NULL
+    )
+  `);
+
+  await db.execute("ALTER TABLE cms_page_seo ADD COLUMN faqJson TEXT NOT NULL DEFAULT '[]'").catch(() => {});
+
   tablesReady = true;
   return true;
 }

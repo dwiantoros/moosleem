@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import BrandedPageHeader from '@/components/BrandedPageHeader';
-import { getCmsSettings, listArticles } from '@/server/cms/repository';
+import PageSeoFooter from '@/components/PageSeoFooter';
+import { getPageSeoEntry, getCmsSettings, listArticles } from '@/server/cms/repository';
+import { withPageSeoOverride } from '@/server/cms/pageSeo';
 import { type CmsArticle } from '@/server/cms/types';
 
 const SITE_URL = 'https://muslim-traveler.com';
@@ -45,7 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await getCmsSettings();
 
-    return {
+    return withPageSeoOverride('/artikel', {
       title: settings.defaultSeoTitle || settings.blogTitle,
       description: settings.defaultSeoDescription || settings.blogDescription,
       keywords: settings.defaultKeywords,
@@ -65,7 +67,7 @@ export async function generateMetadata(): Promise<Metadata> {
         description: settings.defaultSeoDescription || settings.blogDescription,
         images: [settings.defaultOgImage || FALLBACK_OG_IMAGE],
       },
-    };
+    });
   } catch (error) {
     // Database not available during build
     return {
@@ -80,6 +82,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ArticleIndexPage() {
   let articles: CmsArticle[] = [];
+  let pageSeoTitle = '';
+  let pageSeoDescription = '';
   let settings = {
     blogTitle: 'Artikel',
     blogDescription: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
@@ -90,12 +94,15 @@ export default async function ArticleIndexPage() {
   };
 
   try {
-    const [fetchedArticles, fetchedSettings] = await Promise.all([
+    const [fetchedArticles, fetchedSettings, fetchedPageSeo] = await Promise.all([
       listArticles(),
       getCmsSettings(),
+      getPageSeoEntry('/artikel'),
     ]);
     articles = fetchedArticles;
     settings = fetchedSettings;
+    pageSeoTitle = fetchedPageSeo?.title || '';
+    pageSeoDescription = fetchedPageSeo?.description || '';
   } catch (error) {
     // Database not available during build
     console.log('Artikel page: Database not available, showing empty state');
@@ -111,8 +118,8 @@ export default async function ArticleIndexPage() {
 
         <section className="glass-panel rounded-[2rem] p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Artikel</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{settings.blogTitle}</h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">{settings.blogDescription}</p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{pageSeoTitle || settings.blogTitle}</h1>
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">{pageSeoDescription || settings.blogDescription}</p>
         </section>
 
         <section className="mt-6 grid gap-5">
@@ -157,6 +164,8 @@ export default async function ArticleIndexPage() {
             </div>
           ) : null}
         </section>
+
+        <PageSeoFooter slug="/artikel" />
 
         <script
           type="application/ld+json"

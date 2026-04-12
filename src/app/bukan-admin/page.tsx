@@ -77,18 +77,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 </svg>
               </div>
               <div className="flex-1">
-                <h1 className="text-2xl font-semibold text-slate-900">Database Connection Error</h1>
-                <p className="mt-2 text-slate-600">
+                <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Database Connection Error</h1>
+                <p className="mt-2 text-slate-600 dark:text-slate-300">
                   Tidak bisa terhubung ke database. Pastikan TURSO_DATABASE_URL dan TURSO_AUTH_TOKEN sudah dikonfigurasi di environment variables Vercel.
                 </p>
-                <p className="mt-4 text-sm text-slate-500">
+                <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
                   Error: {error instanceof Error ? error.message : 'Unknown error'}
                 </p>
                 <div className="mt-6 flex gap-3">
                   <Link href="/bukan-admin/login" className="inline-flex items-center rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-700">
                     Kembali ke Login
                   </Link>
-                  <Link href="/" className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                  <Link href="/" className="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">
                     Ke Beranda
                   </Link>
                 </div>

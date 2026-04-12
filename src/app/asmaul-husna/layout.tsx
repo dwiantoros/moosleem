@@ -1,10 +1,19 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { withPageSeoOverride } from '@/server/cms/pageSeo';
+import PageSeoFooter from '@/components/PageSeoFooter';
 
-export const metadata: Metadata = {
-  title: 'Asmaul Husna | Muslim Traveler',
-  description: '99 nama-nama Allah yang indah beserta arti dan transliterasi Latin.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return withPageSeoOverride('/asmaul-husna', {
+    title: 'Asmaul Husna | Muslim Traveler',
+    description: '99 nama-nama Allah yang indah beserta arti dan transliterasi Latin.',
+  });
+}
 
 export default function AsmaulHusnaLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <PageSeoFooter slug='/asmaul-husna' />
+    </>
+  );
 }

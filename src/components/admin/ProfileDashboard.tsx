@@ -108,7 +108,7 @@ export default function ProfileDashboard({ initialSettings, initialAssets, backH
               type="text"
               value={settings.profileName}
               onChange={(event) => updateField('profileName', event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>
 
@@ -119,7 +119,7 @@ export default function ProfileDashboard({ initialSettings, initialAssets, backH
               value={settings.profileRole}
               onChange={(event) => updateField('profileRole', event.target.value)}
               placeholder="Contoh: Editor Muslim Traveler"
-              className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>
 
@@ -131,9 +131,9 @@ export default function ProfileDashboard({ initialSettings, initialAssets, backH
                 value={settings.profilePhoto}
                 onChange={(event) => updateField('profilePhoto', event.target.value)}
                 placeholder="https://... atau /api/cms/assets/..."
-                className="w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                className="w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
-              <label className="inline-flex cursor-pointer items-center rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+              <label className="inline-flex cursor-pointer items-center rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
                 {uploading ? 'Mengunggah...' : 'Upload foto'}
                 <input
                   type="file"
@@ -160,7 +160,7 @@ export default function ProfileDashboard({ initialSettings, initialAssets, backH
               value={settings.profileBio}
               onChange={(event) => updateField('profileBio', event.target.value)}
               rows={5}
-              className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>
 
