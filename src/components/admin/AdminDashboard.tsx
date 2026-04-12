@@ -278,7 +278,7 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
       await fetch('/api/admin/logout', {
         method: 'POST',
       });
-      router.replace('/admin/login');
+      router.replace('/bukan-admin/login');
       router.refresh();
     } finally {
       setLoggingOut(false);

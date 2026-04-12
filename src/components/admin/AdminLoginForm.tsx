@@ -35,7 +35,7 @@ export default function AdminLoginForm({ authReady, storageMode }: AdminLoginFor
         return;
       }
 
-      router.replace('/admin');
+      router.replace('/bukan-admin');
       router.refresh();
     } finally {
       setSubmitting(false);
