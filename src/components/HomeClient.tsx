@@ -10,6 +10,12 @@ import { AZAN_REMINDER_EVENT, AzanReminderSnapshot, readAzanReminderSnapshot } f
 import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
 import { getCached, getLastLocation, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
 
+const JAKARTA_FALLBACK = {
+  latitude: -6.2088,
+  longitude: 106.8456,
+  timezone: 'Asia/Jakarta',
+} as const;
+
 const DailyInspiration = dynamic(() => import('@/components/DailyInspiration'), {
   loading: () => <div className="glass-panel rounded-[1.5rem] p-5 sm:p-6 text-sm text-slate-500">Memuat inspirasi...</div>,
 });
@@ -52,6 +58,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [districtLabel, setDistrictLabel] = useState<string | null>(null);
+  const [usingFallbackLocation, setUsingFallbackLocation] = useState(false);
   const [nowTick, setNowTick] = useState(Date.now());
 
   const remainingSeconds = useMemo(() => {
@@ -157,6 +164,37 @@ export default function Home() {
 
   // Get user location and fetch prayer times
   useEffect(() => {
+    const applyJakartaFallback = async () => {
+      setUsingFallbackLocation(true);
+      setDistrictLabel('Lokasi tidak terdeteksi (fallback Jakarta)');
+
+      setLocation({
+        latitude: JAKARTA_FALLBACK.latitude,
+        longitude: JAKARTA_FALLBACK.longitude,
+        timezone: JAKARTA_FALLBACK.timezone,
+      });
+
+      // Persist fallback so reminder subscription can still use a stable location.
+      setLastLocation({
+        latitude: JAKARTA_FALLBACK.latitude,
+        longitude: JAKARTA_FALLBACK.longitude,
+        timezone: JAKARTA_FALLBACK.timezone,
+        accuracy: 0,
+      });
+
+      try {
+        await fetchPrayerData(
+          JAKARTA_FALLBACK.latitude,
+          JAKARTA_FALLBACK.longitude,
+          JAKARTA_FALLBACK.timezone,
+        );
+      } catch (fetchError) {
+        console.error('Error fetching prayer times with Jakarta fallback:', fetchError);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const fetchLocationAndPrayerTimes = async () => {
       setLoading(true);
       let hasWarmStart = false;
@@ -171,12 +209,13 @@ export default function Home() {
           timezone: cachedLoc.timezone,
         };
         setLocation(locationData);
+        setUsingFallbackLocation(false);
         setLoading(false);
         fetchPrayerData(cachedLoc.latitude, cachedLoc.longitude, cachedLoc.timezone).catch(() => {});
       }
 
       if (!('geolocation' in navigator)) {
-        setLoading(false);
+        void applyJakartaFallback();
         return;
       }
 
@@ -192,6 +231,7 @@ export default function Home() {
           };
 
           setLocation(locationData);
+          setUsingFallbackLocation(false);
           setLastLocation({
             latitude,
             longitude,
@@ -209,24 +249,7 @@ export default function Home() {
         },
         async (error) => {
           console.error('Geolocation error:', error);
-          // Fallback to default location
-          const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          const fallbackLatitude = 40.7128;
-          const fallbackLongitude = -74.006;
-
-          setLocation({
-            latitude: fallbackLatitude,
-            longitude: fallbackLongitude,
-            timezone: fallbackTimezone,
-          });
-
-          try {
-            await fetchPrayerData(fallbackLatitude, fallbackLongitude, fallbackTimezone);
-          } catch (fetchError) {
-            console.error('Error fetching prayer times with fallback location:', fetchError);
-          } finally {
-            setLoading(false);
-          }
+          await applyJakartaFallback();
         },
         {
           // Prioritize fast first fix instead of high-accuracy cold starts.
@@ -318,7 +341,7 @@ export default function Home() {
     const hydrate = async () => {
       const cached = getCached<{ district: string | null }>(key, TTL_MS);
       if (cached) {
-        setDistrictLabel(cached.data.district ?? null);
+        setDistrictLabel(cached.data.district ?? (usingFallbackLocation ? 'Lokasi tidak terdeteksi (fallback Jakarta)' : null));
         if (!cached.isStale) return;
       }
 
@@ -328,15 +351,18 @@ export default function Home() {
           longitude: location.longitude,
         }, 10000);
         const district = res?.district ?? null;
-        setDistrictLabel(district);
+        setDistrictLabel(district ?? (usingFallbackLocation ? 'Lokasi tidak terdeteksi (fallback Jakarta)' : null));
         safeSet(key, { district });
       } catch {
         // ignore reverse geocode failures
+        if (usingFallbackLocation) {
+          setDistrictLabel('Lokasi tidak terdeteksi (fallback Jakarta)');
+        }
       }
     };
 
     hydrate();
-  }, [location?.latitude, location?.longitude]);
+  }, [location?.latitude, location?.longitude, usingFallbackLocation]);
 
   // Handle azan reminder notifications — now managed entirely in AzanReminder component
 
@@ -384,7 +410,13 @@ export default function Home() {
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
               <span className="rounded-xl border border-teal-300/45 bg-gradient-to-r from-teal-500/12 to-cyan-500/10 px-3 py-1.5 text-[11px] font-semibold text-teal-700 dark:border-teal-700/55 dark:from-teal-400/20 dark:to-cyan-400/16 dark:text-teal-300">
-                {districtLabel ? `Anda berada di ${districtLabel}` : 'Mencari distrik...'}
+                {districtLabel
+                  ? districtLabel.startsWith('Lokasi tidak terdeteksi')
+                    ? districtLabel
+                    : `Anda berada di ${districtLabel}`
+                  : usingFallbackLocation
+                    ? 'Lokasi tidak terdeteksi (fallback Jakarta)'
+                    : 'Mencari distrik...'}
               </span>
               <span className="glass-subtle rounded-full px-3 py-1.5">{location?.timezone ?? 'Timezone not detected'}</span>
               <span className="glass-subtle rounded-full px-3 py-1.5">Qibla {qiblaBearing !== null ? `${qiblaBearing.toFixed(1)}°` : '--'}</span>
@@ -422,7 +454,13 @@ export default function Home() {
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <div className="glass-subtle rounded-2xl p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Status</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">{location ? 'Lokasi aktif' : 'Mendeteksi lokasi'}</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {location
+                      ? usingFallbackLocation
+                        ? 'Fallback Jakarta'
+                        : 'Lokasi aktif'
+                      : 'Mendeteksi lokasi'}
+                  </p>
                 </div>
                 <div className="glass-subtle rounded-2xl p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Reminder</p>
