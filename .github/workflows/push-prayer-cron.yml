@@ -1,0 +1,37 @@
+name: External Push Prayer Scheduler
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-push-prayer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      CRON_URL: https://muslim-traveler.vercel.app/api/cron/push-prayer
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Trigger prayer push endpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            HTTP_CODE=$(curl -sS -o response.json -w "%{http_code}" \
+              -X POST "${CRON_URL}")
+          else
+            HTTP_CODE=$(curl -sS -o response.json -w "%{http_code}" \
+              -X POST "${CRON_URL}" \
+              -H "x-cron-secret: ${CRON_SECRET}")
+          fi
+
+          echo "HTTP status: ${HTTP_CODE}"
+          cat response.json
+
+          if [ "${HTTP_CODE}" -lt 200 ] || [ "${HTTP_CODE}" -ge 300 ]; then
+            echo "Scheduler request failed with status ${HTTP_CODE}"
+            exit 1
+          fi
