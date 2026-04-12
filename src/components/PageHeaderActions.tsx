@@ -34,7 +34,7 @@ export default function PageHeaderActions() {
       <button
         onClick={toggleTheme}
         aria-label="Toggle dark mode"
-        className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300"
+        className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full border border-white/60 text-slate-700 transition hover:bg-white/70 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
       >
         {dark ? (
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -52,7 +52,7 @@ export default function PageHeaderActions() {
       <Link
         href="/search"
         aria-label="Cari"
-        className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300"
+        className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full border border-white/60 text-slate-700 transition hover:bg-white/70 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
       >
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
           <circle cx="11" cy="11" r="6.5" />
@@ -60,7 +60,7 @@ export default function PageHeaderActions() {
         </svg>
       </Link>
 
-      {/* Bell â€” notification panel */}
+      {/* Bell - notification panel */}
       <NotificationBell />
     </div>
   );

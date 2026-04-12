@@ -20,7 +20,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ settings });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Gagal menyimpan pengaturan SEO.' },
+      { error: error instanceof Error ? error.message : 'Gagal menyimpan pengaturan CMS.' },
       { status: 400 }
     );
   }

@@ -13,6 +13,7 @@ type ArticleDraft = {
   id: string;
   title: string;
   slug: string;
+  category: string;
   excerpt: string;
   content: string;
   coverImage: string;
@@ -30,12 +31,14 @@ type AdminDashboardProps = {
   initialSettings: CmsSettings;
   initialAssets: CmsAsset[];
   storageMode: StorageMode;
+  profileHref?: string;
 };
 
 const EMPTY_ARTICLE: ArticleDraft = {
   id: '',
   title: '',
   slug: '',
+  category: 'Artikel',
   excerpt: '',
   content: '',
   coverImage: '',
@@ -72,6 +75,7 @@ function fromArticle(article?: CmsArticle | null): ArticleDraft {
     id: article.id,
     title: article.title,
     slug: article.slug,
+    category: article.category || 'Artikel',
     excerpt: article.excerpt,
     content: article.content,
     coverImage: article.coverImage,
@@ -112,7 +116,7 @@ function formatFileSize(sizeBytes: number) {
   return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function AdminDashboard({ initialArticles, initialSettings, initialAssets, storageMode }: AdminDashboardProps) {
+export default function AdminDashboard({ initialArticles, initialSettings, initialAssets, storageMode, profileHref = '/bukan-admin/profil' }: AdminDashboardProps) {
   const router = useRouter();
   const [articles, setArticles] = useState(initialArticles);
   const [assets, setAssets] = useState(initialAssets);
@@ -173,6 +177,7 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
         body: JSON.stringify({
           title: draft.title,
           slug: draft.slug,
+          category: draft.category,
           excerpt: draft.excerpt,
           content: draft.content,
           coverImage: draft.coverImage,
@@ -359,6 +364,11 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
           ))}
         </div>
 
+        <Link href={profileHref} className="mt-3 flex items-center justify-between rounded-[1.3rem] border border-white/60 bg-white/70 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-white/90">
+          <span>Profil author</span>
+          <span aria-hidden="true">→</span>
+        </Link>
+
         <div className="mt-5 flex items-center justify-between">
           <p className="text-sm font-semibold text-slate-900">Daftar artikel</p>
           <button
@@ -448,6 +458,17 @@ export default function AdminDashboard({ initialArticles, initialSettings, initi
                   value={draft.slug}
                   onChange={(event) => updateDraft('slug', event.target.value)}
                   placeholder="akan dibuat otomatis jika kosong"
+                  className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
+                />
+              </label>
+
+              <label className="block text-sm font-medium text-slate-700">
+                Kategori artikel
+                <input
+                  type="text"
+                  value={draft.category}
+                  onChange={(event) => updateDraft('category', event.target.value)}
+                  placeholder="Contoh: Panduan Ibadah"
                   className="mt-2 w-full rounded-2xl border border-white/70 bg-white/85 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400"
                 />
               </label>

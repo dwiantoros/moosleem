@@ -21,6 +21,7 @@ function rowToArticle(row: Record<string, unknown>): CmsArticle {
     id: valueToString(row.id),
     title: valueToString(row.title),
     slug: valueToString(row.slug),
+    category: valueToString(row.category) || 'Artikel',
     excerpt: valueToString(row.excerpt),
     content: valueToString(row.content),
     coverImage: valueToString(row.coverImage),
@@ -48,8 +49,20 @@ function rowToSettings(row?: Record<string, unknown>): CmsSettings {
     defaultSeoDescription: valueToString(row.defaultSeoDescription) || DEFAULT_CMS_SETTINGS.defaultSeoDescription,
     defaultKeywords: valueToString(row.defaultKeywords) || DEFAULT_CMS_SETTINGS.defaultKeywords,
     defaultOgImage: valueToString(row.defaultOgImage),
+    profileName: valueToString(row.profileName) || DEFAULT_CMS_SETTINGS.profileName,
+    profileRole: valueToString(row.profileRole) || DEFAULT_CMS_SETTINGS.profileRole,
+    profilePhoto: valueToString(row.profilePhoto),
+    profileBio: valueToString(row.profileBio) || DEFAULT_CMS_SETTINGS.profileBio,
     updatedAt: valueToString(row.updatedAt) || DEFAULT_CMS_SETTINGS.updatedAt,
   };
+}
+
+function pickSettingText(input: Partial<CmsSettings>, key: keyof CmsSettings, current: string) {
+  if (!(key in input)) {
+    return current;
+  }
+
+  return cleanOptionalText(input[key]);
 }
 
 function valueToNumber(value: unknown) {
@@ -76,6 +89,19 @@ function cleanText(value: unknown) {
 
 function cleanOptionalText(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizeArticleContent(value: string) {
+  return value
+    .trim()
+    .replace(/\r\n/g, '\n')
+    .replace(/\\r\\n|\\n|\\r/g, '\n')
+    .replace(/`r`n|`n|`r/g, '\n')
+    .replace(/([.!?])n(?=#{1,6}\s)/g, '$1\n\n')
+    .replace(/(^|\s)n(?=#{1,6}\s)/g, '\n\n')
+    .replace(/\sn(?=[A-Z])/g, '\n')
+    .replace(/([.!?])n(?=[A-Z])/g, '$1\n\n')
+    .replace(/\n{3,}/g, '\n\n');
 }
 
 function slugify(value: string) {
@@ -129,8 +155,9 @@ function normalizeArticleInput(input: CmsArticleInput, existing?: CmsArticle) {
   return {
     title,
     slug,
+    category: cleanOptionalText(input.category) || existing?.category || 'Artikel',
     excerpt: cleanOptionalText(input.excerpt),
-    content: typeof input.content === 'string' ? input.content.trim() : existing?.content || '',
+    content: typeof input.content === 'string' ? normalizeArticleContent(input.content) : existing?.content || '',
     coverImage: cleanOptionalText(input.coverImage),
     seoTitle: cleanOptionalText(input.seoTitle),
     seoDescription: cleanOptionalText(input.seoDescription),
@@ -217,14 +244,15 @@ export async function createArticle(input: CmsArticleInput) {
     await db.execute({
       sql: `
         INSERT INTO cms_articles (
-          id, title, slug, excerpt, content, coverImage, seoTitle, seoDescription,
+          id, title, slug, category, excerpt, content, coverImage, seoTitle, seoDescription,
           seoKeywords, canonicalUrl, ogImage, status, publishedAt, createdAt, updatedAt
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       args: [
         id,
         article.title,
         article.slug,
+        article.category,
         article.excerpt,
         article.content,
         article.coverImage,
@@ -275,7 +303,7 @@ export async function updateArticle(id: string, input: CmsArticleInput) {
     await db.execute({
       sql: `
         UPDATE cms_articles
-        SET title = ?, slug = ?, excerpt = ?, content = ?, coverImage = ?, seoTitle = ?,
+        SET title = ?, slug = ?, category = ?, excerpt = ?, content = ?, coverImage = ?, seoTitle = ?,
             seoDescription = ?, seoKeywords = ?, canonicalUrl = ?, ogImage = ?, status = ?,
             publishedAt = ?, updatedAt = ?
         WHERE id = ?
@@ -283,6 +311,7 @@ export async function updateArticle(id: string, input: CmsArticleInput) {
       args: [
         article.title,
         article.slug,
+        article.category,
         article.excerpt,
         article.content,
         article.coverImage,
@@ -355,8 +384,8 @@ export async function getCmsSettings() {
       sql: `
         INSERT INTO cms_settings (
           id, blogTitle, blogDescription, defaultSeoTitle, defaultSeoDescription,
-          defaultKeywords, defaultOgImage, updatedAt
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          defaultKeywords, defaultOgImage, profileName, profileRole, profilePhoto, profileBio, updatedAt
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       args: [
         'global',
@@ -366,6 +395,10 @@ export async function getCmsSettings() {
         defaults.defaultSeoDescription,
         defaults.defaultKeywords,
         defaults.defaultOgImage,
+        defaults.profileName,
+        defaults.profileRole,
+        defaults.profilePhoto,
+        defaults.profileBio,
         defaults.updatedAt,
       ],
     });
@@ -386,12 +419,16 @@ export async function updateCmsSettings(input: Partial<CmsSettings>) {
   const current = await getCmsSettings();
   const updatedAt = new Date().toISOString();
   const next = {
-    blogTitle: cleanOptionalText(input.blogTitle) || current.blogTitle,
-    blogDescription: cleanOptionalText(input.blogDescription) || current.blogDescription,
-    defaultSeoTitle: cleanOptionalText(input.defaultSeoTitle) || current.defaultSeoTitle,
-    defaultSeoDescription: cleanOptionalText(input.defaultSeoDescription) || current.defaultSeoDescription,
-    defaultKeywords: cleanOptionalText(input.defaultKeywords) || current.defaultKeywords,
-    defaultOgImage: cleanOptionalText(input.defaultOgImage),
+    blogTitle: pickSettingText(input, 'blogTitle', current.blogTitle),
+    blogDescription: pickSettingText(input, 'blogDescription', current.blogDescription),
+    defaultSeoTitle: pickSettingText(input, 'defaultSeoTitle', current.defaultSeoTitle),
+    defaultSeoDescription: pickSettingText(input, 'defaultSeoDescription', current.defaultSeoDescription),
+    defaultKeywords: pickSettingText(input, 'defaultKeywords', current.defaultKeywords),
+    defaultOgImage: pickSettingText(input, 'defaultOgImage', current.defaultOgImage),
+    profileName: pickSettingText(input, 'profileName', current.profileName),
+    profileRole: pickSettingText(input, 'profileRole', current.profileRole),
+    profilePhoto: pickSettingText(input, 'profilePhoto', current.profilePhoto),
+    profileBio: pickSettingText(input, 'profileBio', current.profileBio),
     updatedAt,
   } satisfies CmsSettings;
 
@@ -399,8 +436,8 @@ export async function updateCmsSettings(input: Partial<CmsSettings>) {
     sql: `
       INSERT INTO cms_settings (
         id, blogTitle, blogDescription, defaultSeoTitle, defaultSeoDescription,
-        defaultKeywords, defaultOgImage, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        defaultKeywords, defaultOgImage, profileName, profileRole, profilePhoto, profileBio, updatedAt
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         blogTitle = excluded.blogTitle,
         blogDescription = excluded.blogDescription,
@@ -408,6 +445,10 @@ export async function updateCmsSettings(input: Partial<CmsSettings>) {
         defaultSeoDescription = excluded.defaultSeoDescription,
         defaultKeywords = excluded.defaultKeywords,
         defaultOgImage = excluded.defaultOgImage,
+        profileName = excluded.profileName,
+        profileRole = excluded.profileRole,
+        profilePhoto = excluded.profilePhoto,
+        profileBio = excluded.profileBio,
         updatedAt = excluded.updatedAt
     `,
     args: [
@@ -418,6 +459,10 @@ export async function updateCmsSettings(input: Partial<CmsSettings>) {
       next.defaultSeoDescription,
       next.defaultKeywords,
       next.defaultOgImage,
+      next.profileName,
+      next.profileRole,
+      next.profilePhoto,
+      next.profileBio,
       next.updatedAt,
     ],
   });

@@ -70,6 +70,7 @@ export async function ensureCmsTables() {
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
       slug TEXT NOT NULL UNIQUE,
+      category TEXT NOT NULL DEFAULT 'Artikel',
       excerpt TEXT NOT NULL DEFAULT '',
       content TEXT NOT NULL DEFAULT '',
       coverImage TEXT NOT NULL DEFAULT '',
@@ -87,6 +88,7 @@ export async function ensureCmsTables() {
 
   await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS cms_articles_slug_idx ON cms_articles(slug)');
   await db.execute('CREATE INDEX IF NOT EXISTS cms_articles_status_published_idx ON cms_articles(status, publishedAt DESC)');
+  await db.execute("ALTER TABLE cms_articles ADD COLUMN category TEXT NOT NULL DEFAULT 'Artikel'").catch(() => {});
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS cms_settings (
@@ -97,9 +99,18 @@ export async function ensureCmsTables() {
       defaultSeoDescription TEXT NOT NULL DEFAULT '',
       defaultKeywords TEXT NOT NULL DEFAULT '',
       defaultOgImage TEXT NOT NULL DEFAULT '',
+      profileName TEXT NOT NULL DEFAULT 'Tim Muslim Traveler',
+      profileRole TEXT NOT NULL DEFAULT 'Editor Muslim Traveler',
+      profilePhoto TEXT NOT NULL DEFAULT '',
+      profileBio TEXT NOT NULL DEFAULT '',
       updatedAt TEXT NOT NULL
     )
   `);
+
+  await db.execute("ALTER TABLE cms_settings ADD COLUMN profileName TEXT NOT NULL DEFAULT 'Tim Muslim Traveler'").catch(() => {});
+  await db.execute("ALTER TABLE cms_settings ADD COLUMN profileRole TEXT NOT NULL DEFAULT 'Editor Muslim Traveler'").catch(() => {});
+  await db.execute("ALTER TABLE cms_settings ADD COLUMN profilePhoto TEXT NOT NULL DEFAULT ''").catch(() => {});
+  await db.execute("ALTER TABLE cms_settings ADD COLUMN profileBio TEXT NOT NULL DEFAULT ''").catch(() => {});
 
   await db.execute(`
     CREATE TABLE IF NOT EXISTS cms_assets (

@@ -4,6 +4,7 @@ export type CmsArticle = {
   id: string;
   title: string;
   slug: string;
+  category: string;
   excerpt: string;
   content: string;
   coverImage: string;
@@ -21,6 +22,7 @@ export type CmsArticle = {
 export type CmsArticleInput = {
   title: string;
   slug?: string;
+  category?: string;
   excerpt?: string;
   content?: string;
   coverImage?: string;
@@ -40,6 +42,10 @@ export type CmsSettings = {
   defaultSeoDescription: string;
   defaultKeywords: string;
   defaultOgImage: string;
+  profileName: string;
+  profileRole: string;
+  profilePhoto: string;
+  profileBio: string;
   updatedAt: string;
 };
 
@@ -60,5 +66,9 @@ export const DEFAULT_CMS_SETTINGS: CmsSettings = {
   defaultSeoDescription: 'Baca artikel Islami, panduan ibadah, dan tips Muslim Traveler dengan pengaturan SEO yang siap publish.',
   defaultKeywords: 'artikel islami, muslim traveler, panduan ibadah, seo artikel islam',
   defaultOgImage: '',
+  profileName: 'Tim Muslim Traveler',
+  profileRole: 'Editor Muslim Traveler',
+  profilePhoto: '',
+  profileBio: 'Tim redaksi Muslim Traveler yang membagikan panduan ibadah, perjalanan halal, dan inspirasi harian.',
   updatedAt: new Date(0).toISOString(),
 };

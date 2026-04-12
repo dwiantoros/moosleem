@@ -448,18 +448,6 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
     ];
   }
 
-  if (pathname === '/') {
-    return [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        '@id': `${SITE_URL}/#homepage`,
-        name: 'Muslim Traveler',
-        url: SITE_URL,
-      },
-    ];
-  }
-
   return [];
 }
 
@@ -472,6 +460,12 @@ function getSchemaByPath(pathname: string): JsonObject | JsonObject[] {
 
 export default function RouteSchema() {
   const pathname = usePathname();
+
+  // Article detail has its own page-specific JSON-LD (Article + Breadcrumb)
+  if (pathname.startsWith('/artikel/')) {
+    return null;
+  }
+
   const schema = useMemo(() => getSchemaByPath(pathname), [pathname]);
 
   return (
