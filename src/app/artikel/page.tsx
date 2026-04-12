@@ -92,7 +92,7 @@ export default async function ArticleIndexPage() {
 
           {articles.length === 0 ? (
             <div className="glass-panel rounded-[1.8rem] p-6 text-sm leading-7 text-slate-600">
-              Belum ada artikel yang dipublikasikan. Masuk ke dashboard admin di <Link href="/bukan-admin/login" className="font-semibold text-teal-700">/bukan-admin/login</Link> untuk menulis artikel pertama.
+              Belum ada artikel yang dipublikasikan. Silakan hubungi admin untuk menulis artikel pertama.
             </div>
           ) : null}
         </section>
