@@ -150,6 +150,7 @@ export default function BottomNav() {
     document.documentElement.classList.toggle('dark', next);
     document.documentElement.style.colorScheme = next ? 'dark' : 'light';
     localStorage.setItem('theme', next ? 'dark' : 'light');
+    document.cookie = 'theme=' + (next ? 'dark' : 'light') + ';path=/;max-age=31536000;SameSite=Lax';
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', next ? '#07111d' : '#eef3fb');
     setDark(next);

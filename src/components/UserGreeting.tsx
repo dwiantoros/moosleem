@@ -79,6 +79,7 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
     document.documentElement.classList.toggle('dark', nextTheme === 'dark');
     document.documentElement.style.colorScheme = nextTheme;
     localStorage.setItem('theme', nextTheme);
+    document.cookie = 'theme=' + nextTheme + ';path=/;max-age=31536000;SameSite=Lax';
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', nextTheme === 'dark' ? '#07111d' : '#eef3fb');
   };

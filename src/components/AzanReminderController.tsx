@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { PrayerTimes } from '@/types';
 import { getCached, getLastLocation, prayerCacheKey, safeSet } from '@/utils/clientCache';
@@ -42,6 +42,24 @@ interface WebsitePopup {
 }
 
 export default function AzanReminderController() {
+  // Safety net: re-apply theme from localStorage/cookie BEFORE first paint,
+  // in case React 19 hydration reconciliation removed the dark class.
+  useLayoutEffect(() => {
+    try {
+      let ck = '';
+      document.cookie.split(';').forEach((c) => {
+        const t = c.trim();
+        if (t.startsWith('theme=')) ck = t.slice(6);
+      });
+      const saved = ck || localStorage.getItem('theme');
+      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved ?? (systemDark ? 'dark' : 'light');
+      const isDark = theme === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+      if (!ck) document.cookie = 'theme=' + theme + ';path=/;max-age=31536000;SameSite=Lax';
+    } catch {}
+  }, []);
   const [snapshot, setSnapshot] = useState<AzanReminderSnapshot>(() => readAzanReminderSnapshot());
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
   const [popup, setPopup] = useState<WebsitePopup | null>(null);
