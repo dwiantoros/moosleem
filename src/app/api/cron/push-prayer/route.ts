@@ -5,7 +5,7 @@ function isAuthorized(request: NextRequest): boolean {
   const isVercelCron = Boolean(request.headers.get('x-vercel-cron'));
   if (isVercelCron) return true;
 
-  const secret = process.env.CRON_SECRET;
+  const secret = process.env.CRON_SECRET?.trim();
   if (!secret) return false;
 
   const bearer = request.headers.get('authorization');
@@ -17,7 +17,8 @@ function isAuthorized(request: NextRequest): boolean {
   const xApiKey = request.headers.get('x-api-key');
   if (xApiKey === secret) return true;
 
-  return request.nextUrl.searchParams.get('secret') === secret;
+  const querySecret = request.nextUrl.searchParams.get('secret');
+  return querySecret === secret;
 }
 
 async function handleCron(request: NextRequest) {
