@@ -51,38 +51,49 @@ export default function MosquesPage() {
     }
 
     const resolvePermissionState = async () => {
+      const refreshPreciseLocation = (onError: () => void) => {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setLocationPermission('granted');
+            setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, timezone });
+            setLastLocation({
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+              timezone,
+              accuracy: pos.coords.accuracy,
+            });
+            setLoading(false);
+          },
+          () => {
+            onError();
+            setLoading(false);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 60 * 1000 }
+        );
+      };
+
       if ('permissions' in navigator && navigator.permissions?.query) {
         try {
           const status = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
           if (status.state === 'granted') {
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const cached = getLastLocation(12 * 60 * 60 * 1000);
+            // Keep initial paint fast with cache, but never trust old coordinates for nearest-place ranking.
+            const cached = getLastLocation(15 * 60 * 1000);
             if (cached) {
               setLocationPermission('granted');
               setLocation({ latitude: cached.latitude, longitude: cached.longitude, timezone: cached.timezone });
               setLoading(false);
+              refreshPreciseLocation(() => {
+                // Keep cached location when precise refresh fails.
+              });
               return;
             }
 
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                setLocationPermission('granted');
-                setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, timezone });
-                setLastLocation({
-                  latitude: pos.coords.latitude,
-                  longitude: pos.coords.longitude,
-                  timezone,
-                  accuracy: pos.coords.accuracy,
-                });
-                setLoading(false);
-              },
-              () => {
+            refreshPreciseLocation(() => {
                 setLocationPermission('prompt');
                 setShowPermissionPopup(true);
-                setLoading(false);
-              },
-              { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
+            });
             return;
           }
 
