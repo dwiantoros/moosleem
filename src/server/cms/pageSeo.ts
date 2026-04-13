@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 
 import { getPageSeoEntry } from '@/server/cms/repository';
 
-const DEFAULT_OG_LOGO = 'https://muslim-traveler.com/logo-muslim-traveler.svg';
+const DEFAULT_OG_LOGO = 'https://muslim-traveler.com/api/og';
 
 /**
  * Merges CMS-stored SEO overrides on top of static page metadata.

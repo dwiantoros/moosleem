@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     siteName: "Muslim Traveler",
     images: [
       {
-        url: "/logo-muslim-traveler.svg",
+        url: "/api/og",
         width: 1200,
         height: 630,
         alt: "Muslim Traveler App",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Muslim Traveler - Prayer Times, Quran & Halal Finder",
     description: "Your comprehensive Islamic companion app for traveling Muslims",
-    images: ["/logo-muslim-traveler.svg"],
+    images: ["/api/og"],
   },
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],

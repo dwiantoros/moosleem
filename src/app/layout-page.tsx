@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     description: "Aplikasi lengkap untuk Muslim traveler dengan jadwal shalat akurat, baca Quran, pengingat azan, dan halal finder",
     url: "https://muslim-traveler.com",
     type: "website",
-    images: [{ url: "https://muslim-traveler.com/logo-muslim-traveler.svg" }],
+    images: [{ url: "https://muslim-traveler.com/api/og" }],
   },
 };
 
