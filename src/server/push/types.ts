@@ -10,10 +10,10 @@ export interface PushSubscriptionPayload {
 export interface PushSubscriber {
   endpoint: string;
   subscription: PushSubscriptionPayload;
-  latitude: number;
-  longitude: number;
-  timezone: string;
-  method: number;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+  method?: number;
   createdAt: number;
   updatedAt: number;
   lastSentTags: string[];

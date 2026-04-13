@@ -84,6 +84,21 @@ function isBeforeWindow(time: string, hour: number, minute: number, minutesBefor
   return nowMinute >= beforeMinute && nowMinute < beforeMinute + windowMinutes;
 }
 
+function hasPrayerLocation(subscriber: PushSubscriber): subscriber is PushSubscriber & {
+  latitude: number;
+  longitude: number;
+  timezone: string;
+} {
+  return (
+    typeof subscriber.latitude === 'number' &&
+    Number.isFinite(subscriber.latitude) &&
+    typeof subscriber.longitude === 'number' &&
+    Number.isFinite(subscriber.longitude) &&
+    typeof subscriber.timezone === 'string' &&
+    subscriber.timezone.length > 0
+  );
+}
+
 async function fetchPrayerTimes(subscriber: PushSubscriber, date: string): Promise<Record<string, string> | null> {
   try {
     const response = await axios.get(`${ALADHAN_API}/timings/${date}`, {
@@ -128,6 +143,10 @@ export async function runPushPrayerCron(): Promise<{
   let removed = 0;
 
   for (const subscriber of subscribers) {
+    if (!hasPrayerLocation(subscriber)) {
+      continue;
+    }
+
     const zoned = getZonedNow(subscriber.timezone);
     const timings = await fetchPrayerTimes(subscriber, zoned.date);
     if (!timings) continue;

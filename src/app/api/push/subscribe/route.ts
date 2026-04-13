@@ -22,18 +22,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid push subscription payload' }, { status: 400 });
     }
 
-    if (!location || Number.isNaN(location.latitude) || Number.isNaN(location.longitude) || !location.timezone) {
-      return NextResponse.json({ error: 'Location and timezone are required for server-side prayer push' }, { status: 400 });
+    const hasLocation =
+      location &&
+      !Number.isNaN(Number(location.latitude)) &&
+      !Number.isNaN(Number(location.longitude)) &&
+      Boolean(location.timezone);
+
+    if (location && !hasLocation) {
+      return NextResponse.json({ error: 'Format location tidak valid.' }, { status: 400 });
     }
 
     const now = Date.now();
     await upsertPushSubscriber({
       endpoint: subscription.endpoint,
       subscription,
-      latitude: Number(location.latitude),
-      longitude: Number(location.longitude),
-      timezone: location.timezone,
-      method: location.method ?? 2,
+      latitude: hasLocation ? Number(location?.latitude) : undefined,
+      longitude: hasLocation ? Number(location?.longitude) : undefined,
+      timezone: hasLocation ? location?.timezone : undefined,
+      method: hasLocation ? location?.method ?? 2 : undefined,
       createdAt: now,
       updatedAt: now,
       lastSentTags: [],
