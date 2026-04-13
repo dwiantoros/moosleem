@@ -16,7 +16,6 @@ const PrayersIcon = ({ name }: { name: string }) => {
     Sunrise: '☀️',
     Dhuhr: '☀️',
     Asr: '🌤️',
-    Sunset: '🌆',
     Maghrib: '🌅',
     Isha: '🌙',
   };
@@ -28,7 +27,6 @@ const prayerArabicLabels: Record<string, string> = {
   Sunrise: 'الشروق',
   Dhuhr: 'الظهر',
   Asr: 'العصر',
-  Sunset: 'الغروب',
   Maghrib: 'المغرب',
   Isha: 'العشاء',
 };
@@ -38,7 +36,7 @@ export default function PrayerTimesCard({
   loading,
   nextPrayer,
 }: PrayerTimesCardProps) {
-  const prayerList = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Sunset', 'Maghrib', 'Isha'];
+  const prayerList = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
   if (loading) {
     return (

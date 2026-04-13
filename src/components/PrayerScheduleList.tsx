@@ -8,7 +8,6 @@ const prayerArabicLabels: { [key: string]: string } = {
   Sunrise: 'الشروق',
   Dhuhr: 'الظهر',
   Asr: 'العصر',
-  Sunset: 'الغروب',
   Maghrib: 'المغرب',
   Isha: 'العشاء',
 };
@@ -26,7 +25,7 @@ export default function PrayerScheduleList({
   loading,
   embedded = false,
 }: PrayerScheduleListProps) {
-  const prayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Sunset', 'Maghrib', 'Isha'];
+  const prayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const prayerIcons: Record<string, React.ReactNode> = {
     Fajr: (
       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -50,12 +49,6 @@ export default function PrayerScheduleList({
       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <circle cx="10" cy="10" r="4" />
         <path d="M14 14l4 4" strokeLinecap="round" />
-      </svg>
-    ),
-    Sunset: (
-      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M5 16h14" strokeLinecap="round" />
-        <path d="M8 11 12 15l4-4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
     Maghrib: (

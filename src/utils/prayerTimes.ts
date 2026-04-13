@@ -92,7 +92,7 @@ export const getNextPrayer = (
   timezone: string
 ): { name: string; time: string; minutesUntil: number } | null => {
   const now = new Date();
-  const prayerOrder = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Sunset', 'Maghrib', 'Isha'];
+  const prayerOrder = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const parseTime = (timeStr: string): { hours: number; minutes: number } | null => {
     const match = timeStr.match(/^(\d{1,2}):(\d{2})/);
     if (!match) return null;
