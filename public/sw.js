@@ -45,6 +45,9 @@ self.addEventListener('push', (event) => {
     tag: payload.tag,
     requireInteraction: Boolean(payload.requireInteraction),
     silent: false,
+    icon: payload.icon || '/logo-muslim-traveler.svg',
+    badge: payload.badge || '/favicon.svg',
+    image: payload.image,
     data: { url: payload.url || '/' },
     actions: Array.isArray(payload.actions) ? payload.actions : undefined,
   };

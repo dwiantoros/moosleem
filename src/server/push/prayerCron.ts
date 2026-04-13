@@ -13,6 +13,13 @@ const LABELS: Record<string, string> = {
   Isha: "Isya'",
 };
 const MINUTES_BEFORE = 10;
+const DISPATCH_WINDOW_MINUTES = Math.max(
+  1,
+  Number.parseInt(process.env.PUSH_DISPATCH_WINDOW_MINUTES ?? '15', 10) || 15
+);
+const DEFAULT_ICON = '/logo-muslim-traveler.svg';
+const DEFAULT_BADGE = '/favicon.svg';
+const DEFAULT_IMAGE = '/logo-muslim-traveler.svg';
 
 function getZonedNow(timezone: string): {
   date: string;
@@ -60,19 +67,21 @@ function toMinuteOfDay(time: string): number | null {
   return Number(match[1]) * 60 + Number(match[2]);
 }
 
-function isSameMinute(time: string, hour: number, minute: number): boolean {
+function isWithinWindow(time: string, hour: number, minute: number, windowMinutes: number): boolean {
   const target = toMinuteOfDay(time);
   if (target === null) return false;
-  return target === hour * 60 + minute;
+
+  const nowMinute = hour * 60 + minute;
+  return nowMinute >= target && nowMinute < target + windowMinutes;
 }
 
-function isBeforeMinute(time: string, hour: number, minute: number, minutesBefore: number): boolean {
+function isBeforeWindow(time: string, hour: number, minute: number, minutesBefore: number, windowMinutes: number): boolean {
   const target = toMinuteOfDay(time);
   if (target === null) return false;
 
   const nowMinute = hour * 60 + minute;
   const beforeMinute = target - minutesBefore;
-  return nowMinute === beforeMinute;
+  return nowMinute >= beforeMinute && nowMinute < beforeMinute + windowMinutes;
 }
 
 async function fetchPrayerTimes(subscriber: PushSubscriber, date: string): Promise<Record<string, string> | null> {
@@ -110,10 +119,12 @@ async function markSent(subscriber: PushSubscriber, tag: string): Promise<void> 
 export async function runPushPrayerCron(): Promise<{
   total: number;
   sent: number;
+  failed: number;
   removed: number;
 }> {
   const subscribers = await listPushSubscribers();
   let sent = 0;
+  let failed = 0;
   let removed = 0;
 
   for (const subscriber of subscribers) {
@@ -127,7 +138,7 @@ export async function runPushPrayerCron(): Promise<{
 
       const label = LABELS[prayer] ?? prayer;
 
-      if (isSameMinute(timing, zoned.hour, zoned.minute)) {
+      if (isWithinWindow(timing, zoned.hour, zoned.minute, DISPATCH_WINDOW_MINUTES)) {
         const tag = `push-at-${subscriber.timezone}-${zoned.date}-${prayer}`;
         if (!alreadySent(subscriber, tag)) {
           const payload: PushPayload = {
@@ -136,6 +147,9 @@ export async function runPushPrayerCron(): Promise<{
             tag,
             requireInteraction: true,
             url: '/',
+            icon: DEFAULT_ICON,
+            badge: DEFAULT_BADGE,
+            image: DEFAULT_IMAGE,
             actions: [
               { action: 'open-app', title: 'Buka' },
               { action: 'stop-azan', title: 'Stop Adzan' },
@@ -151,11 +165,13 @@ export async function runPushPrayerCron(): Promise<{
           if (result.delivered) {
             sent += 1;
             await markSent(subscriber, tag);
+          } else {
+            failed += 1;
           }
         }
       }
 
-      if (isBeforeMinute(timing, zoned.hour, zoned.minute, MINUTES_BEFORE)) {
+      if (isBeforeWindow(timing, zoned.hour, zoned.minute, MINUTES_BEFORE, DISPATCH_WINDOW_MINUTES)) {
         const tag = `push-before-${subscriber.timezone}-${zoned.date}-${prayer}`;
         if (!alreadySent(subscriber, tag)) {
           const payload: PushPayload = {
@@ -164,6 +180,9 @@ export async function runPushPrayerCron(): Promise<{
             tag,
             requireInteraction: false,
             url: '/',
+            icon: DEFAULT_ICON,
+            badge: DEFAULT_BADGE,
+            image: DEFAULT_IMAGE,
             actions: [{ action: 'open-app', title: 'Buka' }],
           };
 
@@ -176,6 +195,8 @@ export async function runPushPrayerCron(): Promise<{
           if (result.delivered) {
             sent += 1;
             await markSent(subscriber, tag);
+          } else {
+            failed += 1;
           }
         }
       }
@@ -185,6 +206,7 @@ export async function runPushPrayerCron(): Promise<{
   return {
     total: subscribers.length,
     sent,
+    failed,
     removed,
   };
 }

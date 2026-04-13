@@ -25,5 +25,8 @@ export interface PushPayload {
   tag: string;
   url?: string;
   requireInteraction?: boolean;
+  icon?: string;
+  badge?: string;
+  image?: string;
   actions?: Array<{ action: string; title: string }>;
 }
