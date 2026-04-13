@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Noto_Naskh_Arabic } from "next/font/google";
-import { cookies } from "next/headers";
 import "./globals.css";
 import AzanReminderController from "@/components/AzanReminderController";
 import BottomNav from "@/components/BottomNav";
@@ -75,14 +74,11 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const serverDark = cookieStore.get("theme")?.value === "dark";
-
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -107,10 +103,10 @@ export default async function RootLayout({
     <html
       lang="id"
       suppressHydrationWarning
-      className={`${manrope.variable} ${notoNaskhArabic.variable} h-full antialiased${serverDark ? " dark" : ""}`}
+      className={`${manrope.variable} ${notoNaskhArabic.variable} h-full antialiased`}
     >
       <head>
-        <meta name="theme-color" content={serverDark ? "#07111d" : "#eef3fb"} />
+        <meta name="theme-color" content="#eef3fb" />
         <meta name="color-scheme" content="light dark" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
