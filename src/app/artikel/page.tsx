@@ -8,7 +8,7 @@ import { withPageSeoOverride } from '@/server/cms/pageSeo';
 import { type CmsArticle } from '@/server/cms/types';
 
 const SITE_URL = 'https://muslim-traveler.com';
-const FALLBACK_OG_IMAGE = `${SITE_URL}/og-image.png`;
+const FALLBACK_OG_IMAGE = `${SITE_URL}/logo-muslim-traveler.svg`;
 
 function absoluteUrl(value: string | null | undefined, fallback: string) {
   if (!value) return fallback;

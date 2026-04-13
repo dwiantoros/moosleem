@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 
 import { getPageSeoEntry } from '@/server/cms/repository';
 
+const DEFAULT_OG_LOGO = 'https://muslim-traveler.com/logo-muslim-traveler.svg';
+
 /**
  * Merges CMS-stored SEO overrides on top of static page metadata.
  * Empty CMS fields are ignored, falling back to the static defaults.
@@ -37,7 +39,7 @@ export async function withPageSeoOverride(slug: string, base: Metadata): Promise
       ...base.openGraph,
       ...(title !== undefined && { title: typeof title === 'string' ? title : undefined }),
       ...(description !== undefined && { description }),
-      ...(entry.ogImage && { images: [{ url: entry.ogImage }] }),
+      images: [{ url: DEFAULT_OG_LOGO }],
     };
   }
 

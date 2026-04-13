@@ -9,7 +9,7 @@ import BrandedPageHeader from '@/components/BrandedPageHeader';
 import { getArticleBySlug, getCmsSettings } from '@/server/cms/repository';
 
 const SITE_URL = 'https://muslim-traveler.com';
-const FALLBACK_OG_IMAGE = `${SITE_URL}/og-image.png`;
+const FALLBACK_OG_IMAGE = `${SITE_URL}/logo-muslim-traveler.svg`;
 
 type ArticlePageProps = {
   params: Promise<{ slug: string }>;
