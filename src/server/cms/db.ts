@@ -1,6 +1,7 @@
 import 'server-only';
 
-import { createClient, type Client } from '@libsql/client/http';
+import { createClient as createNodeClient, type Client } from '@libsql/client/node';
+import { createClient as createHttpClient } from '@libsql/client/http';
 
 let clientPromise: Promise<Client | null> | null = null;
 let tablesReady = false;
@@ -43,6 +44,8 @@ export async function getCmsDb() {
       if (!url) {
         return null;
       }
+
+      const createClient = url.startsWith('file:') ? createNodeClient : createHttpClient;
 
       return createClient({
         url,

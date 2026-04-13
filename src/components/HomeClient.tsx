@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import PrayerScheduleList from '@/components/PrayerScheduleList';
 import UserGreeting from '@/components/UserGreeting';
@@ -8,7 +8,7 @@ import HijriDateBanner from '@/components/HijriDateBanner';
 import { LocationData, PrayerTimes } from '@/types';
 import { AZAN_REMINDER_EVENT, AzanReminderSnapshot, readAzanReminderSnapshot } from '@/utils/azanReminder';
 import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
-import { getCached, getLastLocation, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
+import { getCached, getLastLocation, nearbyCacheKey, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
 import { LOCATION_PERMISSION_UPDATED_EVENT, LocationPermissionUpdatedDetail } from '@/utils/permissionCenter';
 
 const JAKARTA_FALLBACK = {
@@ -16,6 +16,22 @@ const JAKARTA_FALLBACK = {
   longitude: 106.8456,
   timezone: 'Asia/Jakarta',
 } as const;
+
+const LOCATION_MOVE_THRESHOLD_METERS = 120;
+
+function distanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
 
 const DailyInspiration = dynamic(() => import('@/components/DailyInspiration'), {
   loading: () => <div className="glass-panel rounded-[1.5rem] p-5 sm:p-6 text-sm text-slate-500">Memuat inspirasi...</div>,
@@ -138,7 +154,7 @@ export default function Home() {
     return Math.min(100, Math.max(2, (elapsed / totalWindow) * 100));
   }, [nextPrayer, prayerTimes, remainingSeconds]);
 
-  const fetchPrayerData = async (latitude: number, longitude: number, timezone: string) => {
+  const fetchPrayerData = async (latitude: number, longitude: number, timezone: string, forceRefresh = false) => {
     const cacheKey = prayerCacheKey(latitude, longitude);
     const STALE_MS = 6 * 60 * 60 * 1000; // refresh after 6h
 
@@ -151,7 +167,7 @@ export default function Home() {
       }
     };
 
-    const cached = getCached<PrayerTimes>(cacheKey, STALE_MS);
+    const cached = forceRefresh ? null : getCached<PrayerTimes>(cacheKey, STALE_MS);
     if (cached) {
       setPrayerTimes(cached.data);
       setNextPrayer(getNextPrayer(cached.data, timezone));
@@ -264,6 +280,52 @@ export default function Home() {
     fetchLocationAndPrayerTimes();
   }, []);
 
+  // Keep district badge in sync when user moves without requiring manual refresh.
+  useEffect(() => {
+    if (!('geolocation' in navigator)) return;
+    if (usingFallbackLocation) return;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const nextLat = position.coords.latitude;
+        const nextLon = position.coords.longitude;
+        const accuracy = position.coords.accuracy;
+
+        setLocation((prev) => {
+          if (!prev) {
+            setLastLocation({ latitude: nextLat, longitude: nextLon, timezone, accuracy });
+            return { latitude: nextLat, longitude: nextLon, timezone };
+          }
+
+          const movedMeters = distanceMeters(prev.latitude, prev.longitude, nextLat, nextLon);
+          const timezoneChanged = prev.timezone !== timezone;
+
+          if (movedMeters < LOCATION_MOVE_THRESHOLD_METERS && !timezoneChanged) {
+            return prev;
+          }
+
+          setLastLocation({ latitude: nextLat, longitude: nextLon, timezone, accuracy });
+          return { latitude: nextLat, longitude: nextLon, timezone };
+        });
+
+        setUsingFallbackLocation(false);
+      },
+      () => {
+        // Keep existing location when watch updates fail intermittently.
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 20000,
+        maximumAge: 60 * 1000,
+      }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [usingFallbackLocation]);
+
   // Sync reminder state when toggled from NotificationBell popup
   useEffect(() => {
     const syncFromStorage = () => {
@@ -316,29 +378,86 @@ export default function Home() {
     };
   }, []);
 
-  // Refresh prayer times
-  const handleRefresh = async () => {
-    if (!location) return;
+  const refreshDistrictLabel = useCallback(async (latitude: number, longitude: number, useFallbackLabel: boolean) => {
+    try {
+      const res = await fetchJson<{ district?: string | null }>('/api/location-context', {
+        latitude,
+        longitude,
+      }, 10000);
+      const district = res?.district ?? null;
+      const key = `district-${latitude.toFixed(3)}-${longitude.toFixed(3)}`;
+      safeSet(key, { district });
+      setDistrictLabel(district ?? (useFallbackLabel ? 'Lokasi tidak terdeteksi' : null));
+    } catch {
+      if (useFallbackLabel) {
+        setDistrictLabel('Lokasi tidak terdeteksi');
+      }
+    }
+  }, []);
+
+  const refreshNearbyCaches = useCallback(async (latitude: number, longitude: number) => {
+    const tasks = [
+      fetchJson<{ data?: unknown[] }>('/api/restaurants', { latitude, longitude, radius: 5000 }, 15000)
+        .then((res) => safeSet(nearbyCacheKey('restaurants', latitude, longitude), res?.data ?? [])),
+      fetchJson<{ data?: unknown[] }>('/api/mosques', { latitude, longitude, radius: 5000 }, 15000)
+        .then((res) => safeSet(nearbyCacheKey('mosques', latitude, longitude), res?.data ?? [])),
+    ];
+
+    await Promise.allSettled(tasks);
+  }, []);
+
+  // Sync location badge + prayer schedule + nearby caches for halal and mosques.
+  const handleRefresh = useCallback(async () => {
+    let targetLocation = location;
 
     setLoading(true);
     try {
-      const response = await fetchJson<PrayerTimes>('/api/prayer-times', {
-        latitude: location.latitude,
-        longitude: location.longitude,
-      });
+      if ('geolocation' in navigator) {
+        const preciseLocation = await new Promise<LocationData | null>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+              resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                timezone,
+              });
+            },
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+          );
+        });
 
-      setPrayerTimes(response);
-      
-      if (response) {
-        const next = getNextPrayer(response, location.timezone || '');
-        setNextPrayer(next);
+        if (preciseLocation) {
+          const preciseTimezone = preciseLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || JAKARTA_FALLBACK.timezone;
+          targetLocation = preciseLocation;
+          setLocation({
+            latitude: preciseLocation.latitude,
+            longitude: preciseLocation.longitude,
+            timezone: preciseTimezone,
+          });
+          setUsingFallbackLocation(false);
+          setLastLocation({
+            latitude: preciseLocation.latitude,
+            longitude: preciseLocation.longitude,
+            timezone: preciseTimezone,
+            accuracy: 0,
+          });
+        }
       }
-    } catch (error) {
-      console.error('Error refreshing prayer times:', error);
+
+      if (!targetLocation) return;
+      const syncTimezone = targetLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || JAKARTA_FALLBACK.timezone;
+
+      await Promise.allSettled([
+        fetchPrayerData(targetLocation.latitude, targetLocation.longitude, syncTimezone, true),
+        refreshDistrictLabel(targetLocation.latitude, targetLocation.longitude, usingFallbackLocation),
+        refreshNearbyCaches(targetLocation.latitude, targetLocation.longitude),
+      ]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [location, usingFallbackLocation, fetchPrayerData, refreshDistrictLabel, refreshNearbyCaches]);
 
   // Tick every second for realtime countdown and progress animation
   useEffect(() => {

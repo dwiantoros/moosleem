@@ -14,6 +14,22 @@ import {
   PermissionStep,
 } from '@/utils/permissionCenter';
 
+const LOCATION_MOVE_THRESHOLD_METERS = 120;
+
+function distanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
 export default function MosquesPage() {
   const [location, setLocation] = React.useState<LocationData | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -171,6 +187,45 @@ export default function MosquesPage() {
       window.removeEventListener(LOCATION_PERMISSION_UPDATED_EVENT, onLocationPermissionUpdated as EventListener);
     };
   }, [clearRepromptTimer]);
+
+  React.useEffect(() => {
+    if (locationPermission !== 'granted') return;
+    if (!('geolocation' in navigator)) return;
+
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const nextLat = pos.coords.latitude;
+        const nextLon = pos.coords.longitude;
+        const accuracy = pos.coords.accuracy;
+
+        setLocation((prev) => {
+          if (!prev) {
+            setLastLocation({ latitude: nextLat, longitude: nextLon, timezone, accuracy });
+            return { latitude: nextLat, longitude: nextLon, timezone };
+          }
+
+          const movedMeters = distanceMeters(prev.latitude, prev.longitude, nextLat, nextLon);
+          const timezoneChanged = prev.timezone !== timezone;
+
+          if (movedMeters < LOCATION_MOVE_THRESHOLD_METERS && !timezoneChanged) {
+            return prev;
+          }
+
+          setLastLocation({ latitude: nextLat, longitude: nextLon, timezone, accuracy });
+          return { latitude: nextLat, longitude: nextLon, timezone };
+        });
+      },
+      () => {
+        // Ignore intermittent watch errors to avoid disrupting the page.
+      },
+      { enableHighAccuracy: false, timeout: 20000, maximumAge: 60 * 1000 }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [locationPermission]);
 
   const isLocationBlocked = locationPermission !== 'granted';
 
