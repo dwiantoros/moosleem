@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import PushNotificationDashboard from '@/components/admin/PushNotificationDashboard';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import type { CmsArticle, CmsAsset, CmsSettings } from '@/server/cms/types';
 
@@ -122,7 +123,7 @@ export default function AdminDashboard({ initialArticles, initialSettings: _init
   const [assets, setAssets] = useState(initialAssets);
   const [selectedId, setSelectedId] = useState(initialArticles[0]?.id || 'new');
   const [draft, setDraft] = useState<ArticleDraft>(fromArticle(initialArticles[0]));
-  const [tab, setTab] = useState<'articles'>('articles');
+  const [tab, setTab] = useState<'articles' | 'push'>('articles');
   const [articleMessage, setArticleMessage] = useState('');
   const [savingArticle, setSavingArticle] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -318,18 +319,26 @@ export default function AdminDashboard({ initialArticles, initialSettings: _init
           {storageMode === 'turso' ? 'Turso remote gratis' : storageMode === 'local' ? 'File lokal development' : 'Belum siap untuk production'}
         </div>
 
-        <div className="mt-5 flex gap-2 rounded-full bg-white/70 p-1 dark:bg-white/5">
+        <div className="mt-5 flex flex-wrap gap-2 rounded-[1.5rem] bg-white/70 p-1 dark:bg-white/5">
           <button
             key="articles"
             type="button"
             onClick={() => setTab('articles')}
-            className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition ${tab === 'articles' ? 'bg-teal-700 text-white' : 'text-slate-600 hover:bg-white/90 dark:text-slate-300 dark:hover:bg-white/10'}`}
+            className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${tab === 'articles' ? 'bg-teal-700 text-white' : 'text-slate-600 hover:bg-white/90 dark:text-slate-300 dark:hover:bg-white/10'}`}
           >
             Artikel
           </button>
+          <button
+            key="push"
+            type="button"
+            onClick={() => setTab('push')}
+            className={`flex-1 rounded-full px-3 py-2 text-sm font-medium transition ${tab === 'push' ? 'bg-teal-700 text-white' : 'text-slate-600 hover:bg-white/90 dark:text-slate-300 dark:hover:bg-white/10'}`}
+          >
+            Push Notif
+          </button>
           <Link
             href="/bukan-admin/seo"
-            className="flex-1 rounded-full px-4 py-2 text-center text-sm font-medium text-slate-600 transition hover:bg-white/90 dark:text-slate-300 dark:hover:bg-white/10"
+            className="flex-1 rounded-full px-3 py-2 text-center text-sm font-medium text-slate-600 transition hover:bg-white/90 dark:text-slate-300 dark:hover:bg-white/10"
           >
             SEO
           </Link>
@@ -396,7 +405,17 @@ export default function AdminDashboard({ initialArticles, initialSettings: _init
       </aside>
 
       <section className="glass-panel rounded-[2rem] p-5 sm:p-6 lg:p-7">
-        <div>
+        {tab === 'push' && (
+          <div>
+            <div className="mb-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Push Notification</p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Kelola Notifikasi</h2>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Lihat jumlah subscriber aktif dan kirim notifikasi kustom ke semua pengguna.</p>
+            </div>
+            <PushNotificationDashboard />
+          </div>
+        )}
+        {tab === 'articles' && <div>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Editor Artikel</p>
@@ -658,6 +677,7 @@ export default function AdminDashboard({ initialArticles, initialSettings: _init
               </button>
             </div>
           </div>
+        }
       </section>
     </div>
   );

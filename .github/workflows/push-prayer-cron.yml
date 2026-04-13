@@ -1,6 +1,9 @@
 name: External Push Prayer Scheduler
 
 on:
+  schedule:
+    # Runs every minute — catches prayer window precisely
+    - cron: '* * * * *'
   workflow_dispatch:
 
 permissions:
