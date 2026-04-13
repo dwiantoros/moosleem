@@ -7,7 +7,7 @@ import { getPageSeoEntry } from '@/server/cms/repository';
 
 const DEFAULT_OG_LOGO = 'https://muslim-traveler.com/logo-muslim-traveler.png';
 
-const getPageSeoEntryCached = unstable_cache(
+export const getPageSeoEntryCached = unstable_cache(
   async (slug: string) => getPageSeoEntry(slug),
   ['cms-page-seo-entry'],
   { revalidate: 300 }

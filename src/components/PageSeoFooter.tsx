@@ -1,16 +1,16 @@
 import 'server-only';
 
-import { getPageSeoEntry } from '@/server/cms/repository';
+import { getPageSeoEntryCached } from '@/server/cms/pageSeo';
 
 type PageSeoFooterProps = {
   slug: string;
 };
 
 export default async function PageSeoFooter({ slug }: PageSeoFooterProps) {
-  let entry: Awaited<ReturnType<typeof getPageSeoEntry>> = null;
+  let entry: Awaited<ReturnType<typeof getPageSeoEntryCached>> = null;
 
   try {
-    entry = await getPageSeoEntry(slug);
+    entry = await getPageSeoEntryCached(slug);
   } catch {
     return null;
   }
