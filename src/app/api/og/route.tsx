@@ -12,43 +12,40 @@ export async function GET() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background:
-            'radial-gradient(circle at 20% 20%, #0f766e 0%, #0b3a4f 45%, #051923 100%)',
-          color: '#e2e8f0',
-          fontSize: 58,
-          fontWeight: 700,
-          letterSpacing: '-0.02em',
+          background: 'radial-gradient(circle at 15% 10%, #0f766e 0%, #0a2f44 48%, #061320 100%)',
           position: 'relative',
         }}
       >
         <div
           style={{
             position: 'absolute',
-            inset: 36,
-            borderRadius: 32,
-            border: '1px solid rgba(255,255,255,0.2)',
-            background: 'linear-gradient(150deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
+            inset: 30,
+            borderRadius: 34,
+            border: '1px solid rgba(255,255,255,0.14)',
+            background: 'linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))',
           }}
         />
 
         <div
           style={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: 28,
+            justifyContent: 'center',
+            gap: 24,
             zIndex: 2,
           }}
         >
           <img
             src="https://muslim-traveler.com/logo-muslim-traveler.svg"
-            width={168}
-            height={168}
+            width={290}
+            height={290}
             alt="Muslim Traveler logo"
-            style={{ borderRadius: 24 }}
+            style={{ borderRadius: 56 }}
           />
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 66, color: '#d1fae5' }}>Muslim Traveler</div>
-            <div style={{ fontSize: 30, color: '#93c5fd', marginTop: 8 }}>Prayer Times, Quran, and Halal Companion</div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontSize: 70, color: '#d1fae5', fontWeight: 700, letterSpacing: '-0.02em' }}>Muslim Traveler</div>
+            <div style={{ fontSize: 28, color: '#a7f3d0', marginTop: 6 }}>Prayer Times, Quran, and Halal Companion</div>
           </div>
         </div>
       </div>
