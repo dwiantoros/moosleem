@@ -45,6 +45,62 @@ function base64UrlToUint8Array(base64Url: string): Uint8Array {
   return outputArray;
 }
 
+async function resolveLocationForPush(): Promise<{ latitude: number; longitude: number; timezone: string } | null> {
+  const fresh = getLastLocation(24 * 60 * 60 * 1000);
+  if (fresh) {
+    return {
+      latitude: fresh.latitude,
+      longitude: fresh.longitude,
+      timezone: fresh.timezone,
+    };
+  }
+
+  // Keep old location as fallback so re-subscribe still works when cache is stale.
+  const stale = getLastLocation(30 * 24 * 60 * 60 * 1000);
+  if (stale) {
+    return {
+      latitude: stale.latitude,
+      longitude: stale.longitude,
+      timezone: stale.timezone,
+    };
+  }
+
+  const locationPermission = await getLocationPermissionState();
+  if (locationPermission !== 'granted') {
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        setLastLocation({
+          latitude,
+          longitude,
+          timezone,
+          accuracy: position.coords.accuracy,
+        });
+
+        window.dispatchEvent(new CustomEvent<LocationPermissionUpdatedDetail>(LOCATION_PERMISSION_UPDATED_EVENT, {
+          detail: {
+            latitude,
+            longitude,
+            timezone,
+          },
+        }));
+
+        resolve({ latitude, longitude, timezone });
+      },
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  });
+}
+
 export async function getLocationPermissionState(): Promise<LocationPermissionState> {
   if (typeof window === 'undefined' || !('geolocation' in navigator)) {
     return 'unsupported';
@@ -122,7 +178,7 @@ export async function enableServerPushWithLastLocation(): Promise<boolean> {
     return false;
   }
 
-  const location = getLastLocation(24 * 60 * 60 * 1000);
+  const location = await resolveLocationForPush();
   if (!location) return false;
 
   const keyRes = await fetch('/api/push/public-key', { cache: 'no-store' });
