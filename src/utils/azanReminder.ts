@@ -30,6 +30,7 @@ export interface AzanWebsitePopupDetail {
 export interface DailyInspirationNotif {
   id: string;
   date: string; // YYYY-MM-DD format
+  slotKey?: string;
   arabic: string;
   translation: string;
   reference: string;
@@ -146,8 +147,8 @@ export function getDailyInspirationNotifications(): DailyInspirationNotif[] {
 
 export function saveDailyInspirationNotif(notif: DailyInspirationNotif): void {
   const existing = getDailyInspirationNotifications();
-  // Remove if already exists (update)
-  const filtered = existing.filter(n => n.date !== notif.date);
+  // Remove if already exists (update by id)
+  const filtered = existing.filter((n) => n.id !== notif.id);
   // Add new one at top
   const updated = [notif, ...filtered];
   // Keep only last 30 days
@@ -155,9 +156,9 @@ export function saveDailyInspirationNotif(notif: DailyInspirationNotif): void {
   localStorage.setItem(DAILY_INSPIRATION_NOTIF_STORAGE_KEY, JSON.stringify(limited));
 }
 
-export function deleteDailyInspirationNotif(date: string): void {
+export function deleteDailyInspirationNotif(id: string): void {
   const existing = getDailyInspirationNotifications();
-  const filtered = existing.filter(n => n.date !== date);
+  const filtered = existing.filter((n) => n.id !== id);
   if (filtered.length === 0) {
     localStorage.removeItem(DAILY_INSPIRATION_NOTIF_STORAGE_KEY);
   } else {

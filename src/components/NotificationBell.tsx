@@ -4,9 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   AZAN_REMINDER_EVENT,
   AzanReminderSnapshot,
-  broadcastAzanReminderState,
   readAzanReminderSnapshot,
-  writeAzanReminderEnabled,
   DAILY_INSPIRATION_NOTIF_EVENT,
   getDailyInspirationNotifications,
   deleteDailyInspirationNotif,
@@ -78,11 +76,10 @@ export default function NotificationBell() {
   }, []);
 
   const hasToday = upcoming.some(e => e.daysUntil === 0);
-  const hasAnyNotif = inspirationNotifs.length > 0;
 
-  const handleDeleteInspiration = (date: string, e: React.MouseEvent) => {
+  const handleDeleteInspiration = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    deleteDailyInspirationNotif(date);
+    deleteDailyInspirationNotif(id);
   };
 
   useEffect(() => {
@@ -156,25 +153,6 @@ const syncInspirationNotifs = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, [bellOpen]);
 
-  const handleReminderToggle = async () => {
-    if (!('Notification' in window)) return;
-    const perm = Notification.permission;
-    if (perm === 'denied') return;
-    if (perm === 'default') {
-      const result = await Notification.requestPermission();
-      setPermission(result);
-      if (result === 'granted') {
-        const snapshot = writeAzanReminderEnabled(true);
-        setReminderOn(snapshot.enabled);
-        broadcastAzanReminderState(snapshot);
-      }
-      return;
-    }
-    const next = !reminderOn;
-    setReminderOn(next);
-    broadcastAzanReminderState(writeAzanReminderEnabled(next));
-  };
-
   if (!mounted) return (
     <div className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full" />
   );
@@ -231,19 +209,9 @@ const syncInspirationNotifs = () => {
           {/* Header + toggle */}
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifikasi</p>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">
-                {permission === 'denied' ? '⚠️ Diblokir' : isActive ? 'Aktif' : 'Nonaktif'}
-              </span>
-              <button
-                disabled={permission === 'denied'}
-                onClick={handleReminderToggle}
-                aria-label={isActive ? 'Matikan reminder' : 'Aktifkan reminder'}
-                className={`relative inline-flex h-6 w-10 flex-shrink-0 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${isActive ? 'bg-teal-600' : 'bg-slate-300 dark:bg-slate-600'}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${isActive ? 'translate-x-5' : 'translate-x-1'}`} />
-              </button>
-            </div>
+            <span className="text-xs text-slate-500">
+              {permission === 'denied' ? '⚠️ Diblokir' : isActive ? 'Aktif' : 'Nonaktif'}
+            </span>
           </div>
 
           {/* Daily Inspirations */}
@@ -251,9 +219,9 @@ const syncInspirationNotifs = () => {
             <div className="mb-4 rounded-xl border border-white/20 bg-white/[0.04] p-2.5">
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">✨ Inspirasi Harian</p>
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {inspirationNotifs.map(({ date, arabic, translation, reference }) => (
+                {inspirationNotifs.map(({ id, arabic, translation, reference }) => (
                   <div
-                    key={date}
+                    key={id}
                     className="rounded-xl px-3 py-2.5"
                     style={{
                       backgroundColor: 'rgba(168,85,247,0.08)',
@@ -271,7 +239,7 @@ const syncInspirationNotifs = () => {
                         <p className="mt-1 text-[10px] text-slate-500">{reference}</p>
                       </div>
                       <button
-                        onClick={(e) => handleDeleteInspiration(date, e)}
+                        onClick={(e) => handleDeleteInspiration(id, e)}
                         aria-label="Hapus notifikasi inspirasi"
                         className="flex-shrink-0 rounded-lg p-1 text-slate-400 transition hover:bg-white/20 hover:text-slate-600 dark:hover:text-slate-300"
                       >

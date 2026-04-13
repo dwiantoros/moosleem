@@ -6,6 +6,10 @@ const SESSION_COOKIE = 'mt_admin_session';
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return new NextResponse('Not Found', { status: 404 });
+  }
+
   if (!pathname.startsWith(ADMIN_PREFIX)) {
     return NextResponse.next();
   }
@@ -31,5 +35,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/bukan-admin/:path*'],
+  matcher: ['/bukan-admin/:path*', '/admin/:path*', '/admin'],
 };

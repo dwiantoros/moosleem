@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   DAILY_INSPIRATION_NOTIF_EVENT,
   DailyInspirationNotif,
@@ -13,6 +13,12 @@ interface Inspiration {
   arabic: string;
   translation: string;
   reference: string;
+}
+
+interface InspirationRotationState {
+  queue: number[];
+  lastSlotKey?: string;
+  lastIndex?: number;
 }
 
 const inspirations: Inspiration[] = [
@@ -39,93 +45,138 @@ const inspirations: Inspiration[] = [
 ];
 
 function getTodayDateString(): string {
-  const now = new Date();
-  return now.toISOString().split('T')[0]; // YYYY-MM-DD
-}
-
-function getCurrentHour(): number {
-  return new Date().getHours();
+  return toDateStringLocal(new Date());
 }
 
 function getScheduledTimes(): number[] {
-  // 8 AM (08:00) dan 6 PM (18:00)
-  return [8, 18];
+  // 8 AM (08:00) dan 4 PM (16:00)
+  return [8, 16];
 }
 
-function getNextScheduledTime(now: Date = new Date()): { hour: number; minutesUntil: number } {
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  const scheduledHours = getScheduledTimes();
+function toDateStringLocal(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
-  // Find next scheduled hour
-  let nextHour = scheduledHours.find(h => h > currentHour);
+function getSlotKeyFromDate(now: Date): string {
+  const active = new Date(now);
+  const hour = active.getHours();
 
-  // If no hour found today, use first hour tomorrow
-  if (nextHour === undefined) {
-    nextHour = scheduledHours[0];
+  // Before 08:00, still show the previous day's 16:00 slot.
+  if (hour < 8) {
+    active.setDate(active.getDate() - 1);
+    return `${toDateStringLocal(active)}-16`;
   }
 
-  // Calculate minutes until next scheduled time
-  const nextTime = new Date(now);
-  nextTime.setHours(nextHour, 0, 0, 0);
+  return `${toDateStringLocal(active)}-${hour < 16 ? '08' : '16'}`;
+}
 
-  if (nextTime <= now) {
-    nextTime.setDate(nextTime.getDate() + 1);
+function shuffleIndices(length: number): number[] {
+  const arr = Array.from({ length }, (_, i) => i);
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function getSlotInspirationIndex(slotKey: string): number {
+  const storageKey = 'dailyInspirationRotationV2';
+  const defaultState: InspirationRotationState = {
+    queue: shuffleIndices(inspirations.length),
+  };
+
+  let state = defaultState;
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (raw) {
+      const parsed = JSON.parse(raw) as InspirationRotationState;
+      if (Array.isArray(parsed.queue)) {
+        state = {
+          queue: parsed.queue.filter((n) => Number.isInteger(n) && n >= 0 && n < inspirations.length),
+          lastSlotKey: parsed.lastSlotKey,
+          lastIndex: parsed.lastIndex,
+        };
+      }
+    }
+  } catch {
+    state = defaultState;
   }
 
-  const minutesUntil = Math.ceil((nextTime.getTime() - now.getTime()) / 1000 / 60);
+  if (state.lastSlotKey === slotKey && Number.isInteger(state.lastIndex)) {
+    return Number(state.lastIndex);
+  }
 
-  return { hour: nextHour, minutesUntil };
+  if (state.queue.length === 0) {
+    state.queue = shuffleIndices(inspirations.length);
+    if (Number.isInteger(state.lastIndex) && inspirations.length > 1 && state.queue[0] === state.lastIndex) {
+      const first = state.queue.shift();
+      if (first !== undefined) {
+        state.queue.push(first);
+      }
+    }
+  }
+
+  const nextIndex = state.queue.shift();
+  const safeIndex = Number.isInteger(nextIndex) ? Number(nextIndex) : 0;
+  const nextState: InspirationRotationState = {
+    queue: state.queue,
+    lastSlotKey: slotKey,
+    lastIndex: safeIndex,
+  };
+  localStorage.setItem(storageKey, JSON.stringify(nextState));
+  return safeIndex;
 }
 
 export default function DailyInspiration() {
-  const dayOfYear = useMemo(() => {
-    const today = new Date();
-    const dayOfYearNum = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
-    return dayOfYearNum;
-  }, []);
+  const [inspirationIndex, setInspirationIndex] = useState(0);
+  const inspiration = inspirations[inspirationIndex] ?? inspirations[0];
 
-  const inspiration = useMemo(() => {
-    return inspirations[dayOfYear % inspirations.length];
-  }, [dayOfYear]);
-
-  const [, setMounted] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const triggerInspirationNotification = (hour: number) => {
     const todayStr = getTodayDateString();
-    const timeKey = `lastInspirationNotif_${todayStr}_${hour}`;
+    const hourKey = String(hour).padStart(2, '0');
+    const slotKey = `${todayStr}-${hourKey}`;
+    const timeKey = `lastInspirationNotif_${slotKey}`;
 
     // Prevent duplicate notifications within same hour
     const lastNotifTime = localStorage.getItem(timeKey);
-    const now = Date.now();
-    if (lastNotifTime && now - Number(lastNotifTime) < 60 * 60 * 1000) {
+    const nowMs = Date.now();
+    if (lastNotifTime && nowMs - Number(lastNotifTime) < 60 * 60 * 1000) {
       return; // Already notified in this hour window
     }
 
     // Mark as notified
-    localStorage.setItem(timeKey, String(now));
+    localStorage.setItem(timeKey, String(nowMs));
+
+    const slotInspirationIndex = getSlotInspirationIndex(slotKey);
+    const slotInspiration = inspirations[slotInspirationIndex] ?? inspirations[0];
+    setInspirationIndex(slotInspirationIndex);
 
     const notif: DailyInspirationNotif = {
-      id: `inspiration-${todayStr}-${hour}-${Date.now()}`,
+      id: `inspiration-${slotKey}-${Date.now()}`,
       date: todayStr,
-      arabic: inspiration.arabic,
-      translation: inspiration.translation,
-      reference: inspiration.reference,
-      createdAt: Date.now(),
+      slotKey,
+      arabic: slotInspiration.arabic,
+      translation: slotInspiration.translation,
+      reference: slotInspiration.reference,
+      createdAt: nowMs,
     };
 
     // Determine time label
     const timeLabel = hour === 8 ? 'Pagi' : 'Sore';
-    const timeDisplay = hour === 8 ? '08:00' : '18:00';
+    const timeDisplay = hour === 8 ? '08:00' : '16:00';
 
     // Save to storage
     saveDailyInspirationNotif(notif);
 
     // Send push notification
     void sendNotification(`✨ Inspirasi ${timeLabel} (${timeDisplay})`, {
-      body: inspiration.translation,
-      tag: `daily-inspiration-${todayStr}-${hour}`,
+      body: slotInspiration.translation,
+      tag: `daily-inspiration-${slotKey}`,
       requireInteraction: false,
       silent: false,
     });
@@ -147,7 +198,32 @@ export default function DailyInspiration() {
 
   // Setup 2x daily scheduled notifications
   useEffect(() => {
-    setMounted(true);
+    const syncCurrentInspiration = () => {
+      const slotKey = getSlotKeyFromDate(new Date());
+      const index = getSlotInspirationIndex(slotKey);
+      setInspirationIndex(index);
+    };
+
+    const processMissedTodaySlots = () => {
+      const now = new Date();
+      const today = toDateStringLocal(now);
+
+      getScheduledTimes().forEach((hour) => {
+        const slotTime = new Date(now);
+        slotTime.setHours(hour, 0, 0, 0);
+        if (now < slotTime) return;
+
+        const slotKey = `${today}-${String(hour).padStart(2, '0')}`;
+        const sentKey = `lastInspirationNotif_${slotKey}`;
+        const alreadySent = Boolean(localStorage.getItem(sentKey));
+        if (!alreadySent) {
+          triggerInspirationNotification(hour);
+        }
+      });
+    };
+
+    syncCurrentInspiration();
+    processMissedTodaySlots();
     clearTimers();
 
     const setupScheduledNotifs = () => {
@@ -181,16 +257,8 @@ export default function DailyInspiration() {
     // Also check on visibility change
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        const now = new Date();
-        const scheduledHours = getScheduledTimes();
-
-        // Check if we missed any scheduled times
-        scheduledHours.forEach((hour) => {
-          if (getCurrentHour() === hour) {
-            // We're in the hour, trigger notification
-            triggerInspirationNotification(hour);
-          }
-        });
+        syncCurrentInspiration();
+        processMissedTodaySlots();
       }
     };
 
@@ -200,7 +268,7 @@ export default function DailyInspiration() {
       clearTimers();
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [inspiration]);
+  }, []);
 
   return (
     <div className="glass-panel rounded-[1.5rem] p-5 sm:p-6">

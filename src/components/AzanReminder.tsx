@@ -297,23 +297,6 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
     }
   };
 
-  const handleToggle = (next: boolean) => {
-    if (next && permission === 'default') {
-      void requestPermission();
-      return;
-    }
-
-    onToggle(next);
-    broadcastAzanReminderState(writeAzanReminderEnabled(next));
-    if (next && soundEnabled) {
-      void primeAzanAudio(nextPrayer?.name as keyof PrayerTimes | undefined);
-    }
-
-    if (!next) {
-      void disableServerSidePushSubscription();
-    }
-  };
-
   const dismissPrompt = () => {
     setShowPrompt(false);
     scheduleReprompt();
@@ -397,21 +380,9 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
             </div>
           </div>
 
-          {/* Toggle switch */}
-          <button
-            disabled={permission === 'denied'}
-            onClick={() => handleToggle(!enabled)}
-            aria-label={enabled ? 'Matikan reminder' : 'Aktifkan reminder'}
-            className={`relative inline-flex h-7 w-12 flex-shrink-0 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-              isActive ? 'bg-teal-600' : 'bg-slate-300'
-            }`}
-          >
-            <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                isActive ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
+          <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${isActive ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-500'}`}>
+            {isActive ? 'Aktif' : 'Belum Aktif'}
+          </span>
         </div>
 
         {/* Upcoming Islamic events — always visible */}
@@ -495,14 +466,21 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
         )}
 
         {/* Permission needs to be granted */}
-        {permission === 'default' && enabled && (
-          <button
-            onClick={requestPermission}
-            disabled={activatingPermissions}
-            className="mt-4 w-full rounded-2xl bg-teal-600 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 transition"
-          >
-            {activatingPermissions ? 'Memproses izin...' : 'Aktifkan Semua Permission'}
-          </button>
+        {permission === 'default' && (
+          <div className="mt-4 space-y-3">
+            <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-5 text-slate-300">
+              Aktifkan izin agar aplikasi bisa kirim pengingat adzan tepat waktu, termasuk notifikasi
+              {` `}{MINUTES_BEFORE} menit sebelum masuk waktu. Izin lokasi dipakai untuk menghitung jadwal
+              sholat yang akurat sesuai posisi kamu.
+            </p>
+            <button
+              onClick={requestPermission}
+              disabled={activatingPermissions}
+              className="w-full rounded-2xl bg-teal-600 py-2.5 text-sm font-semibold text-white hover:bg-teal-700 transition"
+            >
+              {activatingPermissions ? 'Memproses izin...' : 'Aktifkan Semua Permission'}
+            </button>
+          </div>
         )}
 
         {/* Permission denied */}
