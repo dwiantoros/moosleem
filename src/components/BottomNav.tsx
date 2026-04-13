@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 // Primary items shown in floating bar
 const PRIMARY = [
@@ -129,6 +129,7 @@ const MORE_ITEMS = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [visible, setVisible] = useState(true);
   const [lastY, setLastY] = useState(0);
@@ -177,6 +178,24 @@ export default function BottomNav() {
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
   }, [moreOpen]);
+
+  // Warm route cache so floating-menu taps feel instant on first navigation.
+  useEffect(() => {
+    const hrefs = [...PRIMARY, ...MORE_ITEMS].map((item) => item.href);
+    const prefetchAll = () => {
+      hrefs.forEach((href) => {
+        router.prefetch(href);
+      });
+    };
+
+    if (typeof requestIdleCallback === 'function') {
+      const idleId = requestIdleCallback(prefetchAll, { timeout: 1200 });
+      return () => cancelIdleCallback(idleId);
+    }
+
+    const timeoutId = setTimeout(prefetchAll, 200);
+    return () => clearTimeout(timeoutId);
+  }, [router]);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
