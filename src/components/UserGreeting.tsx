@@ -41,11 +41,17 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
     // Read the actual class applied by the inline theme script in <head>
     const isDark = document.documentElement.classList.contains('dark');
     setTheme(isDark ? 'dark' : 'light');
-    // Persist light as default if nothing saved yet (guarantees refresh works)
+    // Persist current theme to localStorage if not yet saved
     if (!localStorage.getItem('theme')) {
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
     setMounted(true);
+    // Stay in sync if theme is toggled from BottomNav or another component
+    const obs = new MutationObserver(() => {
+      setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    });
+    obs.observe(document.documentElement, { attributeFilter: ['class'] });
+    return () => obs.disconnect();
   }, []);
 
   // Close menu on outside click
@@ -73,6 +79,8 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
     document.documentElement.classList.toggle('dark', nextTheme === 'dark');
     document.documentElement.style.colorScheme = nextTheme;
     localStorage.setItem('theme', nextTheme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', nextTheme === 'dark' ? '#07111d' : '#eef3fb');
   };
 
   return (
@@ -89,19 +97,21 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
         </div>
         <div className="flex items-center gap-2">
           {/* Dark mode toggle */}
-          <button onClick={toggleTheme} className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300" aria-label="Toggle dark mode" suppressHydrationWarning>
-            <HeaderIcon>
-              {mounted && theme === 'dark' ? (
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <circle cx="12" cy="12" r="4.5" />
-                  <path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77" strokeLinecap="round" />
-                </svg>
-              ) : (
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </HeaderIcon>
+          <button onClick={toggleTheme} className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300" aria-label="Toggle dark mode">
+            {mounted ? (
+              <HeaderIcon>
+                {theme === 'dark' ? (
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <circle cx="12" cy="12" r="4.5" />
+                    <path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77" strokeLinecap="round" />
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </HeaderIcon>
+            ) : <span className="block h-4 w-4" />}
           </button>
 
           {/* Search */}

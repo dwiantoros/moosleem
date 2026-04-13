@@ -46,9 +46,9 @@ export default function AdminLoginForm({ authReady, storageMode }: AdminLoginFor
     <section className="glass-panel mx-auto max-w-xl rounded-[2rem] p-6 sm:p-8">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Admin CMS</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Masuk untuk kelola artikel</h1>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Masuk ke dashboard admin</h1>
         <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-          CMS ini pakai login admin sederhana. Artikel tersimpan di database gratis Turso saat env production diisi, dan otomatis fallback ke file lokal saat development.
+          Kelola artikel blog, profil author, SEO per halaman, dan broadcast push notifikasi ke subscriber.
         </p>
       </div>
 

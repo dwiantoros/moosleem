@@ -106,7 +106,8 @@ export default function RootLayout({
       className={`${manrope.variable} ${notoNaskhArabic.variable} h-full antialiased`}
     >
       <head>
-        <meta name="theme-color" content="#ffffff" />
+        <meta name="theme-color" content="#eef3fb" />
+        <meta name="color-scheme" content="light dark" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Muslim Traveler" />
@@ -117,7 +118,7 @@ export default function RootLayout({
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var stored=localStorage.getItem('theme');var systemDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var theme=stored||(systemDark?'dark':'light');document.documentElement.classList.toggle('dark',theme==='dark');document.documentElement.style.colorScheme=theme;}catch(e){}})();`,
+            __html: `(function(){try{var stored=localStorage.getItem('theme');var systemDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var theme=stored||(systemDark?'dark':'light');var isDark=theme==='dark';document.documentElement.classList.toggle('dark',isDark);document.documentElement.style.colorScheme=theme;var meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',isDark?'#07111d':'#eef3fb');}catch(e){}})();`,
           }}
         />
       </head>
