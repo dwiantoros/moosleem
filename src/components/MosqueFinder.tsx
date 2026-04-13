@@ -26,18 +26,21 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<Mosque | null>(null);
 
-  const fetchMosques = useCallback(async () => {
-    if (!location?.latitude || !location?.longitude) return;
+  const fetchMosques = useCallback(async (coords?: { latitude: number; longitude: number }) => {
+    const latitude = coords?.latitude ?? location?.latitude;
+    const longitude = coords?.longitude ?? location?.longitude;
+
+    if (!latitude || !longitude) return;
 
     setLoading(true);
     try {
       const res = await axios.get('/api/mosques', {
-        params: { latitude: location.latitude, longitude: location.longitude, radius: 5000 },
+        params: { latitude, longitude, radius: 5000 },
         timeout: 20000,
       });
       const data = res.data.data || [];
       setMosques(data);
-      const cacheKey = nearbyCacheKey('mosques', location.latitude, location.longitude);
+      const cacheKey = nearbyCacheKey('mosques', latitude, longitude);
       safeSet(cacheKey, data);
     } catch (e) {
       console.error('Mosque fetch error:', e);
@@ -45,6 +48,23 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
       setLoading(false);
     }
   }, [location]);
+
+  const handleRefresh = useCallback(() => {
+    if (!('geolocation' in navigator)) {
+      void fetchMosques();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        void fetchMosques({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+      },
+      () => {
+        void fetchMosques();
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }, [fetchMosques]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) return;
@@ -78,7 +98,7 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
       <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-5 flex items-center justify-between gap-3">
         Masjid &amp; Musholla Terdekat
         <button
-          onClick={() => fetchMosques()}
+          onClick={handleRefresh}
           disabled={loading}
           className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           title="Perbarui data masjid"
@@ -86,7 +106,7 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
           <svg className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"/>
           </svg>
-          Segarkan
+          Perbarui
         </button>
       </h2>
 

@@ -115,22 +115,25 @@ export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id
 
   const activeLogo = sortedLogos.find((item) => item.key === selectedLogoKey) ?? sortedLogos[0];
 
-  const fetchRestaurants = useCallback(async () => {
-    if (!location?.latitude || !location?.longitude) return;
+  const fetchRestaurants = useCallback(async (coords?: { latitude: number; longitude: number }) => {
+    const latitude = coords?.latitude ?? location?.latitude;
+    const longitude = coords?.longitude ?? location?.longitude;
+
+    if (!latitude || !longitude) return;
 
     setLoading(true);
     try {
       const response = await axios.get('/api/restaurants', {
         params: {
-          latitude: location.latitude,
-          longitude: location.longitude,
+          latitude,
+          longitude,
           radius: 5000,
         },
         timeout: 15000,
       });
       const data = response.data.data || [];
       setRestaurants(data);
-      const cacheKey = nearbyCacheKey('restaurants', location.latitude, location.longitude);
+      const cacheKey = nearbyCacheKey('restaurants', latitude, longitude);
       safeSet(cacheKey, data);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
@@ -138,6 +141,23 @@ export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id
       setLoading(false);
     }
   }, [location]);
+
+  const handleRefresh = useCallback(() => {
+    if (!('geolocation' in navigator)) {
+      void fetchRestaurants();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        void fetchRestaurants({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+      },
+      () => {
+        void fetchRestaurants();
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }, [fetchRestaurants]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) return;
@@ -210,7 +230,7 @@ export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id
       <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-5 flex items-center justify-between gap-3">
         Restoran Halal Terdekat
         <button
-          onClick={() => fetchRestaurants()}
+          onClick={handleRefresh}
           disabled={loading}
           className="flex items-center gap-1.5 rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
           title="Perbarui data restoran"
@@ -218,7 +238,7 @@ export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id
           <svg className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"/>
           </svg>
-          Segarkan
+          Perbarui
         </button>
       </h2>
 
