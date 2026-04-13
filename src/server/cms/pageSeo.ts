@@ -1,10 +1,17 @@
 import 'server-only';
 
 import type { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 
 import { getPageSeoEntry } from '@/server/cms/repository';
 
 const DEFAULT_OG_LOGO = 'https://muslim-traveler.com/logo-muslim-traveler.png';
+
+const getPageSeoEntryCached = unstable_cache(
+  async (slug: string) => getPageSeoEntry(slug),
+  ['cms-page-seo-entry'],
+  { revalidate: 300 }
+);
 
 /**
  * Merges CMS-stored SEO overrides on top of static page metadata.
@@ -14,7 +21,7 @@ export async function withPageSeoOverride(slug: string, base: Metadata): Promise
   let entry: Awaited<ReturnType<typeof getPageSeoEntry>>;
 
   try {
-    entry = await getPageSeoEntry(slug);
+    entry = await getPageSeoEntryCached(slug);
   } catch {
     return base;
   }

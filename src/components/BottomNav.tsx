@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -132,9 +132,10 @@ export default function BottomNav() {
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [lastY, setLastY] = useState(0);
   const [dark, setDark] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const lastYRef = useRef(0);
+  const visibleRef = useRef(true);
 
   // Sync dark mode
   useEffect(() => {
@@ -161,13 +162,25 @@ export default function BottomNav() {
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      if (y > lastY + 8 && y > 60) setVisible(false);
-      else if (y < lastY - 4) setVisible(true);
-      setLastY(y);
+      const prevY = lastYRef.current;
+      let nextVisible = visibleRef.current;
+
+      if (y > prevY + 8 && y > 60) {
+        nextVisible = false;
+      } else if (y < prevY - 4) {
+        nextVisible = true;
+      }
+
+      lastYRef.current = y;
+      if (nextVisible !== visibleRef.current) {
+        visibleRef.current = nextVisible;
+        setVisible(nextVisible);
+      }
     };
+
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [lastY]);
+  }, []);
 
   // Close sheet on outside click
   useEffect(() => {
