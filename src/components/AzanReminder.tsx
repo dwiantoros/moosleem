@@ -15,7 +15,6 @@ import {
 import { activateAllPermissionsInOneClick, PermissionStep } from '@/utils/permissionCenter';
 import {
   EVENT_NOTIFY,
-  MINUTES_BEFORE,
   NOTIFY_PRAYERS,
   PRAYER_LABELS,
   gregorianToHijri,
@@ -317,12 +316,12 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
 
     queueAzanWebsitePopup({
       title: '🕌 Test Adzan Reminder',
-      body: `Popup website berjalan. Kamu akan diingatkan ${MINUTES_BEFORE} mnt sebelum dan tepat saat waktu sholat.`,
+      body: 'Popup website berjalan. Kamu akan diingatkan tepat saat waktu sholat.',
       timeLabel: 'Tes sekarang',
     });
 
     await sendNotification('🕌 Test Adzan Reminder', {
-      body: `Notifikasi berjalan! Kamu akan diingatkan ${MINUTES_BEFORE} mnt sebelum dan tepat saat waktu sholat.`,
+      body: 'Notifikasi berjalan! Kamu akan diingatkan tepat saat waktu sholat.',
       tag: 'azan-test',
       requireInteraction: false,
     });
@@ -375,7 +374,7 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
                   ? '⚠️ Izin notifikasi ditolak browser'
                   : isActive && scheduledPrayers.length > 0
                   ? `✓ ${scheduledPrayers.length} waktu sholat terjadwal hari ini`
-                  : `Notifikasi ${MINUTES_BEFORE} menit sebelum & tepat waktu sholat`}
+                  : 'Notifikasi tepat waktu sholat'}
               </p>
             </div>
           </div>
@@ -419,8 +418,8 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
               <p className="text-xs font-medium" style={{ color: '#0d9488' }}>Sholat berikutnya: {PRAYER_LABELS[nextPrayer.name] ?? nextPrayer.name}</p>
               <p className="mt-0.5 text-sm font-bold" style={{ color: '#0f766e' }}>
                 Pukul {nextPrayer.time}
-                {nextPrayer.minutesUntil > MINUTES_BEFORE && (
-                  <span className="ml-1.5 font-normal text-xs" style={{ color: '#0d9488' }}>• Notif dalam {nextPrayer.minutesUntil - MINUTES_BEFORE} mnt</span>
+                {nextPrayer.minutesUntil > 0 && (
+                  <span className="ml-1.5 font-normal text-xs" style={{ color: '#0d9488' }}>• {nextPrayer.minutesUntil} mnt lagi</span>
                 )}
               </p>
             </div>
@@ -469,9 +468,8 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
         {permission === 'default' && (
           <div className="mt-4 space-y-3">
             <p className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-5 text-slate-300">
-              Aktifkan izin agar aplikasi bisa kirim pengingat adzan tepat waktu, termasuk notifikasi
-              {` `}{MINUTES_BEFORE} menit sebelum masuk waktu. Izin lokasi dipakai untuk menghitung jadwal
-              sholat yang akurat sesuai posisi kamu.
+              Aktifkan izin agar aplikasi bisa kirim pengingat adzan tepat waktu. Izin lokasi dipakai
+              untuk menghitung jadwal sholat yang akurat sesuai posisi kamu.
             </p>
             <button
               onClick={requestPermission}
@@ -500,7 +498,7 @@ export default function AzanReminder({ prayerTimes, nextPrayer, enabled, onToggl
             >
               {testSent ? '✓ Terkirim!' : 'Kirim notifikasi test →'}
             </button>
-            <span className="text-[10px] text-slate-400">Notif: tepat waktu + {MINUTES_BEFORE} mnt sebelumnya</span>
+            <span className="text-[10px] text-slate-400">Notif: tepat waktu</span>
           </div>
         )}
       </div>

@@ -6,7 +6,6 @@ import { PrayerTimes } from '@/types';
 import { getCached, getLastLocation, prayerCacheKey, safeSet } from '@/utils/clientCache';
 import {
   EVENT_NOTIFY,
-  MINUTES_BEFORE,
   NOTIFY_PRAYERS,
   PRAYER_ARABIC,
   PRAYER_LABELS,
@@ -313,27 +312,6 @@ export default function AzanReminderController() {
         });
       }, Math.max(msUntil, 0));
       timersRef.current.push(atTime);
-
-      const beforeMs = msUntil - MINUTES_BEFORE * 60000;
-      if (beforeMs > 0) {
-        const beforeTime = setTimeout(() => {
-          if (snapshot.permission !== 'granted') return;
-
-          const title = `⏰ ${label} dalam ${MINUTES_BEFORE} menit`;
-          const body = `Bersiaplah untuk sholat ${label}. Waktu masuk pukul ${timeStr}.`;
-
-          if (snapshot.soundEnabled) {
-            void playAzanSound('before');
-          }
-
-          void sendNotification(title, {
-            body,
-            tag: `azan-before-${prayer}`,
-            silent: false,
-          });
-        }, beforeMs);
-        timersRef.current.push(beforeTime);
-      }
     });
 
     const nowDate = new Date();

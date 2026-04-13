@@ -12,7 +12,6 @@ const LABELS: Record<string, string> = {
   Maghrib: 'Maghrib',
   Isha: "Isya'",
 };
-const MINUTES_BEFORE = 10;
 const DISPATCH_WINDOW_MINUTES = Math.max(
   1,
   Number.parseInt(process.env.PUSH_DISPATCH_WINDOW_MINUTES ?? '15', 10) || 15
@@ -73,15 +72,6 @@ function isWithinWindow(time: string, hour: number, minute: number, windowMinute
 
   const nowMinute = hour * 60 + minute;
   return nowMinute >= target && nowMinute < target + windowMinutes;
-}
-
-function isBeforeWindow(time: string, hour: number, minute: number, minutesBefore: number, windowMinutes: number): boolean {
-  const target = toMinuteOfDay(time);
-  if (target === null) return false;
-
-  const nowMinute = hour * 60 + minute;
-  const beforeMinute = target - minutesBefore;
-  return nowMinute >= beforeMinute && nowMinute < beforeMinute + windowMinutes;
 }
 
 function hasPrayerLocation(subscriber: PushSubscriber): subscriber is PushSubscriber & {
@@ -190,35 +180,6 @@ export async function runPushPrayerCron(): Promise<{
         }
       }
 
-      if (isBeforeWindow(timing, zoned.hour, zoned.minute, MINUTES_BEFORE, DISPATCH_WINDOW_MINUTES)) {
-        const tag = `push-before-${subscriber.timezone}-${zoned.date}-${prayer}`;
-        if (!alreadySent(subscriber, tag)) {
-          const payload: PushPayload = {
-            title: `⏰ ${label} dalam ${MINUTES_BEFORE} menit`,
-            body: `Bersiaplah untuk sholat ${label}. Masuk pukul ${cleanTiming(timing)}.`,
-            tag,
-            requireInteraction: false,
-            url: '/',
-            icon: DEFAULT_ICON,
-            badge: DEFAULT_BADGE,
-            image: DEFAULT_IMAGE,
-            actions: [{ action: 'open-app', title: 'Buka' }],
-          };
-
-          const result = await sendWebPush(subscriber, payload);
-          if (result.expired) {
-            await removePushSubscriber(subscriber.endpoint);
-            removed += 1;
-            break;
-          }
-          if (result.delivered) {
-            sent += 1;
-            await markSent(subscriber, tag);
-          } else {
-            failed += 1;
-          }
-        }
-      }
     }
   }
 

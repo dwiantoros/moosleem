@@ -46,26 +46,35 @@ function resolveAuthor(settings: Awaited<ReturnType<typeof getCmsSettings>>) {
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await getCmsSettings();
+    const title = settings.defaultSeoTitle || settings.blogTitle || 'Artikel Muslim Traveler';
+    const description = settings.defaultSeoDescription || settings.blogDescription || 'Baca artikel menarik tentang perjalanan halal dan muslim traveler';
+    const image = absoluteUrl(settings.defaultOgImage, FALLBACK_OG_IMAGE);
 
     return withPageSeoOverride('/artikel', {
-      title: settings.defaultSeoTitle || settings.blogTitle,
-      description: settings.defaultSeoDescription || settings.blogDescription,
+      title,
+      description,
       keywords: settings.defaultKeywords,
       alternates: {
         canonical: `${SITE_URL}/artikel`,
       },
+      robots: {
+        index: true,
+        follow: true,
+      },
       openGraph: {
-        title: settings.defaultSeoTitle || settings.blogTitle,
-        description: settings.defaultSeoDescription || settings.blogDescription,
+        title,
+        description,
         url: `${SITE_URL}/artikel`,
+        siteName: 'Muslim Traveler',
+        locale: 'id_ID',
         type: 'website',
-        images: [{ url: settings.defaultOgImage || FALLBACK_OG_IMAGE }],
+        images: [{ url: image }],
       },
       twitter: {
         card: 'summary_large_image',
-        title: settings.defaultSeoTitle || settings.blogTitle,
-        description: settings.defaultSeoDescription || settings.blogDescription,
-        images: [settings.defaultOgImage || FALLBACK_OG_IMAGE],
+        title,
+        description,
+        images: [image],
       },
     });
   } catch (error) {
@@ -73,8 +82,23 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       title: 'Artikel',
       description: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
+      alternates: {
+        canonical: `${SITE_URL}/artikel`,
+      },
       openGraph: {
+        title: 'Artikel Muslim Traveler',
+        description: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
+        url: `${SITE_URL}/artikel`,
+        siteName: 'Muslim Traveler',
+        locale: 'id_ID',
+        type: 'website',
         images: [{ url: FALLBACK_OG_IMAGE }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Artikel Muslim Traveler',
+        description: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
+        images: [FALLBACK_OG_IMAGE],
       },
     };
   }
@@ -109,6 +133,17 @@ export default async function ArticleIndexPage() {
   }
 
   const author = resolveAuthor(settings as Awaited<ReturnType<typeof getCmsSettings>>);
+  const listSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: pageSeoTitle || settings.blogTitle,
+    itemListElement: articles.slice(0, 24).map((article, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `${SITE_URL}/artikel/${article.slug}`,
+      name: article.title,
+    })),
+  };
 
   return (
     <div className="relative min-h-screen pb-8">
@@ -129,29 +164,29 @@ export default async function ArticleIndexPage() {
                 <img
                   src={article.coverImage}
                   alt={article.title}
-                  className="mb-4 h-44 w-full rounded-[1.2rem] border border-white/60 object-cover"
+                  className="mb-4 h-44 w-full rounded-[1.2rem] border border-white/60 object-cover dark:border-white/10"
                 />
               ) : null}
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                <span className="rounded-full bg-teal-50 px-3 py-1 font-semibold uppercase tracking-[0.16em] text-teal-700">{article.category || 'Artikel'}</span>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-300">
+                <span className="rounded-full bg-teal-50 px-3 py-1 font-semibold uppercase tracking-[0.16em] text-teal-700 dark:bg-teal-500/15 dark:text-teal-300">{article.category || 'Artikel'}</span>
                 <span>{formatDate(article.publishedAt)}</span>
               </div>
               <div className="mt-4 flex items-center gap-3">
                 {author.photo ? (
-                  <img src={author.photo} alt={author.name} className="h-10 w-10 rounded-full border border-white/70 object-cover" />
+                  <img src={author.photo} alt={author.name} className="h-10 w-10 rounded-full border border-white/70 object-cover dark:border-white/10" />
                 ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700 dark:bg-teal-500/15 dark:text-teal-300">
                     {author.name.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{author.name}</p>
-                  <p className="text-xs text-slate-500">{author.role}</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{author.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">{author.role}</p>
                 </div>
               </div>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950">{article.title}</h2>
-              <p className="mt-3 text-sm leading-7 text-slate-600">{article.excerpt || 'Artikel ini belum memiliki ringkasan. Buka detail untuk membaca isi lengkapnya.'}</p>
-              <Link href={`/artikel/${article.slug}`} className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{article.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{article.excerpt || 'Artikel ini belum memiliki ringkasan. Buka detail untuk membaca isi lengkapnya.'}</p>
+              <Link href={`/artikel/${article.slug}`} className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-teal-600 dark:hover:bg-teal-500">
                 Baca artikel
                 <span aria-hidden="true">→</span>
               </Link>
@@ -159,7 +194,7 @@ export default async function ArticleIndexPage() {
           ))}
 
           {articles.length === 0 ? (
-            <div className="glass-panel rounded-[1.8rem] p-6 text-sm leading-7 text-slate-600">
+            <div className="glass-panel rounded-[1.8rem] p-6 text-sm leading-7 text-slate-600 dark:text-slate-300">
               Belum ada artikel yang dipublikasikan. Silakan hubungi admin untuk menulis artikel pertama.
             </div>
           ) : null}
@@ -183,7 +218,7 @@ export default async function ArticleIndexPage() {
                 url: `${SITE_URL}/artikel/${article.slug}`,
                 datePublished: article.publishedAt || article.createdAt,
                 dateModified: article.updatedAt,
-                image: article.ogImage || article.coverImage || settings.defaultOgImage || FALLBACK_OG_IMAGE,
+                image: absoluteUrl(article.ogImage || article.coverImage || settings.defaultOgImage, FALLBACK_OG_IMAGE),
                 author: {
                   '@type': 'Person',
                   name: author.name,
@@ -197,6 +232,10 @@ export default async function ArticleIndexPage() {
               })),
             }),
           }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(listSchema) }}
         />
       </main>
     </div>

@@ -4,6 +4,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
+function getInitialDarkMode() {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+
+  return document.documentElement.classList.contains('dark');
+}
+
 // Primary items shown in floating bar
 const PRIMARY = [
   {
@@ -132,8 +140,7 @@ export default function BottomNav() {
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [dark, setDark] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [dark, setDark] = useState(getInitialDarkMode);
   const lastYRef = useRef(0);
   const visibleRef = useRef(true);
 
@@ -141,11 +148,15 @@ export default function BottomNav() {
   useEffect(() => {
     const check = () => setDark(document.documentElement.classList.contains('dark'));
     check();
-    setMounted(true);
     const obs = new MutationObserver(check);
     obs.observe(document.documentElement, { attributeFilter: ['class'] });
     return () => obs.disconnect();
   }, []);
+
+  // Do not render floating public navigation on CMS/admin screens.
+  if (pathname.startsWith('/bukan-admin') || pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const toggleTheme = () => {
     const next = !dark;

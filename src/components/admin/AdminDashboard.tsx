@@ -472,8 +472,8 @@ export default function AdminDashboard({ initialArticles, initialSettings: _init
                 />
               </label>
 
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 md:col-span-2">
-                Isi artikel
+              <div className="block text-sm font-medium text-slate-700 dark:text-slate-200 md:col-span-2">
+                <p>Isi artikel</p>
                 <div className="mt-2">
                   <RichTextEditor
                     value={draft.content}
@@ -481,7 +481,7 @@ export default function AdminDashboard({ initialArticles, initialSettings: _init
                     onUploadImage={uploadAsset}
                   />
                 </div>
-              </label>
+              </div>
 
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                 Cover image URL

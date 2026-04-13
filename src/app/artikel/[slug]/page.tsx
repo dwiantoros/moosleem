@@ -87,10 +87,23 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       return {
         title: fallbackTitle,
         description: fallbackDescription,
+        alternates: {
+          canonical: `${SITE_URL}/artikel/${slug}`,
+        },
         openGraph: {
           title: fallbackTitle,
           description: fallbackDescription,
+          url: `${SITE_URL}/artikel/${slug}`,
+          siteName: 'Muslim Traveler',
+          locale: 'id_ID',
+          type: 'article',
           images: [{ url: fallbackImage }],
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: fallbackTitle,
+          description: fallbackDescription,
+          images: [fallbackImage],
         },
       };
     }
@@ -100,18 +113,29 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     const canonical = absoluteUrl(article.canonicalUrl, `${SITE_URL}/artikel/${article.slug}`);
     const image = absoluteUrl(article.ogImage || article.coverImage || settings.defaultOgImage, FALLBACK_OG_IMAGE);
     const publishedTime = article.publishedAt || article.createdAt;
+    const author = resolveAuthor(settings);
 
     return {
       title,
       description,
       keywords: article.seoKeywords || settings.defaultKeywords,
+      authors: [{ name: author.name }],
+      creator: author.name,
+      publisher: 'Muslim Traveler',
+      category: article.category || 'Artikel',
       alternates: {
         canonical,
+      },
+      robots: {
+        index: true,
+        follow: true,
       },
       openGraph: {
         title,
         description,
         url: canonical,
+        siteName: 'Muslim Traveler',
+        locale: 'id_ID',
         type: 'article',
         publishedTime,
         modifiedTime: article.updatedAt,
@@ -135,10 +159,23 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     return {
       title: 'Artikel Muslim Traveler',
       description: 'Baca artikel Muslim Traveler.',
+      alternates: {
+        canonical: `${SITE_URL}/artikel`,
+      },
       openGraph: {
         title: 'Artikel Muslim Traveler',
         description: 'Baca artikel Muslim Traveler.',
+        url: `${SITE_URL}/artikel`,
+        siteName: 'Muslim Traveler',
+        locale: 'id_ID',
+        type: 'article',
         images: [{ url: FALLBACK_OG_IMAGE }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Artikel Muslim Traveler',
+        description: 'Baca artikel Muslim Traveler.',
+        images: [FALLBACK_OG_IMAGE],
       },
     };
   }
@@ -250,16 +287,16 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
             </ol>
           </nav>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-            <span className="rounded-full bg-teal-50 px-3 py-1 font-semibold uppercase tracking-[0.16em] text-teal-700">{article.category || 'Artikel'}</span>
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-300">
+            <span className="rounded-full bg-teal-50 px-3 py-1 font-semibold uppercase tracking-[0.16em] text-teal-700 dark:bg-teal-500/15 dark:text-teal-300">{article.category || 'Artikel'}</span>
             <span>{formatDate(article.publishedAt)}</span>
           </div>
 
           <div className="mt-3 flex items-center gap-2.5 text-slate-500 dark:text-slate-300">
             {author.photo ? (
-              <img src={author.photo} alt={author.name} className="h-9 w-9 rounded-full border border-white/60 object-cover" />
+              <img src={author.photo} alt={author.name} className="h-9 w-9 rounded-full border border-white/60 object-cover dark:border-white/10" />
             ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700 dark:bg-teal-500/15 dark:text-teal-300">
                 {author.name.charAt(0).toUpperCase()}
               </div>
             )}
@@ -276,27 +313,27 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
             <img
               src={thumbnailImage}
               alt={article.title}
-              className="mt-8 h-auto w-full rounded-[1.6rem] border border-white/60 object-cover"
+              className="mt-8 h-auto w-full rounded-[1.6rem] border border-white/60 object-cover dark:border-white/10"
             />
           ) : null}
 
-          <div className="article-content mt-10 text-[1.02rem] leading-8 text-slate-700">
+          <div className="article-content mt-10 text-[1.02rem] leading-8 text-slate-700 dark:text-slate-300">
             {isHtmlContent ? (
               <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
             ) : (
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  h2: ({ children }) => <h2 className="mt-10 text-2xl font-semibold tracking-tight text-slate-950">{children}</h2>,
-                  h3: ({ children }) => <h3 className="mt-8 text-xl font-semibold tracking-tight text-slate-950">{children}</h3>,
+                  h2: ({ children }) => <h2 className="mt-10 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{children}</h2>,
+                  h3: ({ children }) => <h3 className="mt-8 text-xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{children}</h3>,
                   p: ({ children }) => <p className="mt-5">{children}</p>,
                   ul: ({ children }) => <ul className="mt-5 list-disc space-y-2 pl-6">{children}</ul>,
                   ol: ({ children }) => <ol className="mt-5 list-decimal space-y-2 pl-6">{children}</ol>,
                   li: ({ children }) => <li>{children}</li>,
-                  blockquote: ({ children }) => <blockquote className="mt-6 rounded-r-[1.3rem] border-l-4 border-teal-500 bg-teal-50 px-5 py-4 text-slate-700">{children}</blockquote>,
-                  a: ({ children, href }) => <a href={href} className="font-semibold text-teal-700 underline decoration-teal-300 underline-offset-4">{children}</a>,
-                  code: ({ children }) => <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-sm text-slate-900">{children}</code>,
-                  pre: ({ children }) => <pre className="mt-6 overflow-x-auto rounded-[1.4rem] bg-slate-950 px-4 py-4 text-sm text-slate-100">{children}</pre>,
+                  blockquote: ({ children }) => <blockquote className="mt-6 rounded-r-[1.3rem] border-l-4 border-teal-500 bg-teal-50 px-5 py-4 text-slate-700 dark:bg-teal-500/10 dark:text-slate-200">{children}</blockquote>,
+                  a: ({ children, href }) => <a href={href} className="font-semibold text-teal-700 underline decoration-teal-300 underline-offset-4 dark:text-teal-300 dark:decoration-teal-500/50">{children}</a>,
+                  code: ({ children }) => <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-sm text-slate-900 dark:bg-slate-800 dark:text-slate-100">{children}</code>,
+                  pre: ({ children }) => <pre className="mt-6 overflow-x-auto rounded-[1.4rem] bg-slate-950 px-4 py-4 text-sm text-slate-100 dark:border dark:border-white/10">{children}</pre>,
                 }}
               >
                 {normalizedMarkdown}
