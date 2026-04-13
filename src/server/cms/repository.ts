@@ -141,6 +141,11 @@ async function readyDb() {
   return db;
 }
 
+// For read-only queries: skips DDL to avoid 8+ queries on every cold start
+async function rawDb() {
+  return getCmsDb();
+}
+
 function normalizeArticleInput(input: CmsArticleInput, existing?: CmsArticle) {
   const title = cleanText(input.title || existing?.title || '');
 
@@ -175,7 +180,7 @@ function isUniqueConstraintError(error: unknown) {
 }
 
 export async function listArticles(options?: { includeDrafts?: boolean }) {
-  const db = await readyDb();
+  const db = await rawDb();
 
   if (!db) {
     return [] as CmsArticle[];
@@ -191,7 +196,7 @@ export async function listArticles(options?: { includeDrafts?: boolean }) {
 }
 
 export async function getArticleBySlug(slug: string, options?: { includeDrafts?: boolean }) {
-  const db = await readyDb();
+  const db = await rawDb();
 
   if (!db) {
     return null;
@@ -212,7 +217,7 @@ export async function getArticleBySlug(slug: string, options?: { includeDrafts?:
 }
 
 export async function getArticleById(id: string) {
-  const db = await readyDb();
+  const db = await rawDb();
 
   if (!db) {
     return null;
@@ -472,7 +477,7 @@ export async function updateCmsSettings(input: Partial<CmsSettings>) {
 }
 
 export async function listAssets(limit = 24) {
-  const db = await readyDb();
+  const db = await rawDb();
 
   if (!db) {
     return [] as CmsAsset[];
@@ -487,7 +492,7 @@ export async function listAssets(limit = 24) {
 }
 
 export async function getAssetById(id: string) {
-  const db = await readyDb();
+  const db = await rawDb();
 
   if (!db) {
     return null;
@@ -597,13 +602,11 @@ export async function getAllPageSeo(): Promise<PageSeoEntry[]> {
 }
 
 export async function getPageSeoEntry(slug: string): Promise<PageSeoEntry | null> {
-  const db = await getCmsDb();
+  const db = await rawDb();
 
   if (!db) {
     return null;
   }
-
-  await ensureCmsTables();
 
   const result = await db.execute({
     sql: 'SELECT * FROM cms_page_seo WHERE slug = ?',

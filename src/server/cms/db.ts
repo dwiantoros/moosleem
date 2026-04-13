@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { createClient, type Client } from '@libsql/client/node';
+import { createClient, type Client } from '@libsql/client/http';
 
 let clientPromise: Promise<Client | null> | null = null;
 let tablesReady = false;
