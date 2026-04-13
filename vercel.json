@@ -1,2 +1,9 @@
-{}
+{
+	"crons": [
+		{
+			"path": "/api/cron/push-prayer",
+			"schedule": "* * * * *"
+		}
+	]
+}
 

@@ -1,23 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runPushPrayerCron } from '@/server/push/prayerCron';
 
+function normalizeSecret(value: string | null | undefined): string {
+  if (!value) return '';
+  return value.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+}
+
 function isAuthorized(request: NextRequest): boolean {
   const isVercelCron = Boolean(request.headers.get('x-vercel-cron'));
   if (isVercelCron) return true;
 
-  const secret = process.env.CRON_SECRET?.trim();
+  const secret = normalizeSecret(process.env.CRON_SECRET);
   if (!secret) return false;
 
-  const bearer = request.headers.get('authorization');
-  if (bearer === `Bearer ${secret}`) return true;
+  const bearer = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+  if (normalizeSecret(bearer) === secret) return true;
 
-  const xCronSecret = request.headers.get('x-cron-secret');
+  const xCronSecret = normalizeSecret(request.headers.get('x-cron-secret'));
   if (xCronSecret === secret) return true;
 
-  const xApiKey = request.headers.get('x-api-key');
+  const xApiKey = normalizeSecret(request.headers.get('x-api-key'));
   if (xApiKey === secret) return true;
 
-  const querySecret = request.nextUrl.searchParams.get('secret');
+  const querySecret = normalizeSecret(request.nextUrl.searchParams.get('secret'));
   return querySecret === secret;
 }
 
