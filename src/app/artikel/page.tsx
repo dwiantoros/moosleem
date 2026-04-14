@@ -7,7 +7,7 @@ import { getPageSeoEntry, getCmsSettings, listArticles } from '@/server/cms/repo
 import { withPageSeoOverride } from '@/server/cms/pageSeo';
 import { type CmsArticle } from '@/server/cms/types';
 
-const SITE_URL = 'https://muslim-traveler.com';
+const SITE_URL = 'https://moosleem.com';
 const FALLBACK_OG_IMAGE = `${SITE_URL}/logo-muslim-traveler.png`;
 
 function absoluteUrl(value: string | null | undefined, fallback: string) {
@@ -37,8 +37,8 @@ function formatDate(value: string | null) {
 
 function resolveAuthor(settings: Awaited<ReturnType<typeof getCmsSettings>>) {
   return {
-    name: settings.profileName || 'Tim Muslim Traveler',
-    role: settings.profileRole || 'Editor Muslim Traveler',
+    name: settings.profileName || 'Tim Moosleem',
+    role: settings.profileRole || 'Editor Moosleem',
     photo: settings.profilePhoto,
   };
 }
@@ -46,8 +46,8 @@ function resolveAuthor(settings: Awaited<ReturnType<typeof getCmsSettings>>) {
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const settings = await getCmsSettings();
-    const title = settings.defaultSeoTitle || settings.blogTitle || 'Artikel Muslim Traveler';
-    const description = settings.defaultSeoDescription || settings.blogDescription || 'Baca artikel menarik tentang perjalanan halal dan muslim traveler';
+    const title = settings.defaultSeoTitle || settings.blogTitle || 'Artikel Moosleem';
+    const description = settings.defaultSeoDescription || settings.blogDescription || 'Baca artikel menarik tentang perjalanan halal dan Moosleem';
     const image = absoluteUrl(settings.defaultOgImage, FALLBACK_OG_IMAGE);
 
     return withPageSeoOverride('/artikel', {
@@ -65,7 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
         title,
         description,
         url: `${SITE_URL}/artikel`,
-        siteName: 'Muslim Traveler',
+        siteName: 'Moosleem',
         locale: 'id_ID',
         type: 'website',
         images: [{ url: image }],
@@ -81,23 +81,23 @@ export async function generateMetadata(): Promise<Metadata> {
     // Database not available during build
     return {
       title: 'Artikel',
-      description: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
+      description: 'Baca artikel menarik tentang perjalanan halal dan Moosleem',
       alternates: {
         canonical: `${SITE_URL}/artikel`,
       },
       openGraph: {
-        title: 'Artikel Muslim Traveler',
-        description: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
+        title: 'Artikel Moosleem',
+        description: 'Baca artikel menarik tentang perjalanan halal dan Moosleem',
         url: `${SITE_URL}/artikel`,
-        siteName: 'Muslim Traveler',
+        siteName: 'Moosleem',
         locale: 'id_ID',
         type: 'website',
         images: [{ url: FALLBACK_OG_IMAGE }],
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Artikel Muslim Traveler',
-        description: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
+        title: 'Artikel Moosleem',
+        description: 'Baca artikel menarik tentang perjalanan halal dan Moosleem',
         images: [FALLBACK_OG_IMAGE],
       },
     };
@@ -110,10 +110,10 @@ export default async function ArticleIndexPage() {
   let pageSeoDescription = '';
   let settings = {
     blogTitle: 'Artikel',
-    blogDescription: 'Baca artikel menarik tentang perjalanan halal dan muslim traveler',
+    blogDescription: 'Baca artikel menarik tentang perjalanan halal dan Moosleem',
     defaultOgImage: '',
-    profileName: 'Tim Muslim Traveler',
-    profileRole: 'Editor Muslim Traveler',
+    profileName: 'Tim Moosleem',
+    profileRole: 'Editor Moosleem',
     profilePhoto: '',
   };
 
@@ -149,7 +149,7 @@ export default async function ArticleIndexPage() {
     <div className="relative min-h-screen pb-8">
       <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30rem]" />
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <BrandedPageHeader />
+        <BrandedPageHeader title="Moosleem" showLogoMark={false} />
 
         <section className="glass-panel rounded-[2rem] p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Artikel</p>
@@ -227,7 +227,7 @@ export default async function ArticleIndexPage() {
                 },
                 publisher: {
                   '@type': 'Organization',
-                  name: 'Muslim Traveler',
+                  name: 'Moosleem',
                 },
               })),
             }),

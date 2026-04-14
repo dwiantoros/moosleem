@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import ProfileDashboard from '@/components/admin/ProfileDashboard';
 import PageHeaderActions from '@/components/PageHeaderActions';
 import { getAdminSession } from '@/server/cms/auth';
@@ -34,7 +35,7 @@ export default async function AdminProfilePage({ searchParams }: ProfilePageProp
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Admin aktif</p>
+            <MoosleemLogoMark className="mb-1" />
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Profil author CMS</h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Storage: {storageMode === 'turso' ? 'Turso remote gratis' : storageMode === 'local' ? 'File lokal development' : 'Belum siap untuk production'}</p>
           </div>

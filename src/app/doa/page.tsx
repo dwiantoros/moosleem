@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
 const prayers = [
@@ -45,7 +46,7 @@ export default function DoaPage() {
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </Link>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Doa</p>
+              <MoosleemLogoMark className="mb-1" />
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Doa Harian Pilihan</h1>
             </div>
           </div>

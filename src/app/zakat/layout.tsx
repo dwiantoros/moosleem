@@ -4,7 +4,7 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/zakat', {
-    title: 'Kalkulator Zakat | Muslim Traveler',
+    title: 'Kalkulator Zakat | Moosleem',
     description: 'Hitung zakat maal, emas, perak, penghasilan, dan pertanian sesuai nisab terkini.',
   });
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import QuranReader from '@/components/QuranReader';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
 export default async function QuranPage({
@@ -23,7 +24,7 @@ export default async function QuranPage({
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </Link>
           <div>
-            <p className="text-sm text-slate-600">Muslim Traveler</p>
+            <MoosleemLogoMark className="mb-1" />
             <h1 className="text-2xl font-semibold text-slate-900">Al-Quran</h1>
           </div>
           </div>

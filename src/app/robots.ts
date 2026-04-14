@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       disallow: '/',
     },
-    sitemap: 'https://muslim-traveler.vercel.app/sitemap.xml',
+    sitemap: 'https://moosleem.com/sitemap.xml',
   };
 }

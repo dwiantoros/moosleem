@@ -11,7 +11,7 @@ export default function NotFoundPage() {
             Halaman tidak ditemukan
           </h1>
           <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">
-            Link yang kamu buka mungkin sudah dipindah atau tidak tersedia. Coba kembali ke beranda untuk lanjut jelajah fitur Muslim Traveler.
+            Link yang kamu buka mungkin sudah dipindah atau tidak tersedia. Coba kembali ke beranda untuk lanjut jelajah fitur Moosleem.
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">

@@ -18,10 +18,10 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "Muslim Traveler - Prayer Times, Quran & Halal Finder",
-  description: "Muslim Traveler adalah aplikasi komprehensif untuk Muslim yang bepergian: jadwal shalat akurat real-time, baca Al-Quran Arab dengan terjemahan, pengingat azan, dan rekomendasi restoran halal terdekat di lokasi Anda.",
+  title: "Moosleem - Prayer Times, Quran & Halal Finder",
+  description: "Moosleem adalah aplikasi komprehensif untuk Muslim yang bepergian: jadwal shalat akurat real-time, baca Al-Quran Arab dengan terjemahan, pengingat azan, dan rekomendasi restoran halal terdekat di lokasi Anda.",
   keywords: "jadwal shalat, quran arabic, azan reminder, halal restaurants, muslim travel, islamic app, prayer times",
-  metadataBase: new URL("https://muslim-traveler.com"),
+  metadataBase: new URL("https://moosleem.com"),
   robots: {
     index: true,
     follow: true,
@@ -34,24 +34,24 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://muslim-traveler.com",
+    canonical: "https://moosleem.com",
     languages: {
-      "id": "https://muslim-traveler.com/id",
-      "en": "https://muslim-traveler.com/en",
-      "ar": "https://muslim-traveler.com/ar",
+      "id": "https://moosleem.com/id",
+      "en": "https://moosleem.com/en",
+      "ar": "https://moosleem.com/ar",
     },
   },
   openGraph: {
-    title: "Muslim Traveler - Prayer Times & Quran Companion",
+    title: "Moosleem - Prayer Times & Quran Companion",
     description: "Your comprehensive Islamic companion app for prayer times, Quran reading, azan reminders, and halal food discovery.",
-    url: "https://muslim-traveler.com",
-    siteName: "Muslim Traveler",
+    url: "https://moosleem.com",
+    siteName: "Moosleem",
     images: [
       {
         url: "/logo-muslim-traveler.png",
         width: 1200,
         height: 630,
-        alt: "Muslim Traveler App",
+        alt: "Moosleem App",
       },
     ],
     locale: "id_ID",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Muslim Traveler - Prayer Times, Quran & Halal Finder",
+    title: "Moosleem - Prayer Times, Quran & Halal Finder",
     description: "Your comprehensive Islamic companion app for traveling Muslims",
     images: ["/logo-muslim-traveler.png"],
   },
@@ -83,10 +83,10 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Muslim Traveler",
+    name: "Moosleem",
     description: "Aplikasi komprehensif untuk Muslim yang bepergian dengan fitur jadwal shalat, baca Quran, pengingat azan, dan pencarian halal",
-    url: "https://muslim-traveler.com",
-    image: "https://muslim-traveler.com/logo-muslim-traveler.svg",
+    url: "https://moosleem.com",
+    image: "https://moosleem.com/logo-muslim-traveler.svg",
     applicationCategory: "Travel",
     offers: {
       "@type": "Offer",
@@ -111,7 +111,7 @@ export default function RootLayout({
         <meta name="color-scheme" content="light dark" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Muslim Traveler" />
+        <meta name="apple-mobile-web-app-title" content="Moosleem" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <script
           type="application/ld+json"

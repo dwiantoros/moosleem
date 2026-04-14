@@ -30,7 +30,7 @@ function HeaderIcon({ children }: { children: React.ReactNode }) {
 }
 
 export default function UserGreeting({ reminderEnabled = false, onReminderToggle }: UserGreetingProps) {
-  const [userName, setUserName] = useState('Muslim Traveler');
+  const [userName, setUserName] = useState('Moosleem');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -88,13 +88,13 @@ export default function UserGreeting({ reminderEnabled = false, onReminderToggle
     <>
       <div className="mb-8 flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Assalamu Alaikum, selamat {greeting()}</p>
-          <h1 className="mt-2 text-[1.75rem] font-semibold tracking-tight">
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500 sm:text-[11px]">Assalamu Alaikum, selamat {greeting()}</p>
+          <h1 className="mt-1.5 text-[1.35rem] font-semibold tracking-tight md:text-[1.45rem]">
             <span className="bg-gradient-to-r from-teal-700 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
               {userName}
             </span>
           </h1>
-          <p className="mt-1 text-sm text-slate-500">Ringkasan ibadah harian yang lebih tenang dan fokus.</p>
+          <p className="mt-1 text-xs text-slate-500">Ringkasan ibadah harian yang lebih tenang dan fokus.</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Dark mode toggle */}

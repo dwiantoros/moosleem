@@ -4,12 +4,12 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/search', {
-    title: "Search - Muslim Traveler",
-    description: "Cari surah Quran, jadwal sholat, qibla, doa, restoran halal, dan fitur Muslim Traveler lainnya.",
+    title: "Search - Moosleem",
+    description: "Cari surah Quran, jadwal sholat, qibla, doa, restoran halal, dan fitur Moosleem lainnya.",
     openGraph: {
-      title: "Search - Muslim Traveler",
-      description: "Cari surah Quran dan fitur utama Muslim Traveler dengan cepat.",
-      url: "https://muslim-traveler.com/search",
+      title: "Search - Moosleem",
+      description: "Cari surah Quran dan fitur utama Moosleem dengan cepat.",
+      url: "https://moosleem.com/search",
       type: "website",
     },
   });

@@ -118,7 +118,7 @@ export default function ProfileDashboard({ initialSettings, initialAssets, backH
               type="text"
               value={settings.profileRole}
               onChange={(event) => updateField('profileRole', event.target.value)}
-              placeholder="Contoh: Editor Muslim Traveler"
+              placeholder="Contoh: Editor Moosleem"
               className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>
@@ -190,8 +190,8 @@ export default function ProfileDashboard({ initialSettings, initialAssets, backH
               </div>
             )}
             <div>
-              <p className="text-lg font-semibold text-slate-950 dark:text-slate-100">{settings.profileName || 'Tim Muslim Traveler'}</p>
-              <p className="text-sm text-slate-500 dark:text-slate-300">{settings.profileRole || 'Editor Muslim Traveler'}</p>
+              <p className="text-lg font-semibold text-slate-950 dark:text-slate-100">{settings.profileName || 'Tim Moosleem'}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-300">{settings.profileRole || 'Editor Moosleem'}</p>
             </div>
           </div>
           <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">{settings.profileBio || 'Tambahkan bio singkat agar pembaca tahu siapa penulis artikel.'}</p>

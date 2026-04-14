@@ -4,12 +4,12 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/qibla', {
-    title: "Arah Qibla - Muslim Traveler",
+    title: "Arah Qibla - Moosleem",
     description: "Temukan arah qibla dari lokasi Anda dengan tampilan bearing yang jelas dan sederhana.",
     openGraph: {
-      title: "Arah Qibla - Muslim Traveler",
+      title: "Arah Qibla - Moosleem",
       description: "Lihat arah qibla akurat dari posisi Anda sekarang.",
-      url: "https://muslim-traveler.com/qibla",
+      url: "https://moosleem.com/qibla",
       type: "website",
     },
   });

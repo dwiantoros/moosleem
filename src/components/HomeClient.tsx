@@ -657,7 +657,7 @@ export default function Home() {
         </section>
 
         <footer className="mt-10 border-t border-slate-200 pt-6 text-center text-sm text-slate-500">
-          <p>Muslim Traveler • Tempat Ibadah Tenang • Di Mana Pun Kamu Berada</p>
+          <p>Moosleem • Tempat Ibadah Tenang • Di Mana Pun Kamu Berada</p>
         </footer>
       </main>
     </div>

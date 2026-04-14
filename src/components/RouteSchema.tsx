@@ -11,11 +11,11 @@ type RouteMeta = {
   breadcrumbs: Array<{ name: string; path: string }>;
 };
 
-const SITE_URL = 'https://muslim-traveler.com';
+const SITE_URL = 'https://moosleem.com';
 
 const ROUTE_META: Record<string, RouteMeta> = {
   '/': {
-    title: 'Muslim Traveler',
+    title: 'Moosleem',
     description:
       'Aplikasi komprehensif untuk Muslim yang bepergian: jadwal sholat, Quran, pengingat adzan, qibla, dan pencarian halal.',
     breadcrumbs: [{ name: 'Home', path: '/' }],
@@ -29,8 +29,8 @@ const ROUTE_META: Record<string, RouteMeta> = {
     ],
   },
   '/bantuan': {
-    title: 'Bantuan Muslim Traveler',
-    description: 'FAQ dan panduan penggunaan fitur utama Muslim Traveler.',
+    title: 'Bantuan Moosleem',
+    description: 'FAQ dan panduan penggunaan fitur utama Moosleem.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
       { name: 'Bantuan', path: '/bantuan' },
@@ -109,8 +109,8 @@ const ROUTE_META: Record<string, RouteMeta> = {
     ],
   },
   '/artikel': {
-    title: 'Artikel Muslim Traveler',
-    description: 'Artikel Islami, panduan ibadah, dan insight Muslim Traveler yang siap dioptimalkan untuk SEO.',
+    title: 'Artikel Moosleem',
+    description: 'Artikel Islami, panduan ibadah, dan insight Moosleem yang siap dioptimalkan untuk SEO.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
       { name: 'Artikel', path: '/artikel' },
@@ -118,7 +118,7 @@ const ROUTE_META: Record<string, RouteMeta> = {
   },
   '/search': {
     title: 'Pencarian',
-    description: 'Cari fitur, konten Quran, dan halaman penting di Muslim Traveler.',
+    description: 'Cari fitur, konten Quran, dan halaman penting di Moosleem.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
       { name: 'Search', path: '/search' },
@@ -133,8 +133,8 @@ const ROUTE_META: Record<string, RouteMeta> = {
     ],
   },
   '/tentang': {
-    title: 'Tentang Muslim Traveler',
-    description: 'Profil aplikasi, visi, dan penjelasan fitur Muslim Traveler.',
+    title: 'Tentang Moosleem',
+    description: 'Profil aplikasi, visi, dan penjelasan fitur Moosleem.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
       { name: 'Tentang', path: '/tentang' },
@@ -165,7 +165,7 @@ function routeUrl(pathname: string): string {
 function baseGraph(pathname: string): JsonObject[] {
   const url = routeUrl(pathname);
   const routeMeta = ROUTE_META[pathname] ?? {
-    title: 'Muslim Traveler',
+    title: 'Moosleem',
     description: 'Platform ibadah digital untuk Muslim.',
     breadcrumbs: [{ name: 'Home', path: '/' }],
   };
@@ -184,7 +184,7 @@ function baseGraph(pathname: string): JsonObject[] {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       '@id': `${SITE_URL}/#organization`,
-      name: 'Muslim Traveler',
+      name: 'Moosleem',
       url: SITE_URL,
       logo: `${SITE_URL}/logo-muslim-traveler.svg`,
     },
@@ -193,7 +193,7 @@ function baseGraph(pathname: string): JsonObject[] {
       '@type': 'WebSite',
       '@id': `${SITE_URL}/#website`,
       url: SITE_URL,
-      name: 'Muslim Traveler',
+      name: 'Moosleem',
       inLanguage: ['id', 'en', 'ar'],
       potentialAction: {
         '@type': 'SearchAction',
@@ -241,10 +241,10 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
         mainEntity: [
           {
             '@type': 'Question',
-            name: 'Apa itu Muslim Traveler?',
+            name: 'Apa itu Moosleem?',
             acceptedAnswer: {
               '@type': 'Answer',
-              text: 'Muslim Traveler adalah web app pendamping ibadah dengan jadwal sholat, Quran, pengingat adzan, kalender hijriah, dan pencarian halal.',
+              text: 'Moosleem adalah web app pendamping ibadah dengan jadwal sholat, Quran, pengingat adzan, kalender hijriah, dan pencarian halal.',
             },
           },
           {
@@ -366,7 +366,7 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
         inLanguage: ['ar', 'id', 'en'],
         author: {
           '@type': 'Organization',
-          name: 'Muslim Traveler',
+          name: 'Moosleem',
         },
         bookFormat: 'EBook',
       },
@@ -379,7 +379,7 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
         '@context': 'https://schema.org',
         '@type': 'SearchResultsPage',
         '@id': `${url}#search`,
-        name: 'Pencarian Muslim Traveler',
+        name: 'Pencarian Moosleem',
         url,
         potentialAction: {
           '@type': 'SearchAction',
@@ -428,9 +428,9 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
         '@context': 'https://schema.org',
         '@type': 'AboutPage',
         '@id': `${url}#about`,
-        name: 'Tentang Muslim Traveler',
+        name: 'Tentang Moosleem',
         url,
-        description: 'Penjelasan visi, misi, dan fitur Muslim Traveler.',
+        description: 'Penjelasan visi, misi, dan fitur Moosleem.',
       },
     ];
   }

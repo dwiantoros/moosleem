@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import AdminDashboard from '@/components/admin/AdminDashboard';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 import { getAdminSession } from '@/server/cms/auth';
 import { getCmsStorageMode } from '@/server/cms/db';
@@ -37,7 +38,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Admin aktif</p>
+              <MoosleemLogoMark className="mb-1" />
               <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Kelola artikel, SEO, dan profil</h1>
             </div>
             <div className="flex items-center gap-2">

@@ -4,12 +4,12 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/doa', {
-    title: "Doa Harian - Muslim Traveler",
+    title: "Doa Harian - Moosleem",
     description: "Kumpulan doa harian ringkas dengan teks Arab, transliterasi, dan terjemahan Indonesia.",
     openGraph: {
-      title: "Doa Harian - Muslim Traveler",
+      title: "Doa Harian - Moosleem",
       description: "Baca doa harian pilihan untuk aktivitas sehari-hari.",
-      url: "https://muslim-traveler.com/doa",
+      url: "https://moosleem.com/doa",
       type: "website",
     },
   });

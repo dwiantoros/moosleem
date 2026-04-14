@@ -4,7 +4,7 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/panduan-sholat', {
-    title: 'Panduan Sholat | Muslim Traveler',
+    title: 'Panduan Sholat | Moosleem',
     description: 'Panduan lengkap tata cara sholat fardhu 5 waktu beserta bacaan Arab dan artinya.',
   });
 }

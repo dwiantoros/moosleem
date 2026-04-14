@@ -4,14 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-function getInitialDarkMode() {
-  if (typeof document === 'undefined') {
-    return false;
-  }
-
-  return document.documentElement.classList.contains('dark');
-}
-
 // Primary items shown in floating bar
 const PRIMARY = [
   {
@@ -140,34 +132,13 @@ export default function BottomNav() {
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [dark, setDark] = useState(getInitialDarkMode);
   const lastYRef = useRef(0);
   const visibleRef = useRef(true);
-
-  // Sync dark mode
-  useEffect(() => {
-    const check = () => setDark(document.documentElement.classList.contains('dark'));
-    check();
-    const obs = new MutationObserver(check);
-    obs.observe(document.documentElement, { attributeFilter: ['class'] });
-    return () => obs.disconnect();
-  }, []);
 
   // Do not render floating public navigation on CMS/admin screens.
   if (pathname.startsWith('/bukan-admin') || pathname.startsWith('/admin')) {
     return null;
   }
-
-  const toggleTheme = () => {
-    const next = !dark;
-    document.documentElement.classList.toggle('dark', next);
-    document.documentElement.style.colorScheme = next ? 'dark' : 'light';
-    localStorage.setItem('theme', next ? 'dark' : 'light');
-    document.cookie = 'theme=' + (next ? 'dark' : 'light') + ';path=/;max-age=31536000;SameSite=Lax';
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', next ? '#07111d' : '#eef3fb');
-    setDark(next);
-  };
 
   // Hide on scroll down, show on scroll up
   useEffect(() => {
@@ -243,23 +214,17 @@ export default function BottomNav() {
       >
         <div
           className="rounded-[1.75rem] px-5 py-5 shadow-2xl"
-          style={dark ? {
-            background: 'rgba(9,18,31,0.94)',
+          style={{
+            background: 'var(--bottomnav-sheet-bg)',
             backdropFilter: 'blur(32px) saturate(160%)',
             WebkitBackdropFilter: 'blur(32px) saturate(160%)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 24px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)',
-          } : {
-            background: 'rgba(248,250,255,0.96)',
-            backdropFilter: 'blur(32px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(32px) saturate(160%)',
-            border: '1px solid rgba(255,255,255,0.8)',
-            boxShadow: '0 24px 60px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.9)',
+            border: '1px solid var(--bottomnav-sheet-border)',
+            boxShadow: 'var(--bottomnav-sheet-shadow)',
           }}
         >
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-semibold" style={{ color: dark ? '#e2e8f0' : '#1e293b' }}>Semua Fitur</p>
-            <button onClick={() => setMoreOpen(false)} className="rounded-full p-1.5 transition" style={{ color: dark ? '#94a3b8' : '#64748b' }}>
+            <p className="text-sm font-semibold" style={{ color: 'var(--bottomnav-title)' }}>Semua Fitur</p>
+            <button onClick={() => setMoreOpen(false)} className="rounded-full p-1.5 transition" style={{ color: 'var(--bottomnav-muted)' }}>
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M18 6 6 18M6 6l12 12"/>
               </svg>
@@ -282,13 +247,13 @@ export default function BottomNav() {
                     className="flex h-9 w-9 items-center justify-center rounded-xl transition-all"
                     style={active
                       ? { backgroundColor: 'rgba(13,148,136,0.15)', color: '#0d9488' }
-                      : { backgroundColor: dark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)', color: dark ? '#94a3b8' : '#475569' }}
+                      : { backgroundColor: 'var(--bottomnav-item-bg)', color: 'var(--bottomnav-item-text)' }}
                   >
                     {item.icon}
                   </span>
                   <span
                     className="text-[10px] font-medium leading-tight"
-                    style={{ color: active ? '#0d9488' : dark ? '#94a3b8' : '#475569' }}
+                    style={{ color: active ? '#0d9488' : 'var(--bottomnav-item-text)' }}
                   >
                     {item.label}
                   </span>
@@ -306,18 +271,12 @@ export default function BottomNav() {
       >
         <div
           className="mb-4 flex w-full max-w-lg items-center justify-between rounded-[1.75rem] px-3 py-2"
-          style={dark ? {
-            background: 'linear-gradient(180deg, rgba(9,18,31,0.94) 0%, rgba(7,14,26,0.92) 100%)',
+          style={{
+            background: 'var(--bottomnav-bar-bg)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
-          } : {
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.78) 100%)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.6)',
-            boxShadow: '0 8px 32px rgba(15,23,42,0.12), 0 2px 8px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.8)',
+            border: '1px solid var(--bottomnav-bar-border)',
+            boxShadow: 'var(--bottomnav-bar-shadow)',
           }}
         >
           {PRIMARY.map((item) => {
@@ -332,14 +291,14 @@ export default function BottomNav() {
                   className="flex h-9 w-9 items-center justify-center rounded-2xl transition-all duration-200"
                   style={active
                     ? { backgroundColor: 'rgba(13,148,136,0.15)', color: '#0d9488', transform: 'scale(1.08)' }
-                    : { color: '#94a3b8' }
+                    : { color: 'var(--bottomnav-inactive)' }
                   }
                 >
                   {item.icon}
                 </span>
                 <span
                   className="text-[10px] font-medium leading-none"
-                  style={{ color: active ? '#0d9488' : '#94a3b8' }}
+                  style={{ color: active ? '#0d9488' : 'var(--bottomnav-inactive)' }}
                 >
                   {item.label}
                 </span>
@@ -362,7 +321,7 @@ export default function BottomNav() {
               className="flex h-9 w-9 items-center justify-center rounded-2xl transition-all duration-200"
               style={moreOpen
                 ? { backgroundColor: 'rgba(13,148,136,0.15)', color: '#0d9488' }
-                : { color: '#94a3b8' }
+                : { color: 'var(--bottomnav-inactive)' }
               }
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -373,7 +332,7 @@ export default function BottomNav() {
             </span>
             <span
               className="text-[10px] font-medium leading-none"
-              style={{ color: moreOpen ? '#0d9488' : '#94a3b8' }}
+              style={{ color: moreOpen ? '#0d9488' : 'var(--bottomnav-inactive)' }}
             >
               Lainnya
             </span>

@@ -102,16 +102,16 @@ export async function ensureCmsTables() {
       defaultSeoDescription TEXT NOT NULL DEFAULT '',
       defaultKeywords TEXT NOT NULL DEFAULT '',
       defaultOgImage TEXT NOT NULL DEFAULT '',
-      profileName TEXT NOT NULL DEFAULT 'Tim Muslim Traveler',
-      profileRole TEXT NOT NULL DEFAULT 'Editor Muslim Traveler',
+      profileName TEXT NOT NULL DEFAULT 'Tim Moosleem',
+      profileRole TEXT NOT NULL DEFAULT 'Editor Moosleem',
       profilePhoto TEXT NOT NULL DEFAULT '',
       profileBio TEXT NOT NULL DEFAULT '',
       updatedAt TEXT NOT NULL
     )
   `);
 
-  await db.execute("ALTER TABLE cms_settings ADD COLUMN profileName TEXT NOT NULL DEFAULT 'Tim Muslim Traveler'").catch(() => {});
-  await db.execute("ALTER TABLE cms_settings ADD COLUMN profileRole TEXT NOT NULL DEFAULT 'Editor Muslim Traveler'").catch(() => {});
+  await db.execute("ALTER TABLE cms_settings ADD COLUMN profileName TEXT NOT NULL DEFAULT 'Tim Moosleem'").catch(() => {});
+  await db.execute("ALTER TABLE cms_settings ADD COLUMN profileRole TEXT NOT NULL DEFAULT 'Editor Moosleem'").catch(() => {});
   await db.execute("ALTER TABLE cms_settings ADD COLUMN profilePhoto TEXT NOT NULL DEFAULT ''").catch(() => {});
   await db.execute("ALTER TABLE cms_settings ADD COLUMN profileBio TEXT NOT NULL DEFAULT ''").catch(() => {});
 

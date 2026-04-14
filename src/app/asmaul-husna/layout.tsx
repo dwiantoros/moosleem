@@ -4,7 +4,7 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/asmaul-husna', {
-    title: 'Asmaul Husna | Muslim Traveler',
+    title: 'Asmaul Husna | Moosleem',
     description: '99 nama-nama Allah yang indah beserta arti dan transliterasi Latin.',
   });
 }

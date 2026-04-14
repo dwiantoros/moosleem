@@ -1,14 +1,15 @@
 import Link from 'next/link';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
 const faqs = [
   {
-    q: 'Apa itu Muslim Traveler?',
-    a: 'Muslim Traveler adalah web app pendamping ibadah untuk membantu jadwal sholat, pengingat adzan, baca Quran, cek kalender hijriah, hingga menemukan masjid dan restoran halal saat bepergian.',
+    q: 'Apa itu Moosleem?',
+    a: 'Moosleem adalah web app pendamping ibadah untuk membantu jadwal sholat, pengingat adzan, baca Quran, cek kalender hijriah, hingga menemukan masjid dan restoran halal saat bepergian.',
   },
   {
     q: 'Kenapa jadwal sholat saya bisa berbeda dengan aplikasi lain?',
-    a: 'Perbedaan kecil bisa terjadi karena metode perhitungan, koordinat lokasi, dan zona waktu. Muslim Traveler menghitung berdasarkan lokasi Anda saat ini agar hasil tetap relevan dengan posisi aktual.',
+    a: 'Perbedaan kecil bisa terjadi karena metode perhitungan, koordinat lokasi, dan zona waktu. Moosleem menghitung berdasarkan lokasi Anda saat ini agar hasil tetap relevan dengan posisi aktual.',
   },
   {
     q: 'Bagaimana cara mengaktifkan notifikasi adzan?',
@@ -60,7 +61,7 @@ export default function BantuanPage() {
               </svg>
             </Link>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Bantuan</p>
+              <MoosleemLogoMark className="mb-1" />
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Pusat Bantuan & FAQ</h1>
             </div>
           </div>
@@ -69,7 +70,7 @@ export default function BantuanPage() {
 
         <section className="glass-panel rounded-[1.6rem] p-5 sm:p-6">
           <p className="text-sm leading-relaxed text-slate-700">
-            Halaman ini berisi jawaban cepat untuk pertanyaan paling umum seputar penggunaan fitur Muslim Traveler. Jika Anda baru pertama kali memakai aplikasi,
+            Halaman ini berisi jawaban cepat untuk pertanyaan paling umum seputar penggunaan fitur Moosleem. Jika Anda baru pertama kali memakai aplikasi,
             mulai dari FAQ notifikasi dan jadwal sholat di bawah ini.
           </p>
         </section>

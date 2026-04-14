@@ -4,7 +4,7 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/sedekah', {
-    title: 'Sedekah Sementara Nonaktif | Muslim Traveler',
+    title: 'Sedekah Sementara Nonaktif | Moosleem',
     description: 'Fitur sedekah sedang dinonaktifkan sementara sampai akun QRIS siap.',
   });
 }

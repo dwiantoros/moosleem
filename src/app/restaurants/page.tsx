@@ -4,6 +4,7 @@ import React from 'react';
 import RestaurantFinder from '@/components/RestaurantFinder';
 import PermissionPromptModal from '@/components/PermissionPromptModal';
 import { LocationData } from '@/types';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 import Link from 'next/link';
 import { getCached, getLastLocation, safeSet, setLastLocation } from '@/utils/clientCache';
@@ -371,7 +372,7 @@ export default function RestaurantsPage() {
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </Link>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Terdekat</p>
+              <MoosleemLogoMark className="mb-1" />
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Halal Nearby</h1>
             </div>
           </div>

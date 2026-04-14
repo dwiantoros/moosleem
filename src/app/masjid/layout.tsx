@@ -4,13 +4,13 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/masjid', {
-    title: 'Cari Masjid Terdekat - Muslim Traveler',
+    title: 'Cari Masjid Terdekat - Moosleem',
     description:
       'Temukan masjid dan musholla terdekat dari lokasi Anda untuk memudahkan ibadah saat bepergian.',
     openGraph: {
-      title: 'Cari Masjid Terdekat - Muslim Traveler',
-      description: 'Pencarian masjid terdekat berbasis lokasi di Muslim Traveler.',
-      url: 'https://muslim-traveler.com/masjid',
+      title: 'Cari Masjid Terdekat - Moosleem',
+      description: 'Pencarian masjid terdekat berbasis lokasi di Moosleem.',
+      url: 'https://moosleem.com/masjid',
       type: 'website',
     },
   });

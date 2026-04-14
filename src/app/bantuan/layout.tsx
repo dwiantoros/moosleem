@@ -4,14 +4,14 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/bantuan', {
-    title: 'Bantuan Muslim Traveler',
+    title: 'Bantuan Moosleem',
     description:
-      'Pusat bantuan dan FAQ Muslim Traveler. Temukan jawaban terkait lokasi, jadwal sholat, notifikasi adzan, Quran, kalender hijriah, dan fitur lainnya.',
+      'Pusat bantuan dan FAQ Moosleem. Temukan jawaban terkait lokasi, jadwal sholat, notifikasi adzan, Quran, kalender hijriah, dan fitur lainnya.',
     openGraph: {
-      title: 'Bantuan Muslim Traveler',
+      title: 'Bantuan Moosleem',
       description:
-        'FAQ lengkap seputar penggunaan Muslim Traveler untuk pengalaman ibadah yang lebih mudah saat bepergian.',
-      url: 'https://muslim-traveler.com/bantuan',
+        'FAQ lengkap seputar penggunaan Moosleem untuk pengalaman ibadah yang lebih mudah saat bepergian.',
+      url: 'https://moosleem.com/bantuan',
       type: 'website',
     },
   });

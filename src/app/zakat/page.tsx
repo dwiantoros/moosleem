@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
 // Nisab & rates (can be updated via the UI)
@@ -118,7 +119,7 @@ export default function ZakatPage() {
           </svg>
         </Link>
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Keuangan</p>
+          <MoosleemLogoMark className="mb-1" />
           <h1 className="text-2xl font-semibold text-slate-900">Kalkulator Zakat</h1>
         </div>
         </div>

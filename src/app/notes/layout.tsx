@@ -4,12 +4,12 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/notes', {
-    title: "Catatan Muslim - Muslim Traveler",
+    title: "Catatan Muslim - Moosleem",
     description: "Simpan catatan pribadi, checklist ibadah, atau pengingat perjalanan Muslim Anda dalam satu tempat.",
     openGraph: {
-      title: "Catatan Muslim - Muslim Traveler",
+      title: "Catatan Muslim - Moosleem",
       description: "Kelola catatan singkat dan pengingat pribadi Anda.",
-      url: "https://muslim-traveler.com/notes",
+      url: "https://moosleem.com/notes",
       type: "website",
     },
   });

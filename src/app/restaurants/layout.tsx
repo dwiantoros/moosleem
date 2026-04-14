@@ -4,13 +4,13 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/restaurants', {
-    title: "Cari Restoran Halal Terdekat - Muslim Traveler",
-    description: "Temukan restoran dan rumah makan halal terdekat dari lokasi Anda. Muslim Traveler memberikan rekomendasi halal yang akurat dan terpercaya.",
+    title: "Cari Restoran Halal Terdekat - Moosleem",
+    description: "Temukan restoran dan rumah makan halal terdekat dari lokasi Anda. Moosleem memberikan rekomendasi halal yang akurat dan terpercaya.",
     keywords: "restoran halal, rumah makan halal, halal nearby, halal finder, tempat makan halal",
     openGraph: {
-      title: "Cari Restoran Halal Terdekat - Muslim Traveler",
-      description: "Temukan restoran halal terdekat dari lokasi Anda dengan Muslim Traveler",
-      url: "https://muslim-traveler.com/restaurants",
+      title: "Cari Restoran Halal Terdekat - Moosleem",
+      description: "Temukan restoran halal terdekat dari lokasi Anda dengan Moosleem",
+      url: "https://moosleem.com/restaurants",
       type: "website",
     },
   });

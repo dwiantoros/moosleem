@@ -70,15 +70,15 @@ export type CmsAsset = {
 };
 
 export const DEFAULT_CMS_SETTINGS: CmsSettings = {
-  blogTitle: 'Artikel Muslim Traveler',
-  blogDescription: 'Kumpulan artikel Islami, panduan ibadah, dan tips Muslim Traveler.',
-  defaultSeoTitle: 'Artikel Muslim Traveler',
-  defaultSeoDescription: 'Baca artikel Islami, panduan ibadah, dan tips Muslim Traveler dengan pengaturan SEO yang siap publish.',
-  defaultKeywords: 'artikel islami, muslim traveler, panduan ibadah, seo artikel islam',
+  blogTitle: 'Artikel Moosleem',
+  blogDescription: 'Kumpulan artikel Islami, panduan ibadah, dan tips Moosleem.',
+  defaultSeoTitle: 'Artikel Moosleem',
+  defaultSeoDescription: 'Baca artikel Islami, panduan ibadah, dan tips Moosleem dengan pengaturan SEO yang siap publish.',
+  defaultKeywords: 'artikel islami, Moosleem, panduan ibadah, seo artikel islam',
   defaultOgImage: '',
-  profileName: 'Tim Muslim Traveler',
-  profileRole: 'Editor Muslim Traveler',
+  profileName: 'Tim Moosleem',
+  profileRole: 'Editor Moosleem',
   profilePhoto: '',
-  profileBio: 'Tim redaksi Muslim Traveler yang membagikan panduan ibadah, perjalanan halal, dan inspirasi harian.',
+  profileBio: 'Tim redaksi Moosleem yang membagikan panduan ibadah, perjalanan halal, dan inspirasi harian.',
   updatedAt: new Date(0).toISOString(),
 };

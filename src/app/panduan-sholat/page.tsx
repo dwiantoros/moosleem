@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import PageHeaderActions from '@/components/PageHeaderActions';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 
 interface Step {
   title: string;
@@ -330,7 +331,7 @@ export default function PanduanSholatPage() {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </Link>
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Ibadah</p>
+          <MoosleemLogoMark className="mb-1" />
           <h1 className="text-2xl font-semibold text-slate-900">Panduan Sholat</h1>
           <p className="text-sm text-slate-500">Tata cara sholat fardhu 5 waktu</p>
         </div>

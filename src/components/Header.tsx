@@ -16,8 +16,8 @@ export default function Header({ location, loading, onRefresh }: HeaderProps) {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-3xl">📖</span>
-              <h1 className="text-3xl font-bold text-gray-900">Muslim Traveler</h1>
+              <span className="text-2xl">📖</span>
+              <h1 className="text-2xl font-bold text-gray-900 md:text-[1.65rem]">Moosleem</h1>
             </div>
             <p className="text-gray-600">Quran reading & prayer times for travelers</p>
           </div>

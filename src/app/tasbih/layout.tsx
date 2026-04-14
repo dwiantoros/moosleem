@@ -4,7 +4,7 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/tasbih', {
-    title: 'Tasbih Digital | Muslim Traveler',
+    title: 'Tasbih Digital | Moosleem',
     description: 'Hitung dzikir harian dengan tasbih digital. Subhanallah, Alhamdulillah, Allahu Akbar, dan lebih banyak lagi.',
   });
 }

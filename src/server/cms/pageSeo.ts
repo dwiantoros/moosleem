@@ -5,7 +5,7 @@ import { unstable_cache } from 'next/cache';
 
 import { getPageSeoEntry } from '@/server/cms/repository';
 
-const DEFAULT_OG_LOGO = 'https://muslim-traveler.com/logo-muslim-traveler.png';
+const DEFAULT_OG_LOGO = 'https://moosleem.com/logo-muslim-traveler.png';
 
 export const getPageSeoEntryCached = unstable_cache(
   async (slug: string) => getPageSeoEntry(slug),

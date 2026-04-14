@@ -4,7 +4,7 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/kalender', {
-    title: 'Kalender Hijriah | Muslim Traveler',
+    title: 'Kalender Hijriah | Moosleem',
     description: 'Kalender Hijriah lengkap dengan hari-hari penting Islam: Ramadan, Idul Fitri, Idul Adha, Maulid Nabi, dan lainnya.',
   });
 }

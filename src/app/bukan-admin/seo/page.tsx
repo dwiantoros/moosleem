@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 import PageSeoDashboard from '@/components/admin/PageSeoDashboard';
 import { getAdminSession } from '@/server/cms/auth';
@@ -32,7 +33,7 @@ export default async function AdminSeoPage({ searchParams }: SeoPageProps) {
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Admin aktif</p>
+            <MoosleemLogoMark className="mb-1" />
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">SEO per halaman</h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
               Edit title, description, FAQ (maks 10), keywords, dan OG image untuk setiap halaman aplikasi.

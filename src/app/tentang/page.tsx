@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 import PageHeaderActions from '@/components/PageHeaderActions';
 
 const featureSections = [
   {
     title: 'Jadwal Sholat Real-time',
     description:
-      'Muslim Traveler menampilkan waktu Subuh, Dzuhur, Ashar, Maghrib, dan Isya berdasarkan lokasi aktual Anda. Data diambil dari API terpercaya, disesuaikan dengan koordinat perangkat, serta menyimpan cache agar tetap cepat saat dibuka kembali.',
+      'Moosleem menampilkan waktu Subuh, Dzuhur, Ashar, Maghrib, dan Isya berdasarkan lokasi aktual Anda. Data diambil dari API terpercaya, disesuaikan dengan koordinat perangkat, serta menyimpan cache agar tetap cepat saat dibuka kembali.',
     points: [
       'Deteksi lokasi otomatis dan fallback ke lokasi terakhir.',
       'Update berkala agar jadwal tetap akurat sepanjang hari.',
@@ -80,8 +81,8 @@ export default function TentangPage() {
               </svg>
             </Link>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Tentang</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Tentang Muslim Traveler</h1>
+              <MoosleemLogoMark className="mb-1" />
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Tentang Moosleem</h1>
             </div>
           </div>
           <PageHeaderActions />
@@ -90,7 +91,7 @@ export default function TentangPage() {
         <section className="glass-panel rounded-[1.6rem] p-5 sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-700">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
           <p className="mt-4 text-sm leading-relaxed text-slate-700">
-            Muslim Traveler adalah aplikasi pendamping ibadah untuk Muslim yang aktif berpindah lokasi. Tujuan utamanya adalah membantu Anda tetap tepat waktu sholat,
+            Moosleem adalah aplikasi pendamping ibadah untuk Muslim yang aktif berpindah lokasi. Tujuan utamanya adalah membantu Anda tetap tepat waktu sholat,
             mudah menemukan kebutuhan halal, dan punya akses cepat ke konten ibadah inti dalam satu tempat yang ringan.
           </p>
           <div className="islamic-divider my-5" />

@@ -8,7 +8,7 @@ import sanitizeHtml from 'sanitize-html';
 import BrandedPageHeader from '@/components/BrandedPageHeader';
 import { getArticleBySlug, getCmsSettings } from '@/server/cms/repository';
 
-const SITE_URL = 'https://muslim-traveler.com';
+const SITE_URL = 'https://moosleem.com';
 const FALLBACK_OG_IMAGE = `${SITE_URL}/logo-muslim-traveler.png`;
 
 type ArticlePageProps = {
@@ -46,7 +46,7 @@ function absoluteUrl(value: string | null | undefined, fallback: string) {
 
 function pickDescription(articleDescription: string, articleExcerpt: string, fallback: string) {
   const candidate = (articleDescription || articleExcerpt || fallback || '').trim();
-  return candidate || 'Artikel Muslim Traveler.';
+  return candidate || 'Artikel Moosleem.';
 }
 
 function normalizeMarkdownContent(value: string) {
@@ -64,10 +64,10 @@ function normalizeMarkdownContent(value: string) {
 
 function resolveAuthor(settings: Awaited<ReturnType<typeof getCmsSettings>>) {
   return {
-    name: settings.profileName || 'Tim Muslim Traveler',
-    role: settings.profileRole || 'Editor Muslim Traveler',
+    name: settings.profileName || 'Tim Moosleem',
+    role: settings.profileRole || 'Editor Moosleem',
     photo: settings.profilePhoto,
-    bio: settings.profileBio || 'Tim redaksi Muslim Traveler.',
+    bio: settings.profileBio || 'Tim redaksi Moosleem.',
   };
 }
 
@@ -80,8 +80,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     ]);
 
     if (!article) {
-      const fallbackTitle = settings.defaultSeoTitle || 'Artikel Muslim Traveler';
-      const fallbackDescription = settings.defaultSeoDescription || 'Artikel Muslim Traveler';
+      const fallbackTitle = settings.defaultSeoTitle || 'Artikel Moosleem';
+      const fallbackDescription = settings.defaultSeoDescription || 'Artikel Moosleem';
       const fallbackImage = absoluteUrl(settings.defaultOgImage, FALLBACK_OG_IMAGE);
 
       return {
@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
           title: fallbackTitle,
           description: fallbackDescription,
           url: `${SITE_URL}/artikel/${slug}`,
-          siteName: 'Muslim Traveler',
+          siteName: 'Moosleem',
           locale: 'id_ID',
           type: 'article',
           images: [{ url: fallbackImage }],
@@ -108,7 +108,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       };
     }
 
-    const title = (article.seoTitle || article.title || 'Artikel Muslim Traveler').trim();
+    const title = (article.seoTitle || article.title || 'Artikel Moosleem').trim();
     const description = pickDescription(article.seoDescription, article.excerpt, settings.defaultSeoDescription);
     const canonical = absoluteUrl(article.canonicalUrl, `${SITE_URL}/artikel/${article.slug}`);
     const image = absoluteUrl(article.ogImage || article.coverImage || settings.defaultOgImage, FALLBACK_OG_IMAGE);
@@ -121,7 +121,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       keywords: article.seoKeywords || settings.defaultKeywords,
       authors: [{ name: author.name }],
       creator: author.name,
-      publisher: 'Muslim Traveler',
+      publisher: 'Moosleem',
       category: article.category || 'Artikel',
       alternates: {
         canonical,
@@ -134,7 +134,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
         title,
         description,
         url: canonical,
-        siteName: 'Muslim Traveler',
+        siteName: 'Moosleem',
         locale: 'id_ID',
         type: 'article',
         publishedTime,
@@ -157,24 +157,24 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     };
   } catch {
     return {
-      title: 'Artikel Muslim Traveler',
-      description: 'Baca artikel Muslim Traveler.',
+      title: 'Artikel Moosleem',
+      description: 'Baca artikel Moosleem.',
       alternates: {
         canonical: `${SITE_URL}/artikel`,
       },
       openGraph: {
-        title: 'Artikel Muslim Traveler',
-        description: 'Baca artikel Muslim Traveler.',
+        title: 'Artikel Moosleem',
+        description: 'Baca artikel Moosleem.',
         url: `${SITE_URL}/artikel`,
-        siteName: 'Muslim Traveler',
+        siteName: 'Moosleem',
         locale: 'id_ID',
         type: 'article',
         images: [{ url: FALLBACK_OG_IMAGE }],
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Artikel Muslim Traveler',
-        description: 'Baca artikel Muslim Traveler.',
+        title: 'Artikel Moosleem',
+        description: 'Baca artikel Moosleem.',
         images: [FALLBACK_OG_IMAGE],
       },
     };
@@ -214,7 +214,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
     },
     publisher: {
       '@type': 'Organization',
-      name: 'Muslim Traveler',
+      name: 'Moosleem',
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_URL}/logo-muslim-traveler.svg`,
@@ -264,7 +264,7 @@ export default async function ArticleDetailPage({ params }: ArticlePageProps) {
     <div className="relative min-h-screen pb-8">
       <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[34rem]" />
       <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
-        <BrandedPageHeader />
+        <BrandedPageHeader title="Moosleem" showLogoMark={false} />
 
         <article className="glass-panel rounded-[2rem] p-6 sm:p-8 lg:p-10">
           <nav aria-label="Breadcrumb" className="mb-3 text-xs text-slate-500 dark:text-slate-300">

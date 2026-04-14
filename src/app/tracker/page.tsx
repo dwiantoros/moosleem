@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import PageHeaderActions from '@/components/PageHeaderActions';
+import MoosleemLogoMark from '@/components/MoosleemLogoMark';
 
 const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
 type Prayer = (typeof PRAYERS)[number];
@@ -128,7 +129,7 @@ export default function TrackerPage() {
           </svg>
         </Link>
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Ibadah</p>
+          <MoosleemLogoMark className="mb-1" />
           <h1 className="text-2xl font-semibold text-slate-900">Tracker Sholat</h1>
         </div>
         </div>

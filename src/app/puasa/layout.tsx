@@ -4,7 +4,7 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/puasa', {
-    title: 'Tracker Puasa | Muslim Traveler',
+    title: 'Tracker Puasa | Moosleem',
     description: 'Catat puasa Ramadan, Senin-Kamis, Ayyamul Bidh, Syawal, dan puasa sunnah lainnya.',
   });
 }

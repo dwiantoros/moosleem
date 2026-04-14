@@ -4,14 +4,14 @@ import PageSeoFooter from '@/components/PageSeoFooter';
 
 export async function generateMetadata(): Promise<Metadata> {
   return withPageSeoOverride('/tentang', {
-    title: 'Tentang Muslim Traveler',
+    title: 'Tentang Moosleem',
     description:
-      'Pelajari Muslim Traveler secara lengkap: visi aplikasi, cara kerja, serta seluruh fitur utama dari jadwal sholat, Quran, pencarian halal, hingga pengingat adzan.',
+      'Pelajari Moosleem secara lengkap: visi aplikasi, cara kerja, serta seluruh fitur utama dari jadwal sholat, Quran, pencarian halal, hingga pengingat adzan.',
     openGraph: {
-      title: 'Tentang Muslim Traveler',
+      title: 'Tentang Moosleem',
       description:
-        'Penjelasan detail tentang Muslim Traveler dan seluruh fitur yang tersedia untuk membantu ibadah saat bepergian.',
-      url: 'https://muslim-traveler.com/tentang',
+        'Penjelasan detail tentang Moosleem dan seluruh fitur yang tersedia untuk membantu ibadah saat bepergian.',
+      url: 'https://moosleem.com/tentang',
       type: 'website',
     },
   });

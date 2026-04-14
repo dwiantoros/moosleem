@@ -37,14 +37,14 @@ export async function GET() {
           }}
         >
           <img
-            src="https://muslim-traveler.com/logo-muslim-traveler.svg"
+            src="https://moosleem.com/logo-muslim-traveler.svg"
             width={290}
             height={290}
-            alt="Muslim Traveler logo"
+            alt="Moosleem logo"
             style={{ borderRadius: 56 }}
           />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ fontSize: 70, color: '#d1fae5', fontWeight: 700, letterSpacing: '-0.02em' }}>Muslim Traveler</div>
+            <div style={{ fontSize: 70, color: '#d1fae5', fontWeight: 700, letterSpacing: '-0.02em' }}>Moosleem</div>
             <div style={{ fontSize: 28, color: '#a7f3d0', marginTop: 6 }}>Prayer Times, Quran, and Halal Companion</div>
           </div>
         </div>

@@ -12,6 +12,17 @@
   --line-soft: rgba(148, 163, 184, 0.18);
   --brand: #0f766e;
   --brand-soft: rgba(20, 184, 166, 0.14);
+  --bottomnav-sheet-bg: rgba(248, 250, 255, 0.96);
+  --bottomnav-sheet-border: rgba(255, 255, 255, 0.8);
+  --bottomnav-sheet-shadow: 0 24px 60px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --bottomnav-title: #1e293b;
+  --bottomnav-muted: #64748b;
+  --bottomnav-item-bg: rgba(15, 23, 42, 0.06);
+  --bottomnav-item-text: #475569;
+  --bottomnav-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.78) 100%);
+  --bottomnav-bar-border: rgba(255, 255, 255, 0.6);
+  --bottomnav-bar-shadow: 0 8px 32px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --bottomnav-inactive: #64748b;
 }
 
 @theme inline {
@@ -124,6 +135,17 @@ html.dark {
   --line-soft: rgba(148, 163, 184, 0.14);
   --brand: #5eead4;
   --brand-soft: rgba(45, 212, 191, 0.14);
+  --bottomnav-sheet-bg: rgba(9, 18, 31, 0.94);
+  --bottomnav-sheet-border: rgba(255, 255, 255, 0.1);
+  --bottomnav-sheet-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --bottomnav-title: #e2e8f0;
+  --bottomnav-muted: #94a3b8;
+  --bottomnav-item-bg: rgba(255, 255, 255, 0.06);
+  --bottomnav-item-text: #94a3b8;
+  --bottomnav-bar-bg: linear-gradient(180deg, rgba(9, 18, 31, 0.94) 0%, rgba(7, 14, 26, 0.92) 100%);
+  --bottomnav-bar-border: rgba(255, 255, 255, 0.08);
+  --bottomnav-bar-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --bottomnav-inactive: #94a3b8;
 }
 
 html.dark body {
