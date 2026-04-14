@@ -88,11 +88,23 @@ export default function PermissionPromptModal({
         .modal-exit {
           animation: slideUp 0.3s ease-out forwards;
         }
+        @media (prefers-color-scheme: dark) {
+          .permission-modal-card {
+            background-color: #000000 !important;
+            opacity: 1 !important;
+          }
+        }
       `}</style>
       <div 
         className={containerClass}
         style={{ pointerEvents: isExiting ? 'none' : 'auto' }}>
-        <div className="h-fit w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl sm:w-80 md:w-[400px] dark:border-slate-800 dark:bg-black">
+        <div 
+          className="permission-modal-card h-fit w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl sm:w-80 md:w-[400px] dark:border-slate-800 dark:bg-black"
+          style={{
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+          }}
+        >
           <h2 className="text-lg font-semibold text-teal-600 dark:text-teal-400">Yuk, aktifkan fitur lengkapnya! 🕌</h2>
           <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
             Biar Moosleem bisa kasih tau waktu sholat &amp; arah kiblat yang akurat, aktifkan izin Lokasi, Notifikasi, dan Adzan Reminder sekaligus — cukup 1 klik!
