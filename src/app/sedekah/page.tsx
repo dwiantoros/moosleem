@@ -18,7 +18,7 @@ export default function SedekahPage() {
           </Link>
           <div>
             <MoosleemLogoMark className="mb-1" />
-            <h1 className="text-2xl font-semibold text-slate-900">Sedekah Mudah</h1>
+            <h1 className="text-xl font-semibold text-slate-900">Sedekah Mudah</h1>
             <p className="mt-1 text-sm text-slate-500">Pilih nominal lalu scan QRIS untuk bayar cepat.</p>
           </div>
         </div>

@@ -82,7 +82,7 @@ export default function TentangPage() {
             </Link>
             <div>
               <MoosleemLogoMark className="mb-1" />
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Tentang Moosleem</h1>
+              <h1 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Tentang Moosleem</h1>
             </div>
           </div>
           <PageHeaderActions />

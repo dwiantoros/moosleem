@@ -47,7 +47,7 @@ export default function DoaPage() {
             </Link>
             <div>
               <MoosleemLogoMark className="mb-1" />
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Doa Harian Pilihan</h1>
+              <h1 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Doa Harian Pilihan</h1>
             </div>
           </div>
           <PageHeaderActions />

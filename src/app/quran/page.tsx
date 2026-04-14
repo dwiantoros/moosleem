@@ -25,7 +25,7 @@ export default async function QuranPage({
           </Link>
           <div>
             <MoosleemLogoMark className="mb-1" />
-            <h1 className="text-2xl font-semibold text-slate-900">Al-Quran</h1>
+            <h1 className="text-xl font-semibold text-slate-900">Al-Quran</h1>
           </div>
           </div>
           <PageHeaderActions />

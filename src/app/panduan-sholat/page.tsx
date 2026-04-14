@@ -332,7 +332,7 @@ export default function PanduanSholatPage() {
         </Link>
         <div>
           <MoosleemLogoMark className="mb-1" />
-          <h1 className="text-2xl font-semibold text-slate-900">Panduan Sholat</h1>
+          <h1 className="text-xl font-semibold text-slate-900">Panduan Sholat</h1>
           <p className="text-sm text-slate-500">Tata cara sholat fardhu 5 waktu</p>
         </div>
         </div>

@@ -36,7 +36,7 @@ export default async function AdminProfilePage({ searchParams }: ProfilePageProp
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <MoosleemLogoMark className="mb-1" />
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Profil author CMS</h1>
+            <h1 className="mt-3 text-xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Profil author CMS</h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">Storage: {storageMode === 'turso' ? 'Turso remote gratis' : storageMode === 'local' ? 'File lokal development' : 'Belum siap untuk production'}</p>
           </div>
           <div className="flex items-center gap-2">

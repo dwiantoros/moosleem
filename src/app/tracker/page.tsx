@@ -130,7 +130,7 @@ export default function TrackerPage() {
         </Link>
         <div>
           <MoosleemLogoMark className="mb-1" />
-          <h1 className="text-2xl font-semibold text-slate-900">Tracker Sholat</h1>
+          <h1 className="text-xl font-semibold text-slate-900">Tracker Sholat</h1>
         </div>
         </div>
         <PageHeaderActions />

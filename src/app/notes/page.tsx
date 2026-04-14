@@ -47,7 +47,7 @@ export default function NotesPage() {
             </Link>
             <div>
               <MoosleemLogoMark className="mb-1" />
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Catatan Pribadi</h1>
+              <h1 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Catatan Pribadi</h1>
             </div>
           </div>
           <PageHeaderActions />

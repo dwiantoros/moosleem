@@ -62,7 +62,7 @@ export default function BantuanPage() {
             </Link>
             <div>
               <MoosleemLogoMark className="mb-1" />
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Pusat Bantuan & FAQ</h1>
+              <h1 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Pusat Bantuan &amp; FAQ</h1>
             </div>
           </div>
           <PageHeaderActions />

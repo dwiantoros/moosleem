@@ -149,7 +149,7 @@ export default function SearchPage() {
             </Link>
             <div>
               <MoosleemLogoMark className="mb-1" />
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Cari Surah &amp; Fitur</h1>
+              <h1 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Cari Surah &amp; Fitur</h1>
             </div>
           </div>
           <PageHeaderActions />

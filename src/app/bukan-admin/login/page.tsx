@@ -22,7 +22,7 @@ export default async function AdminLoginPage() {
         <div className="mb-8 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Moosleem</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Portal admin</h1>
+            <h1 className="mt-3 text-xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">Portal admin</h1>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/" className="rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white/90 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10">

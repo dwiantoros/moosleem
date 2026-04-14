@@ -155,7 +155,7 @@ export default function TasbihPage() {
         </Link>
         <div>
           <MoosleemLogoMark className="mb-1" />
-          <h1 className="text-2xl font-semibold text-slate-900">Tasbih Digital</h1>
+          <h1 className="text-xl font-semibold text-slate-900">Tasbih Digital</h1>
         </div>
         </div>
         <PageHeaderActions />

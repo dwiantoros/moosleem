@@ -177,7 +177,7 @@ export default function AsmaulHusnaPage() {
         </Link>
         <div>
           <MoosleemLogoMark className="mb-1" />
-          <h1 className="text-2xl font-semibold text-slate-900">Asmaul Husna</h1>
+          <h1 className="text-xl font-semibold text-slate-900">Asmaul Husna</h1>
           <p className="text-sm text-slate-500">99 Nama-Nama Allah yang Indah</p>
         </div>
         </div>
