@@ -44,12 +44,12 @@ const ROUTE_META: Record<string, RouteMeta> = {
       { name: 'Doa', path: '/doa' },
     ],
   },
-  '/kalender': {
+  '/kalender-hijriah': {
     title: 'Kalender Hijriah',
     description: 'Kalender Hijriah dan referensi hari penting Islam.',
     breadcrumbs: [
       { name: 'Home', path: '/' },
-      { name: 'Kalender Hijriah', path: '/kalender' },
+      { name: 'Kalender Hijriah', path: '/kalender-hijriah' },
     ],
   },
   '/masjid': {
@@ -435,7 +435,7 @@ function routeSpecificSchema(pathname: string): JsonObject[] {
     ];
   }
 
-  if (pathname === '/kalender') {
+  if (pathname === '/kalender-hijriah') {
     return [
       {
         '@context': 'https://schema.org',

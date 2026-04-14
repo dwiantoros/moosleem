@@ -22,8 +22,7 @@ function isAuthorized(request: NextRequest): boolean {
   const xApiKey = normalizeSecret(request.headers.get('x-api-key'));
   if (xApiKey === secret) return true;
 
-  const querySecret = normalizeSecret(request.nextUrl.searchParams.get('secret'));
-  return querySecret === secret;
+  return false;
 }
 
 async function handleCron(request: NextRequest) {

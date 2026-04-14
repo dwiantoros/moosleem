@@ -150,7 +150,7 @@ const actions: QuickAction[] = [
   {
     id: 'kalender',
     label: 'Kalender',
-    href: '/kalender',
+    href: '/kalender-hijriah',
     icon: (
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <rect x="3" y="5" width="18" height="16" rx="2" strokeLinecap="round" strokeLinejoin="round" />

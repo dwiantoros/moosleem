@@ -18,7 +18,7 @@ const APP_PAGES: PageInfo[] = [
   { slug: '/quran', label: 'Al-Quran' },
   { slug: '/doa', label: 'Doa & Dzikir' },
   { slug: '/qibla', label: 'Arah Qibla' },
-  { slug: '/kalender', label: 'Kalender Hijriah' },
+  { slug: '/kalender-hijriah', label: 'Kalender Hijriah' },
   { slug: '/asmaul-husna', label: 'Asmaul Husna' },
   { slug: '/tasbih', label: 'Tasbih Digital' },
   { slug: '/zakat', label: 'Kalkulator Zakat' },

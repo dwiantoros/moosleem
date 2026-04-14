@@ -15,7 +15,7 @@ const MENU_ITEMS = [
   { href: '/qibla',         label: 'Arah Qibla',       desc: 'Kompas qibla realtime',             emoji: '🧭' },
   { href: '/restoran-halal',label: 'Halal Nearby',     desc: 'Restoran halal terdekat',           emoji: '🍽️' },
   { href: '/notes',         label: 'Catatan',          desc: 'Checklist dan catatan ibadah',      emoji: '📝' },
-  { href: '/kalender',      label: 'Kalender Hijriah', desc: 'Kalender Islam & hari penting',     emoji: '🗓️' },
+  { href: '/kalender-hijriah',      label: 'Kalender Hijriah', desc: 'Kalender Islam & hari penting',     emoji: '🗓️' },
   { href: '/panduan-sholat',label: 'Panduan Sholat',   desc: 'Tata cara sholat lengkap',          emoji: '📋' },
   { href: '/puasa',         label: 'Tracker Puasa',    desc: 'Catat dan pantau puasa sunnah',     emoji: '🌙' },
 ];

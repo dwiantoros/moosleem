@@ -18,13 +18,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+    const meth = parseInt(method, 10);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
+    }
+
     const response = await axios.get(
       `${ALADHAN_API}/timings/${date}`,
       {
         params: {
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-          method: parseInt(method),
+          latitude: lat,
+          longitude: lon,
+          method: Number.isFinite(meth) ? meth : 2,
         },
         timeout: 8000,
       }

@@ -108,7 +108,7 @@ export default function HijriDateBanner() {
   const primaryColor = hasEvent ? todayEvents[0].color : '#0d9488';
 
   return (
-    <Link href="/kalender" className="block transition-opacity hover:opacity-90">
+    <Link href="/kalender-hijriah" className="block transition-opacity hover:opacity-90">
       {hasEvent ? (
         /* ── Highlighted: there IS an event today ── */
         <div
