@@ -62,9 +62,9 @@ export function PrayerScheduleHero({
             {nextPrayer ? prayerArabicLabels[nextPrayer.name] : 'الصلاة'}
           </p>
         </div>
-        <div className="hidden rounded-[1.2rem] border border-white/70 bg-white/72 px-3 py-2 text-right shadow-[0_10px_20px_rgba(15,23,42,0.05)] md:block dark:border-white/10 dark:bg-white/6 dark:shadow-none">
+        <div className="rounded-[1.1rem] border border-white/70 bg-white/72 px-2.5 py-2 text-right shadow-[0_10px_20px_rgba(15,23,42,0.05)] dark:border-white/10 dark:bg-white/6 dark:shadow-none sm:rounded-[1.2rem] sm:px-3 sm:py-2">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Tersisa</p>
-          <p className="mt-1 text-lg font-semibold tracking-tight text-teal-700 dark:text-teal-300">
+          <p className="mt-1 text-base font-semibold tracking-tight text-teal-700 dark:text-teal-300 sm:text-lg">
             {remainingMinutes !== null ? `${remainingMinutes}m` : '--'}
           </p>
           <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">{remainingLabel}</p>

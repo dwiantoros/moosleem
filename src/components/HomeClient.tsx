@@ -571,7 +571,7 @@ export default function Home() {
                 progressPercent={prayerWindowProgress}
               />
 
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="mt-4 hidden grid-cols-2 gap-3 sm:grid-cols-3 xl:grid">
                 <div className="glass-subtle rounded-2xl p-3.5">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Status</p>
                   <p className="mt-1.5 text-sm font-semibold text-slate-900">
@@ -613,6 +613,38 @@ export default function Home() {
                 embedded
                 showHero={false}
               />
+
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:hidden">
+                <div className="glass-subtle rounded-2xl p-3.5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Status</p>
+                  <p className="mt-1.5 text-sm font-semibold text-slate-900">
+                    {location
+                      ? usingFallbackLocation
+                        ? 'Jakarta (Default)'
+                        : 'Lokasi aktif'
+                      : 'Mendeteksi lokasi'}
+                  </p>
+                </div>
+                <div className="glass-subtle rounded-2xl p-3.5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Reminder</p>
+                  <p className="mt-1.5 text-sm font-semibold text-slate-900">{reminderEnabled ? 'Aktif' : 'Belum aktif'}</p>
+                </div>
+                <button
+                  onClick={handleRefresh}
+                  disabled={loading}
+                  className="glass-subtle col-span-2 flex items-center justify-between rounded-2xl p-3.5 text-left transition hover:bg-white/60 disabled:opacity-60 sm:col-span-1"
+                  aria-label="Refresh data"
+                >
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Sinkronkan</p>
+                    <p className="mt-1.5 text-sm font-semibold text-slate-900">Perbarui jadwal</p>
+                  </div>
+                  <svg className="h-4 w-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M20 12a8 8 0 1 1-2.34-5.66" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M20 4v6h-6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </section>
