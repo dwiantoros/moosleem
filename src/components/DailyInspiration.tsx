@@ -42,6 +42,136 @@ const inspirations: Inspiration[] = [
     translation: 'Doa adalah ibadah',
     reference: 'Hadis Riwayat At-Tirmidzi',
   },
+  {
+    arabic: 'إِنَّ مَعَ الْعُسْرِ يُسْرًا',
+    translation: 'Sesungguhnya bersama kesulitan ada kemudahan',
+    reference: 'QS. Al-Insyirah: 6',
+  },
+  {
+    arabic: 'وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',
+    translation: 'Barang siapa bertawakal kepada Allah, maka Allah mencukupinya',
+    reference: 'QS. At-Thalaq: 3',
+  },
+  {
+    arabic: 'خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ',
+    translation: 'Sebaik-baik manusia adalah yang paling bermanfaat bagi orang lain',
+    reference: 'Hadis Riwayat At-Thabrani',
+  },
+  {
+    arabic: 'الصَّبْرُ مِفْتَاحُ الْفَرَج',
+    translation: 'Sabar adalah kunci kelapangan',
+    reference: 'Pepatah Arab',
+  },
+  {
+    arabic: 'طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ',
+    translation: 'Menuntut ilmu adalah kewajiban bagi setiap muslim',
+    reference: 'Hadis Riwayat Ibnu Majah',
+  },
+  {
+    arabic: 'إِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ',
+    translation: 'Sesungguhnya Allah tidak menyia-nyiakan pahala orang yang berbuat baik',
+    reference: 'QS. At-Taubah: 120',
+  },
+  {
+    arabic: 'وَاللَّهُ يُحِبُّ الصَّابِرِينَ',
+    translation: 'Dan Allah mencintai orang-orang yang sabar',
+    reference: 'QS. Ali Imran: 146',
+  },
+  {
+    arabic: 'تَوَاضَعْ تَكُنْ كَالنَّجْمِ لَاحَ لِنَاظِرِيهِ',
+    translation: 'Rendah hatilah, maka kamu akan seperti bintang yang bersinar bagi yang memandangnya',
+    reference: 'Pepatah Arab',
+  },
+  {
+    arabic: 'مَنْ صَمَتَ نَجَا',
+    translation: 'Barang siapa diam, ia selamat',
+    reference: 'Hadis Riwayat At-Tirmidzi',
+  },
+  {
+    arabic: 'أَحِبَّ لِلنَّاسِ مَا تُحِبُّ لِنَفْسِكَ',
+    translation: 'Cintailah untuk orang lain apa yang kamu cintai untuk dirimu sendiri',
+    reference: 'Hadis Riwayat Ibnu Majah',
+  },
+  {
+    arabic: 'الْمُؤْمِنُ مِرْآةُ الْمُؤْمِنِ',
+    translation: 'Seorang mukmin adalah cermin bagi mukmin lainnya',
+    reference: 'Hadis Riwayat Abu Dawud',
+  },
+  {
+    arabic: 'كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ',
+    translation: 'Jadilah di dunia ini seakan-akan kamu orang asing atau musafir',
+    reference: 'Hadis Sahih Bukhari',
+  },
+  {
+    arabic: 'إِنَّ اللَّهَ جَمِيلٌ يُحِبُّ الْجَمَالَ',
+    translation: 'Sesungguhnya Allah itu indah dan mencintai keindahan',
+    reference: 'Hadis Sahih Muslim',
+  },
+  {
+    arabic: 'الْيَدُ الْعُلْيَا خَيْرٌ مِنَ الْيَدِ السُّفْلَى',
+    translation: 'Tangan di atas lebih baik daripada tangan di bawah',
+    reference: 'Hadis Sahih Bukhari',
+  },
+  {
+    arabic: 'لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ',
+    translation: 'Orang kuat bukanlah yang menang bergulat, melainkan yang mampu mengendalikan dirinya',
+    reference: 'Hadis Sahih Bukhari',
+  },
+  {
+    arabic: 'اِبْدَأْ بِنَفْسِكَ',
+    translation: 'Mulailah dari dirimu sendiri',
+    reference: 'Hadis Sahih Muslim',
+  },
+  {
+    arabic: 'الْقَنَاعَةُ كَنْزٌ لَا يَنْفَدُ',
+    translation: 'Qanaah (merasa cukup) adalah harta yang tidak pernah habis',
+    reference: 'Pepatah Arab',
+  },
+  {
+    arabic: 'مَنْ عَرَفَ نَفْسَهُ فَقَدْ عَرَفَ رَبَّهُ',
+    translation: 'Barang siapa mengenal dirinya, maka ia mengenal Tuhannya',
+    reference: 'Pepatah Hikmah',
+  },
+  {
+    arabic: 'اِغْتَنِمْ خَمْسًا قَبْلَ خَمْسٍ',
+    translation: 'Manfaatkan lima perkara sebelum datang lima perkara (lainnya)',
+    reference: 'Hadis Riwayat Al-Hakim',
+  },
+  {
+    arabic: 'وَفِي أَنفُسِكُمْ ۚ أَفَلَا تُبْصِرُونَ',
+    translation: 'Dan pada dirimu sendiri, apakah kamu tidak memperhatikan?',
+    reference: 'QS. Adz-Dzariyat: 21',
+  },
+  {
+    arabic: 'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً',
+    translation: 'Ya Rabb kami, berilah kami kebaikan di dunia dan kebaikan di akhirat',
+    reference: 'QS. Al-Baqarah: 201',
+  },
+  {
+    arabic: 'إِذَا أَرَدْتَ أَنْ تَعْرِفَ قَدْرَكَ عِنْدَ اللهِ فَانْظُرْ فِيمَ يَسْتَعْمِلُكَ',
+    translation: 'Jika ingin tahu kedudukanmu di sisi Allah, lihatlah dalam hal apa Dia mempergunakanmu',
+    reference: 'Pepatah Hikmah',
+  },
+  {
+    arabic: 'أَكْثِرُوا ذِكْرَ اللَّهِ',
+    translation: 'Perbanyaklah mengingat Allah',
+    reference: 'QS. Al-Ahzab: 41',
+  },
+  {
+    arabic: 'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',
+    translation: 'Sesungguhnya Allah bersama orang-orang yang sabar',
+    reference: 'QS. Al-Baqarah: 153',
+  },
+  {
+    arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',
+    translation: 'Cukuplah Allah bagi kami, dan Dia sebaik-baik pelindung',
+    reference: 'QS. Ali Imran: 173',
+  },
+  {
+    arabic: 'وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ',
+    translation: 'Dan tidak ada taufik bagiku melainkan dari Allah',
+    reference: 'QS. Hud: 88',
+  },
 ];
 
 function getTodayDateString(): string {
