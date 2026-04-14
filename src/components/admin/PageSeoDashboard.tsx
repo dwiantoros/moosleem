@@ -14,6 +14,7 @@ type PageInfo = {
 
 const APP_PAGES: PageInfo[] = [
   { slug: '/', label: 'Beranda' },
+  { slug: '/artikel', label: 'Artikel Islami' },
   { slug: '/quran', label: 'Al-Quran' },
   { slug: '/doa', label: 'Doa & Dzikir' },
   { slug: '/qibla', label: 'Arah Qibla' },
@@ -25,8 +26,9 @@ const APP_PAGES: PageInfo[] = [
   { slug: '/panduan-sholat', label: 'Panduan Sholat' },
   { slug: '/tracker', label: 'Tracker Sholat' },
   { slug: '/masjid', label: 'Cari Masjid' },
+  { slug: '/mosques', label: 'Masjid Terdekat (English Route)' },
   { slug: '/restoran-halal', label: 'Restoran Halal' },
-  { slug: '/artikel', label: 'Blog Artikel' },
+  { slug: '/restaurants', label: 'Halal Nearby (English Route)' },
   { slug: '/notes', label: 'Catatan' },
   { slug: '/search', label: 'Pencarian' },
   { slug: '/tentang', label: 'Tentang' },
@@ -168,28 +170,28 @@ export default function PageSeoDashboard({ initialEntries }: PageSeoDashboardPro
         </h2>
         <p className="mt-1 font-mono text-sm text-slate-500 dark:text-slate-400">{selectedSlug}</p>
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          Kosongkan field untuk menggunakan judul/deskripsi default halaman.
+          Kosongkan field untuk menggunakan metadata default halaman.
         </p>
 
         <div className="mt-6 grid gap-4">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-            Field Title
+            SEO Title
             <input
               type="text"
               value={form.title}
               onChange={(e) => updateForm('title', e.target.value)}
-              placeholder="Judul utama halaman (juga dipakai untuk title SEO)"
+              placeholder="Title untuk tag <title> dan Open Graph"
               className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>
 
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">
-            Description
+            SEO Description
             <textarea
               value={form.description}
               onChange={(e) => updateForm('description', e.target.value)}
               rows={3}
-              placeholder="Deskripsi halaman (ditampilkan di bawah halaman + meta description)"
+              placeholder="Deskripsi untuk meta description dan Open Graph"
               className="mt-2 w-full rounded-2xl border border-slate-300 bg-white/90 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </label>

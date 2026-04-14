@@ -151,13 +151,7 @@ export default async function ArticleIndexPage() {
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <QuranStyleHeader title="Artikel Islami" />
 
-        <section className="glass-panel rounded-[2rem] p-6 sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Artikel</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 dark:text-slate-100">{pageSeoTitle || settings.blogTitle}</h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">{pageSeoDescription || settings.blogDescription}</p>
-        </section>
-
-        <section className="mt-6 grid gap-5">
+        <section className="grid gap-5">
           {articles.map((article) => (
             <article key={article.id} className="glass-panel rounded-[1.8rem] p-5 sm:p-6">
               {article.coverImage ? (
