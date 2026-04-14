@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      CRON_URL: https://muslim-traveler.vercel.app/api/cron/push-prayer
+      CRON_URL: https://moosleem.vercel.app/api/cron/push-prayer
       CRON_SECRET: ${{ secrets.CRON_SECRET }}
     steps:
       - name: Trigger prayer push endpoint
