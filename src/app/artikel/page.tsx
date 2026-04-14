@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import BrandedPageHeader from '@/components/BrandedPageHeader';
+import QuranStyleHeader from '@/components/QuranStyleHeader';
 import PageSeoFooter from '@/components/PageSeoFooter';
 import { getPageSeoEntry, getCmsSettings, listArticles } from '@/server/cms/repository';
 import { withPageSeoOverride } from '@/server/cms/pageSeo';
@@ -149,7 +149,7 @@ export default async function ArticleIndexPage() {
     <div className="relative min-h-screen pb-8">
       <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30rem]" />
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <BrandedPageHeader title="Moosleem" showLogoMark={false} />
+        <QuranStyleHeader title="Artikel Islami" />
 
         <section className="glass-panel rounded-[2rem] p-6 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-teal-700">Artikel</p>

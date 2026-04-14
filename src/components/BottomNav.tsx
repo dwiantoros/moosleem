@@ -62,14 +62,12 @@ const PRIMARY = [
     ),
   },
   {
-    id: 'artikel',
-    label: 'Artikel',
-    href: '/artikel',
+    id: 'qibla',
+    label: 'Qibla',
+    href: '/qibla',
     icon: (
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
-        <path d="M14 3v5h5"/>
-        <path d="M8 13h8M8 17h6"/>
+        <circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 12l-3-5"/>
       </svg>
     ),
   },
@@ -106,8 +104,8 @@ const MORE_ITEMS = [
     icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="12" cy="19" r="2"/><path d="M7 12h3M12 7v3M17 12h-3M12 17v-3"/></svg>,
   },
   {
-    id: 'qibla', label: 'Qibla', href: '/qibla',
-    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="M12 12l-3-5"/></svg>,
+    id: 'artikel', label: 'Artikel Islami', href: '/artikel',
+    icon: <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>,
   },
   {
     id: 'notes', label: 'Catatan', href: '/notes',
