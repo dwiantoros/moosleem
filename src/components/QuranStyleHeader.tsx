@@ -4,10 +4,11 @@ import PageHeaderActions from '@/components/PageHeaderActions';
 
 type QuranStyleHeaderProps = {
   title: string;
+  subtitle?: string;
   homeHref?: string;
 };
 
-export default function QuranStyleHeader({ title, homeHref = '/' }: QuranStyleHeaderProps) {
+export default function QuranStyleHeader({ title, subtitle, homeHref = '/' }: QuranStyleHeaderProps) {
   return (
     <div className="mb-6 flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
@@ -17,6 +18,7 @@ export default function QuranStyleHeader({ title, homeHref = '/' }: QuranStyleHe
         <div>
           <MoosleemLogoMark className="mb-1" />
           <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
+          {subtitle ? <p className="text-sm text-slate-500">{subtitle}</p> : null}
         </div>
       </div>
       <PageHeaderActions />

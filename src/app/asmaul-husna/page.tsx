@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useRef } from 'react';
-import Link from 'next/link';
-import MoosleemLogoMark from '@/components/MoosleemLogoMark';
-import PageHeaderActions from '@/components/PageHeaderActions';
+import QuranStyleHeader from '@/components/QuranStyleHeader';
 
 const ASMAUL_HUSNA = [
   { no: 1,  arabic: 'ٱللَّهُ',          latin: 'Allah',           meaning: 'Yang Maha Berhak Disembah', color: '#0d9488' },
@@ -165,23 +163,10 @@ export default function AsmaulHusnaPage() {
   const currentIndex = selected ? ASMAUL_HUSNA.findIndex(n => n.no === selected.no) : -1;
 
   return (
-    <div className="relative min-h-screen px-4 py-8">
+    <div className="relative min-h-screen px-4 py-6">
       <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
-      {/* Header */}
-      <div className="mx-auto mb-6 flex max-w-2xl items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-        <Link href="/" className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </Link>
-        <div>
-          <MoosleemLogoMark className="mb-1" />
-          <h1 className="text-xl font-semibold text-slate-900">Asmaul Husna</h1>
-          <p className="text-sm text-slate-500">99 Nama-Nama Allah yang Indah</p>
-        </div>
-        </div>
-        <PageHeaderActions />
+      <div className="mx-auto max-w-2xl">
+        <QuranStyleHeader title="Asmaul Husna" subtitle="99 Nama-Nama Allah yang Indah" />
       </div>
 
       <div className="mx-auto max-w-2xl space-y-5">

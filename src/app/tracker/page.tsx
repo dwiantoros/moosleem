@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import PageHeaderActions from '@/components/PageHeaderActions';
-import MoosleemLogoMark from '@/components/MoosleemLogoMark';
+import QuranStyleHeader from '@/components/QuranStyleHeader';
 
 const PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
 type Prayer = (typeof PRAYERS)[number];
@@ -118,22 +116,10 @@ export default function TrackerPage() {
   };
 
   return (
-    <div className="relative min-h-screen px-4 py-8">
+    <div className="relative min-h-screen px-4 py-6">
       <div className="page-bg pointer-events-none absolute inset-x-0 top-0 -z-10 h-[28rem]" />
-      {/* Header */}
-      <div className="mx-auto mb-6 flex max-w-lg items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-        <Link href="/" className="glass-subtle flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-white/60 dark:text-slate-300">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </Link>
-        <div>
-          <MoosleemLogoMark className="mb-1" />
-          <h1 className="text-xl font-semibold text-slate-900">Tracker Sholat</h1>
-        </div>
-        </div>
-        <PageHeaderActions />
+      <div className="mx-auto max-w-lg">
+        <QuranStyleHeader title="Tracker Sholat" />
       </div>
 
       <div className="mx-auto max-w-lg space-y-5">
