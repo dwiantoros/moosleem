@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope, Noto_Naskh_Arabic } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import AzanReminderController from "@/components/AzanReminderController";
 import BottomNav from "@/components/BottomNav";
@@ -129,6 +130,7 @@ export default function RootLayout({
           <AzanReminderController />
           {children}
           <BottomNav />
+          <Analytics />
         </div>
       </body>
     </html>
