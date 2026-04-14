@@ -89,19 +89,13 @@ export default function PermissionPromptModal({
           animation: slideUp 0.3s ease-out forwards;
         }
       `}</style>
-      {/* Backdrop overlay */}
-      <div
-        className="fixed inset-0 z-[79] bg-black/50"
-        style={{ pointerEvents: isExiting ? 'none' : 'auto' }}
-        onClick={handleClose}
-      />
       <div 
         className={containerClass}
         style={{ pointerEvents: isExiting ? 'none' : 'auto' }}>
         <div className="h-fit w-[90vw] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl sm:w-80 md:w-[400px] dark:border-slate-700 dark:bg-slate-950">
-          <h2 className="text-lg font-semibold text-teal-600 dark:text-teal-400">Aktifkan semua izin dalam 1 klik</h2>
+          <h2 className="text-lg font-semibold text-teal-600 dark:text-teal-400">Yuk, aktifkan fitur lengkapnya! 🕌</h2>
           <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-            Kami akan meminta izin Lokasi dan Notifikasi Browser sekaligus, lalu otomatis menyalakan Adzan Reminder.
+            Biar Moosleem bisa kasih tau waktu sholat &amp; arah kiblat yang akurat, aktifkan izin Lokasi, Notifikasi, dan Adzan Reminder sekaligus — cukup 1 klik!
           </p>
           {statusMessage ? (
             <p className="mt-2 text-xs font-medium text-teal-600 dark:text-teal-300">{statusMessage}</p>
