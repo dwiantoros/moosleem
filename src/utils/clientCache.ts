@@ -38,8 +38,8 @@ export function safeSet<T>(key: string, data: T): void {
 }
 
 export function prayerCacheKey(latitude: number, longitude: number): string {
-  // 2 decimals (~1.1km) avoids misses from tiny GPS jitter while keeping city-level accuracy
-  return `prayer-${latitude.toFixed(2)}-${longitude.toFixed(2)}-${getTodayKey()}`;
+  // 3 decimals (~110m) keeps prayer times aligned to a fresher user position without overreacting to GPS jitter.
+  return `prayer-${latitude.toFixed(3)}-${longitude.toFixed(3)}-${getTodayKey()}`;
 }
 
 export function getCached<T>(key: string, ttlMs: number): { data: T; isStale: boolean } | null {

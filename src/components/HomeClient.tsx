@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import PrayerScheduleList from '@/components/PrayerScheduleList';
+import PrayerScheduleList, { PrayerScheduleHero } from '@/components/PrayerScheduleList';
 import UserGreeting from '@/components/UserGreeting';
 import HijriDateBanner from '@/components/HijriDateBanner';
 import { LocationData, PrayerTimes } from '@/types';
 import { AZAN_REMINDER_EVENT, AzanReminderSnapshot, readAzanReminderSnapshot } from '@/utils/azanReminder';
-import { calculateQiblaBearing, getNextPrayer } from '@/utils/prayerTimes';
+import { getKemenagTimezone } from '@/utils/indonesiaTime';
+import { calculateQiblaBearing, getNextPrayer, getPrayerWindowProgress, getRemainingSecondsToPrayer } from '@/utils/prayerTimes';
 import { getCached, getLastLocation, nearbyCacheKey, prayerCacheKey, safeSet, setLastLocation } from '@/utils/clientCache';
 import { LOCATION_PERMISSION_UPDATED_EVENT, LocationPermissionUpdatedDetail } from '@/utils/permissionCenter';
 
@@ -31,6 +32,10 @@ function distanceMeters(lat1: number, lon1: number, lat2: number, lon2: number):
       Math.sin(dLon / 2);
 
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+function getPrayerSyncKey(latitude: number, longitude: number, timezone: string): string {
+  return [latitude.toFixed(3), longitude.toFixed(3), timezone].join(':');
 }
 
 const DailyInspiration = dynamic(() => import('@/components/DailyInspiration'), {
@@ -77,33 +82,13 @@ export default function Home() {
   const [districtLabel, setDistrictLabel] = useState<string | null>(null);
   const [usingFallbackLocation, setUsingFallbackLocation] = useState(false);
   const [nowTick, setNowTick] = useState(Date.now());
+  const activeTimezone = location?.timezone || JAKARTA_FALLBACK.timezone;
+  const lastPrayerSyncRef = useRef<string | null>(null);
 
   const remainingSeconds = useMemo(() => {
-    if (!nextPrayer || !prayerTimes) return null;
-
-    const parseToMinute = (value: string): number | null => {
-      const match = value.match(/^(\d{1,2}):(\d{2})/);
-      if (!match) return null;
-      return Number(match[1]) * 60 + Number(match[2]);
-    };
-
-    const nextMinuteRaw = parseToMinute(nextPrayer.time);
-    if (nextMinuteRaw === null) return null;
-
-    const now = new Date(nowTick);
-    const target = new Date(now);
-    target.setHours(Math.floor(nextMinuteRaw / 60), nextMinuteRaw % 60, 0, 0);
-
-    const nowMinute = now.getHours() * 60 + now.getMinutes();
-    const ishaMinute = parseToMinute(prayerTimes.Isha ?? '');
-    if (nextPrayer.name === 'Fajr' && ishaMinute !== null && nowMinute >= ishaMinute) {
-      target.setDate(target.getDate() + 1);
-    } else if (target.getTime() <= now.getTime()) {
-      target.setDate(target.getDate() + 1);
-    }
-
-    return Math.max(0, Math.ceil((target.getTime() - now.getTime()) / 1000));
-  }, [nextPrayer, prayerTimes, nowTick]);
+    void nowTick;
+    return getRemainingSecondsToPrayer(nextPrayer, prayerTimes, activeTimezone);
+  }, [nextPrayer, prayerTimes, activeTimezone, nowTick]);
 
   const remainingLabel = useMemo(() => {
     if (remainingSeconds === null) return '--';
@@ -121,45 +106,17 @@ export default function Home() {
   }, [remainingSeconds]);
 
   const prayerWindowProgress = useMemo(() => {
-    if (!prayerTimes || !nextPrayer || remainingSeconds === null) return null;
-
-    const parseToMinute = (value: string): number | null => {
-      const match = value.match(/^(\d{1,2}):(\d{2})/);
-      if (!match) return null;
-      return Number(match[1]) * 60 + Number(match[2]);
-    };
-
-    const schedule = [
-      { key: 'Fajr', value: prayerTimes.Fajr },
-      { key: 'Dhuhr', value: prayerTimes.Dhuhr },
-      { key: 'Asr', value: prayerTimes.Asr },
-      { key: 'Maghrib', value: prayerTimes.Maghrib },
-      { key: 'Isha', value: prayerTimes.Isha },
-    ];
-
-    const nextIndex = schedule.findIndex((item) => item.key === nextPrayer.name);
-    if (nextIndex < 0) return null;
-
-    const prevIndex = nextIndex === 0 ? schedule.length - 1 : nextIndex - 1;
-    const nextMinuteRaw = parseToMinute(schedule[nextIndex].value);
-    const prevMinuteRaw = parseToMinute(schedule[prevIndex].value);
-    if (nextMinuteRaw === null || prevMinuteRaw === null) return null;
-
-    const nextMinute = nextIndex === 0 ? nextMinuteRaw + 24 * 60 : nextMinuteRaw;
-    const prevMinute = prevIndex === schedule.length - 1 ? prevMinuteRaw - 24 * 60 : prevMinuteRaw;
-    const totalWindow = nextMinute - prevMinute;
-    if (totalWindow <= 0) return null;
-
-    const elapsed = totalWindow - remainingSeconds / 60;
-    return Math.min(100, Math.max(2, (elapsed / totalWindow) * 100));
-  }, [nextPrayer, prayerTimes, remainingSeconds]);
+    void nowTick;
+    return getPrayerWindowProgress(prayerTimes, nextPrayer, activeTimezone, remainingSeconds);
+  }, [nextPrayer, prayerTimes, activeTimezone, remainingSeconds, nowTick]);
 
   const fetchPrayerData = async (latitude: number, longitude: number, timezone: string, forceRefresh = false) => {
     const cacheKey = prayerCacheKey(latitude, longitude);
     const STALE_MS = 6 * 60 * 60 * 1000; // refresh after 6h
+    lastPrayerSyncRef.current = getPrayerSyncKey(latitude, longitude, timezone);
 
     const doFetch = async () => {
-      const response = await fetchJson<PrayerTimes>('/api/prayer-times', { latitude, longitude }, 8000);
+      const response = await fetchJson<PrayerTimes>('/api/prayer-times', { latitude, longitude, timezone }, 8000);
       if (response) {
         safeSet(cacheKey, response);
         setPrayerTimes(response);
@@ -239,7 +196,7 @@ export default function Home() {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const timezone = getKemenagTimezone(latitude, longitude, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
           const locationData: LocationData = {
             latitude,
@@ -287,10 +244,10 @@ export default function Home() {
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const nextLat = position.coords.latitude;
         const nextLon = position.coords.longitude;
         const accuracy = position.coords.accuracy;
+        const timezone = getKemenagTimezone(nextLat, nextLon, Intl.DateTimeFormat().resolvedOptions().timeZone);
 
         setLocation((prev) => {
           if (!prev) {
@@ -359,7 +316,7 @@ export default function Home() {
       const locationData: LocationData = {
         latitude: detail.latitude,
         longitude: detail.longitude,
-        timezone: detail.timezone,
+        timezone: getKemenagTimezone(detail.latitude, detail.longitude, detail.timezone),
       };
 
       setLocation(locationData);
@@ -367,7 +324,11 @@ export default function Home() {
       setDistrictLabel(null);
       setLoading(true);
 
-      fetchPrayerData(detail.latitude, detail.longitude, detail.timezone)
+      fetchPrayerData(
+        detail.latitude,
+        detail.longitude,
+        getKemenagTimezone(detail.latitude, detail.longitude, detail.timezone),
+      )
         .catch(() => {})
         .finally(() => setLoading(false));
     };
@@ -416,7 +377,11 @@ export default function Home() {
         const preciseLocation = await new Promise<LocationData | null>((resolve) => {
           navigator.geolocation.getCurrentPosition(
             (position) => {
-              const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+              const timezone = getKemenagTimezone(
+                position.coords.latitude,
+                position.coords.longitude,
+                Intl.DateTimeFormat().resolvedOptions().timeZone,
+              );
               resolve({
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,
@@ -429,7 +394,11 @@ export default function Home() {
         });
 
         if (preciseLocation) {
-          const preciseTimezone = preciseLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || JAKARTA_FALLBACK.timezone;
+          const preciseTimezone = getKemenagTimezone(
+            preciseLocation.latitude,
+            preciseLocation.longitude,
+            preciseLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || JAKARTA_FALLBACK.timezone,
+          );
           targetLocation = preciseLocation;
           setLocation({
             latitude: preciseLocation.latitude,
@@ -447,7 +416,11 @@ export default function Home() {
       }
 
       if (!targetLocation) return;
-      const syncTimezone = targetLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || JAKARTA_FALLBACK.timezone;
+      const syncTimezone = getKemenagTimezone(
+        targetLocation.latitude,
+        targetLocation.longitude,
+        targetLocation.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || JAKARTA_FALLBACK.timezone,
+      );
 
       await Promise.allSettled([
         fetchPrayerData(targetLocation.latitude, targetLocation.longitude, syncTimezone, true),
@@ -479,6 +452,25 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [prayerTimes, location]);
+
+  // Keep prayer times aligned with the freshest accepted location from watchPosition/getCurrentPosition.
+  useEffect(() => {
+    if (!location?.latitude || !location?.longitude || !location?.timezone) return;
+
+    const syncKey = [
+      location.latitude.toFixed(3),
+      location.longitude.toFixed(3),
+      location.timezone,
+    ].join(':');
+
+    if (lastPrayerSyncRef.current === syncKey) {
+      return;
+    }
+
+    lastPrayerSyncRef.current = syncKey;
+
+    fetchPrayerData(location.latitude, location.longitude, location.timezone).catch(() => {});
+  }, [location?.latitude, location?.longitude, location?.timezone]);
 
   // Resolve district/kecamatan for homepage nearby shortcuts with local cache
   useEffect(() => {
@@ -539,6 +531,7 @@ export default function Home() {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: activeTimezone,
   }).format(new Date());
 
   return (
@@ -554,7 +547,7 @@ export default function Home() {
               <p className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500">Hari ini</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{todayDate}</h2>
               <div className="mt-2">
-                <HijriDateBanner />
+                <HijriDateBanner timezone={activeTimezone} />
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
@@ -569,38 +562,19 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(340px,1.05fr)] xl:items-start">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(320px,1.08fr)] xl:items-start">
             <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Sholat Berikutnya</p>
-              <div className="mt-4 flex items-end justify-between gap-4">
-                <div>
-                  <h3 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">{nextPrayer?.name ?? 'Loading'}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{nextPrayer ? `Pukul ${nextPrayer.time}` : 'Fetching...'}</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-4xl font-semibold tracking-tight text-teal-700 sm:text-5xl">
-                    {remainingMinutesRounded !== null ? `${remainingMinutesRounded}` : '--'}
-                  </div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">menit lagi</p>
-                  <p className="mt-1 text-xs text-slate-500">{remainingLabel}</p>
-                </div>
-              </div>
+              <PrayerScheduleHero
+                nextPrayer={nextPrayer}
+                remainingMinutes={remainingMinutesRounded}
+                remainingLabel={remainingLabel}
+                progressPercent={prayerWindowProgress}
+              />
 
-              {nextPrayer && (
-                <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-slate-200">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-1000"
-                    style={{
-                      width: `${prayerWindowProgress ?? 2}%`,
-                    }}
-                  />
-                </div>
-              )}
-
-              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <div className="glass-subtle rounded-2xl p-4">
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="glass-subtle rounded-2xl p-3.5">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Status</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                  <p className="mt-1.5 text-sm font-semibold text-slate-900">
                     {location
                       ? usingFallbackLocation
                         ? 'Jakarta (Default)'
@@ -608,19 +582,19 @@ export default function Home() {
                       : 'Mendeteksi lokasi'}
                   </p>
                 </div>
-                <div className="glass-subtle rounded-2xl p-4">
+                <div className="glass-subtle rounded-2xl p-3.5">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Reminder</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">{reminderEnabled ? 'Aktif' : 'Belum aktif'}</p>
+                  <p className="mt-1.5 text-sm font-semibold text-slate-900">{reminderEnabled ? 'Aktif' : 'Belum aktif'}</p>
                 </div>
                 <button
                   onClick={handleRefresh}
                   disabled={loading}
-                  className="glass-subtle flex items-center justify-between rounded-2xl p-4 text-left transition hover:bg-white/60 disabled:opacity-60"
+                  className="glass-subtle flex items-center justify-between rounded-2xl p-3.5 text-left transition hover:bg-white/60 disabled:opacity-60"
                   aria-label="Refresh data"
                 >
                   <div>
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Sinkronkan</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">Perbarui jadwal</p>
+                    <p className="mt-1.5 text-sm font-semibold text-slate-900">Perbarui jadwal</p>
                   </div>
                   <svg className="h-4 w-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                     <path d="M20 12a8 8 0 1 1-2.34-5.66" strokeLinecap="round" strokeLinejoin="round" />
@@ -637,6 +611,7 @@ export default function Home() {
                 nextPrayer={nextPrayer}
                 loading={loading}
                 embedded
+                showHero={false}
               />
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import { DEFAULT_KEMENAG_TIMEZONE, getDateAtMidnightInTimeZone } from '@/utils/indonesiaTime';
 
 function gregorianToHijri(gDate: Date): { year: number; month: number; day: number } {
   const jd = Math.floor(
@@ -67,10 +68,15 @@ const ISLAMIC_EVENTS: IslamicEvent[] = [
 // Ayyamul Bidh — 13, 14, 15 setiap bulan (sunnah puasa)
 const AYYAMUL_BIDH_DAYS = [13, 14, 15];
 
-export default function HijriDateBanner() {
+interface HijriDateBannerProps {
+  timezone?: string;
+}
+
+export default function HijriDateBanner({ timezone = DEFAULT_KEMENAG_TIMEZONE }: HijriDateBannerProps) {
   const { hijri, todayEvents, isTomorrow } = useMemo(() => {
-    const today = new Date();
-    const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+    const today = getDateAtMidnightInTimeZone(new Date(), timezone);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
 
     const hijri = gregorianToHijri(today);
     const tomorrowHijri = gregorianToHijri(tomorrow);
@@ -98,7 +104,7 @@ export default function HijriDateBanner() {
       ? tomorrowEvents : [];
 
     return { hijri, todayEvents, isTomorrow };
-  }, []);
+  }, [timezone]);
 
   const hijriLabel = `${hijri.day} ${HIJRI_MONTHS[hijri.month - 1]} ${hijri.year} H`;
   const hasEvent = todayEvents.length > 0;
@@ -180,14 +186,15 @@ export default function HijriDateBanner() {
         /* ── Normal day: just show Hijri date ── */
         <div className="flex items-center justify-between rounded-2xl px-4 py-2.5" style={{ backgroundColor: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.15)' }}>
           <div className="flex items-center gap-2.5">
-            <svg className="h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg className="h-4 w-4 flex-shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 2v4" />
+              <path d="M16 2v4" />
+              <rect x="3" y="5" width="18" height="16" rx="2" />
+              <path d="M3 10h18" />
             </svg>
-            <span className="text-sm text-slate-600">
-              <span className="font-medium">{hijriLabel}</span>
-            </span>
+            <span className="text-sm font-medium text-slate-600">{hijriLabel}</span>
           </div>
-          <span className="text-[11px] text-slate-400">Kalender →</span>
+          <span className="ml-4 text-[11px] font-medium text-slate-400">Kalender →</span>
         </div>
       )}
     </Link>

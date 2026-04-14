@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { LocationData, PrayerTimes } from '@/types';
 import { formatDate } from 'date-fns';
+import { getDateStringInTimeZone, getDefaultPrayerMethod, getKemenagTimezone, getMinutesNowInTimeZone, getSecondsNowInTimeZone } from '@/utils/indonesiaTime';
 
 const ALADHAN_API = 'https://api.aladhan.com/v1';
 const OPENCAGE_API_KEY = 'YOUR_OPENCAGE_API_KEY'; // Replace with actual API key
@@ -57,11 +58,15 @@ export const getPrayerTimes = async (
   latitude: number,
   longitude: number,
   date?: Date,
-  method: number = 2 // 2 = ISNA method
+  method?: number,
+  timezone?: string,
 ): Promise<PrayerTimes | null> => {
   try {
-    const queryDate = date || new Date();
-    const dateStr = formatDate(queryDate, 'dd-MM-yyyy');
+    const effectiveTimezone = getKemenagTimezone(latitude, longitude, timezone);
+    const effectiveMethod = method ?? getDefaultPrayerMethod(latitude, longitude, effectiveTimezone);
+    const dateStr = date
+      ? formatDate(date, 'dd-MM-yyyy')
+      : getDateStringInTimeZone(new Date(), effectiveTimezone).split('-').reverse().join('-');
     
     const response = await axios.get(
       `${ALADHAN_API}/timings/${dateStr}`,
@@ -69,7 +74,7 @@ export const getPrayerTimes = async (
         params: {
           latitude,
           longitude,
-          method,
+          method: effectiveMethod,
         },
       }
     );
@@ -91,7 +96,6 @@ export const getNextPrayer = (
   prayerTimes: PrayerTimes,
   timezone: string
 ): { name: string; time: string; minutesUntil: number } | null => {
-  const now = new Date();
   const prayerOrder = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
   const parseTime = (timeStr: string): { hours: number; minutes: number } | null => {
     const match = timeStr.match(/^(\d{1,2}):(\d{2})/);
@@ -102,6 +106,7 @@ export const getNextPrayer = (
       minutes: Number(match[2]),
     };
   };
+  const nowMinutes = getMinutesNowInTimeZone(timezone);
   
   for (const prayer of prayerOrder) {
     const timeStr = prayerTimes[prayer as keyof PrayerTimes];
@@ -110,11 +115,9 @@ export const getNextPrayer = (
     const parsed = parseTime(timeStr);
     if (!parsed) continue;
 
-    const prayerTime = new Date();
-    prayerTime.setHours(parsed.hours, parsed.minutes, 0, 0);
-    
-    if (prayerTime > now) {
-      const diffMinutes = Math.floor((prayerTime.getTime() - now.getTime()) / 60000);
+    const prayerMinutes = parsed.hours * 60 + parsed.minutes;
+    if (prayerMinutes > nowMinutes) {
+      const diffMinutes = prayerMinutes - nowMinutes;
       return {
         name: prayer,
         time: timeStr,
@@ -128,11 +131,8 @@ export const getNextPrayer = (
   if (fajrTime) {
     const parsedFajr = parseTime(fajrTime);
     if (parsedFajr) {
-      const tomorrowFajr = new Date();
-      tomorrowFajr.setDate(tomorrowFajr.getDate() + 1);
-      tomorrowFajr.setHours(parsedFajr.hours, parsedFajr.minutes, 0, 0);
-
-      const diffMinutes = Math.floor((tomorrowFajr.getTime() - now.getTime()) / 60000);
+      const fajrMinutes = parsedFajr.hours * 60 + parsedFajr.minutes;
+      const diffMinutes = 24 * 60 - nowMinutes + fajrMinutes;
       return {
         name: 'Fajr',
         time: fajrTime,
@@ -204,6 +204,84 @@ export const formatPrayerTime = (time: string): string => {
   const displayHours = parseInt(hours) % 12 || 12;
   return `${String(displayHours).padStart(2, '0')}:${minutes} ${period}`;
 };
+
+export function getRemainingSecondsToPrayer(
+  nextPrayer: { name: string; time: string } | null,
+  prayerTimes: PrayerTimes | null,
+  timezone: string,
+): number | null {
+  if (!nextPrayer || !prayerTimes) return null;
+
+  const match = nextPrayer.time.match(/^(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+
+  const nextPrayerSeconds = Number(match[1]) * 3600 + Number(match[2]) * 60;
+  const nowSeconds = getSecondsNowInTimeZone(timezone);
+  const ishaMatch = prayerTimes.Isha?.match(/^(\d{1,2}):(\d{2})/);
+  const ishaSeconds = ishaMatch ? Number(ishaMatch[1]) * 3600 + Number(ishaMatch[2]) * 60 : null;
+
+  if (nextPrayer.name === 'Fajr' && ishaSeconds !== null && nowSeconds >= ishaSeconds) {
+    return 24 * 3600 - nowSeconds + nextPrayerSeconds;
+  }
+
+  if (nextPrayerSeconds <= nowSeconds) {
+    return 24 * 3600 - nowSeconds + nextPrayerSeconds;
+  }
+
+  return nextPrayerSeconds - nowSeconds;
+}
+
+export function getPrayerWindowProgress(
+  prayerTimes: PrayerTimes | null,
+  nextPrayer: { name: string; time: string } | null,
+  timezone: string,
+  remainingSeconds?: number | null,
+): number | null {
+  if (!prayerTimes || !nextPrayer) return null;
+
+  const parseToMinute = (value: string): number | null => {
+    const match = value.match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return null;
+    return Number(match[1]) * 60 + Number(match[2]);
+  };
+
+  const schedule = [
+    { key: 'Fajr', value: prayerTimes.Fajr },
+    { key: 'Dhuhr', value: prayerTimes.Dhuhr },
+    { key: 'Asr', value: prayerTimes.Asr },
+    { key: 'Maghrib', value: prayerTimes.Maghrib },
+    { key: 'Isha', value: prayerTimes.Isha },
+  ];
+
+  const nextIndex = schedule.findIndex((item) => item.key === nextPrayer.name);
+  if (nextIndex < 0) return null;
+
+  const prevIndex = nextIndex === 0 ? schedule.length - 1 : nextIndex - 1;
+  const nextMinuteRaw = parseToMinute(schedule[nextIndex].value);
+  const prevMinuteRaw = parseToMinute(schedule[prevIndex].value);
+  const nowMinute = getMinutesNowInTimeZone(timezone) + getZonedSecondFraction(timezone);
+
+  if (nextMinuteRaw === null || prevMinuteRaw === null) return null;
+
+  const nextMinute = nextIndex === 0 ? nextMinuteRaw + 24 * 60 : nextMinuteRaw;
+  const prevMinute = prevIndex === schedule.length - 1 ? prevMinuteRaw - 24 * 60 : prevMinuteRaw;
+  const totalWindow = nextMinute - prevMinute;
+
+  if (totalWindow <= 0) return null;
+
+  if (remainingSeconds !== null && remainingSeconds !== undefined) {
+    const elapsedFromCountdown = totalWindow - remainingSeconds / 60;
+    return Math.min(100, Math.max(2, (elapsedFromCountdown / totalWindow) * 100));
+  }
+
+  const currentMinute = nextIndex === 0 && nowMinute < nextMinuteRaw ? nowMinute + 24 * 60 : nowMinute;
+  const elapsed = currentMinute - prevMinute;
+  return Math.min(100, Math.max(2, (elapsed / totalWindow) * 100));
+}
+
+function getZonedSecondFraction(timezone: string): number {
+  return (getSecondsNowInTimeZone(timezone) % 60) / 60;
+}
 
 /**
  * Calculate distance between two coordinates

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { getDateStringInTimeZone, getDefaultPrayerMethod, getKemenagTimezone } from '@/utils/indonesiaTime';
 
 const ALADHAN_API = 'https://api.aladhan.com/v1';
 
@@ -8,8 +9,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const latitude = searchParams.get('latitude');
     const longitude = searchParams.get('longitude');
-    const date = searchParams.get('date') || new Date().toLocaleDateString('en-GB').split('/').reverse().join('-');
-    const method = searchParams.get('method') || '2';
+    const requestedDate = searchParams.get('date');
+    const timezone = searchParams.get('timezone');
+    const method = searchParams.get('method');
 
     if (!latitude || !longitude) {
       return NextResponse.json(
@@ -20,11 +22,15 @@ export async function GET(request: NextRequest) {
 
     const lat = parseFloat(latitude);
     const lon = parseFloat(longitude);
-    const meth = parseInt(method, 10);
+    const defaultMethod = getDefaultPrayerMethod(lat, lon, timezone);
+    const meth = parseInt(method || String(defaultMethod), 10);
 
     if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
       return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
     }
+
+    const effectiveTimezone = getKemenagTimezone(lat, lon, timezone);
+    const date = requestedDate || getDateStringInTimeZone(new Date(), effectiveTimezone);
 
     const response = await axios.get(
       `${ALADHAN_API}/timings/${date}`,
@@ -32,7 +38,7 @@ export async function GET(request: NextRequest) {
         params: {
           latitude: lat,
           longitude: lon,
-          method: Number.isFinite(meth) ? meth : 2,
+          method: Number.isFinite(meth) ? meth : defaultMethod,
         },
         timeout: 8000,
       }

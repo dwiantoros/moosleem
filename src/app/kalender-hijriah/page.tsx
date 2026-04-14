@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import QuranStyleHeader from '@/components/QuranStyleHeader';
+import { DEFAULT_KEMENAG_TIMEZONE, getDateAtMidnightInTimeZone } from '@/utils/indonesiaTime';
 
 // ── Hijri conversion (Umm al-Qura algorithm approximation) ──────────────────
 function gregorianToHijri(gDate: Date): { year: number; month: number; day: number } {
@@ -85,7 +86,7 @@ function getFirstDayOfMonth(year: number, month: number) {
 }
 
 export default function KalenderPage() {
-  const today = new Date();
+  const today = getDateAtMidnightInTimeZone(new Date(), DEFAULT_KEMENAG_TIMEZONE);
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<Date | null>(today);
@@ -216,7 +217,7 @@ export default function KalenderPage() {
             <div className="mb-3 flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-900">
-                  {selectedDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  {selectedDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: DEFAULT_KEMENAG_TIMEZONE })}
                 </p>
                 {selectedHijri && (
                   <p className="text-xs text-teal-600 mt-0.5">
@@ -263,7 +264,7 @@ export default function KalenderPage() {
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{event.name}</p>
                     <p className="text-xs text-slate-500">
-                      {date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}
+                      {date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', timeZone: DEFAULT_KEMENAG_TIMEZONE })}
                     </p>
                   </div>
                 </button>
