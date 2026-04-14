@@ -22,7 +22,10 @@ function isAuthorized(request: NextRequest): boolean {
   const xApiKey = normalizeSecret(request.headers.get('x-api-key'));
   if (xApiKey === secret) return true;
 
-  return false;
+  // Query param fallback — for cron-job.org compatibility
+  // Prefer header-based auth (above) when possible to avoid secret in access logs
+  const querySecret = normalizeSecret(request.nextUrl.searchParams.get('secret'));
+  return querySecret === secret;
 }
 
 async function handleCron(request: NextRequest) {
