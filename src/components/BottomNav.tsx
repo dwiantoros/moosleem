@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -125,13 +125,35 @@ const MORE_ITEMS = [
   },
 ];
 
+const SCROLL_ITEMS = [...PRIMARY, ...MORE_ITEMS];
+
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const [moreOpen, setMoreOpen] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
   const lastYRef = useRef(0);
   const visibleRef = useRef(true);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragMovedRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const activePointerIdRef = useRef<number | null>(null);
+
+  // Capture wheel with passive:false so page does not scroll while interacting with the nav.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const onWheelNative = (event: WheelEvent) => {
+      event.preventDefault();
+      el.scrollLeft += event.deltaY + event.deltaX;
+    };
+
+    el.addEventListener('wheel', onWheelNative, { passive: false });
+    return () => el.removeEventListener('wheel', onWheelNative);
+  }, []);
 
   // Do not render floating public navigation on CMS/admin screens.
   if (pathname.startsWith('/bukan-admin') || pathname.startsWith('/admin')) {
@@ -162,19 +184,9 @@ export default function BottomNav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close sheet on outside click
-  useEffect(() => {
-    if (!moreOpen) return;
-    const fn = (e: MouseEvent) => {
-      if (!(e.target as HTMLElement).closest('[data-bottomsheet]')) setMoreOpen(false);
-    };
-    document.addEventListener('mousedown', fn);
-    return () => document.removeEventListener('mousedown', fn);
-  }, [moreOpen]);
-
   // Warm route cache so floating-menu taps feel instant on first navigation.
   useEffect(() => {
-    const hrefs = [...PRIMARY, ...MORE_ITEMS].map((item) => item.href);
+    const hrefs = SCROLL_ITEMS.map((item) => item.href);
     const prefetchAll = () => {
       hrefs.forEach((href) => {
         router.prefetch(href);
@@ -193,97 +205,82 @@ export default function BottomNav() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || !scrollRef.current) return;
+    event.preventDefault();
+    activePointerIdRef.current = event.pointerId;
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    dragMovedRef.current = false;
+    startXRef.current = event.clientX;
+    scrollLeftRef.current = scrollRef.current.scrollLeft;
+    scrollRef.current.setPointerCapture(event.pointerId);
+  };
+
+  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !scrollRef.current) return;
+    event.preventDefault();
+    const deltaX = event.clientX - startXRef.current;
+    if (Math.abs(deltaX) > 2) {
+      dragMovedRef.current = true;
+    }
+    scrollRef.current.scrollLeft = scrollLeftRef.current - deltaX * 1.15;
+  };
+
+  const endPointerDrag = (event?: React.PointerEvent<HTMLDivElement>) => {
+    if (event && activePointerIdRef.current !== null && scrollRef.current?.hasPointerCapture(activePointerIdRef.current)) {
+      scrollRef.current.releasePointerCapture(activePointerIdRef.current);
+    }
+    activePointerIdRef.current = null;
+    isDraggingRef.current = false;
+    setIsDragging(false);
+  };
+
+  const onClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (dragMovedRef.current) {
+      event.preventDefault();
+      event.stopPropagation();
+      dragMovedRef.current = false;
+    }
+  };
+
   return (
     <>
-      {/* Bottom sheet overlay */}
-      {moreOpen && (
-        <div className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[2px]" onClick={() => setMoreOpen(false)} />
-      )}
-
-      {/* More sheet — raised, more solid frost glass */}
-      <div
-        data-bottomsheet
-        className="fixed bottom-[112px] inset-x-0 z-50 mx-auto max-w-lg px-4 transition-all duration-300"
-        style={{
-          transform: moreOpen ? 'translateY(0)' : 'translateY(120%)',
-          opacity: moreOpen ? 1 : 0,
-          pointerEvents: moreOpen ? 'auto' : 'none',
-        }}
-      >
-        <div
-          className="rounded-[1.75rem] px-5 py-5 shadow-2xl"
-          style={{
-            background: 'var(--bottomnav-sheet-bg)',
-            backdropFilter: 'blur(32px) saturate(160%)',
-            WebkitBackdropFilter: 'blur(32px) saturate(160%)',
-            border: '1px solid var(--bottomnav-sheet-border)',
-            boxShadow: 'var(--bottomnav-sheet-shadow)',
-          }}
-        >
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-semibold" style={{ color: 'var(--bottomnav-title)' }}>Semua Fitur</p>
-            <button onClick={() => setMoreOpen(false)} className="rounded-full p-1.5 transition" style={{ color: 'var(--bottomnav-muted)' }}>
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M18 6 6 18M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {MORE_ITEMS.map((item) => {
-              const active = isActive(item.href);
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={() => setMoreOpen(false)}
-                  className="flex flex-col items-center gap-1.5 rounded-2xl px-2 py-3 text-center transition-all"
-                  style={active
-                    ? { backgroundColor: 'rgba(13,148,136,0.12)' }
-                    : { backgroundColor: 'transparent' }}
-                >
-                  <span
-                    className="flex h-9 w-9 items-center justify-center rounded-xl transition-all"
-                    style={active
-                      ? { backgroundColor: 'rgba(13,148,136,0.15)', color: '#0d9488' }
-                      : { backgroundColor: 'var(--bottomnav-item-bg)', color: 'var(--bottomnav-item-text)' }}
-                  >
-                    {item.icon}
-                  </span>
-                  <span
-                    className="text-[10px] font-medium leading-tight"
-                    style={{ color: active ? '#0d9488' : 'var(--bottomnav-item-text)' }}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       {/* Floating bottom bar */}
       <nav
         className="fixed bottom-0 inset-x-0 z-40 flex justify-center px-4 pb-safe transition-transform duration-300"
         style={{ transform: visible ? 'translateY(0)' : 'translateY(100%)' }}
       >
         <div
-          className="mb-4 flex w-full max-w-lg items-center justify-between rounded-[1.75rem] px-3 py-2"
+          ref={scrollRef}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endPointerDrag}
+          onPointerCancel={endPointerDrag}
+          onDragStart={(event) => event.preventDefault()}
+          onClickCapture={onClickCapture}
+          className="mb-4 flex w-full max-w-lg items-center gap-1 overflow-x-auto overflow-y-hidden rounded-[1.75rem] px-2.5 py-2"
           style={{
             background: 'var(--bottomnav-bar-bg)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             border: '1px solid var(--bottomnav-bar-border)',
             boxShadow: 'var(--bottomnav-bar-shadow)',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            userSelect: isDragging ? 'none' : 'auto',
+            touchAction: 'pan-y',
           }}
         >
-          {PRIMARY.map((item) => {
+          {SCROLL_ITEMS.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.id}
                 href={item.href}
-                className="relative flex flex-1 flex-col items-center gap-1 py-2 transition-all"
+                draggable={false}
+                className="relative flex min-w-[72px] flex-shrink-0 flex-col items-center gap-1 px-1 py-2 transition-all"
               >
                 <span
                   className="flex h-9 w-9 items-center justify-center rounded-2xl transition-all duration-200"
@@ -309,32 +306,6 @@ export default function BottomNav() {
               </Link>
             );
           })}
-
-          {/* More button */}
-          <button
-            onClick={() => setMoreOpen((v) => !v)}
-            className="relative flex flex-1 flex-col items-center gap-1 py-2 transition-all"
-          >
-            <span
-              className="flex h-9 w-9 items-center justify-center rounded-2xl transition-all duration-200"
-              style={moreOpen
-                ? { backgroundColor: 'rgba(13,148,136,0.15)', color: '#0d9488' }
-                : { color: 'var(--bottomnav-inactive)' }
-              }
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-                <circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/>
-              </svg>
-            </span>
-            <span
-              className="text-[10px] font-medium leading-none"
-              style={{ color: moreOpen ? '#0d9488' : 'var(--bottomnav-inactive)' }}
-            >
-              Lainnya
-            </span>
-          </button>
         </div>
       </nav>
     </>
