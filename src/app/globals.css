@@ -49,6 +49,21 @@ body {
   background-attachment: fixed;
 }
 
+button,
+[role='button'],
+input[type='button'],
+input[type='submit'],
+input[type='reset'] {
+  cursor: pointer;
+}
+
+button:disabled,
+input[type='button']:disabled,
+input[type='submit']:disabled,
+input[type='reset']:disabled {
+  cursor: not-allowed;
+}
+
 body::before {
   content: none;
   position: fixed;

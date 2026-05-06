@@ -19,9 +19,10 @@ interface Mosque {
 
 interface MosqueFinderProps {
   location: LocationData | null;
+  onLocationRefresh?: (coords: { latitude: number; longitude: number }) => void;
 }
 
-export default function MosqueFinder({ location }: MosqueFinderProps) {
+export default function MosqueFinder({ location, onLocationRefresh }: MosqueFinderProps) {
   const [mosques, setMosques] = useState<Mosque[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<Mosque | null>(null);
@@ -57,14 +58,16 @@ export default function MosqueFinder({ location }: MosqueFinderProps) {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        void fetchMosques({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        const coords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+        onLocationRefresh?.(coords);
+        void fetchMosques(coords);
       },
       () => {
         void fetchMosques();
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
-  }, [fetchMosques]);
+  }, [fetchMosques, onLocationRefresh]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) return;

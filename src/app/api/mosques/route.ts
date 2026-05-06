@@ -15,6 +15,9 @@ type NominatimPlace = {
   extratags?: Record<string, string>;
 };
 
+const MOSQUE_KEYWORD_PATTERN = /\bmosque\b|\bmasjid\b|\bmusholla\b|\bmusalla\b|\bsurau\b|مسجد/i;
+const NON_MOSQUE_KEYWORD_PATTERN = /\bchurch\b|\bchapel\b|\bcathedral\b|\bparish\b|\btemple\b|\bsynagogue\b|\bshrine\b/i;
+
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -27,6 +30,34 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c * 10) / 10;
+}
+
+function isMosquePlace(place: NominatimPlace): boolean {
+  const source = [
+    place.name,
+    place.display_name,
+    place.extratags?.name,
+    place.extratags?.religion,
+    place.extratags?.denomination,
+    place.extratags?.building,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  if (NON_MOSQUE_KEYWORD_PATTERN.test(source)) {
+    return false;
+  }
+
+  const religion = place.extratags?.religion?.toLowerCase();
+  if (religion && religion !== 'muslim') {
+    return false;
+  }
+
+  if (place.type === 'mosque') {
+    return true;
+  }
+
+  return MOSQUE_KEYWORD_PATTERN.test(source);
 }
 
 export async function GET(request: NextRequest) {
@@ -55,34 +86,66 @@ export async function GET(request: NextRequest) {
     const lonDelta = effectiveRadius / (111320 * Math.max(Math.cos((lat * Math.PI) / 180), 0.1));
     const viewbox = [lon - lonDelta, lat + latDelta, lon + lonDelta, lat - latDelta].join(',');
 
-    const response = await axios.get(NOMINATIM_API, {
-      params: {
-        format: 'jsonv2',
-        amenity: 'place_of_worship',
-        religion: 'muslim',
-        limit: 50,
-        bounded: 1,
-        viewbox,
-        addressdetails: 1,
-        extratags: 1,
-      },
-      headers: {
-        'User-Agent': 'muslim-traveler/1.0',
-        'Accept-Language': 'id,en',
-      },
-      timeout: 20000,
-    });
+    const [mosqueResponse, masjidResponse, fallbackResponse] = await Promise.all([
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          q: 'mosque',
+          limit: 50,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          q: 'masjid',
+          limit: 50,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          amenity: 'place_of_worship',
+          religion: 'muslim',
+          limit: 50,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+    ]);
 
-    const places: NominatimPlace[] = response.data ?? [];
+    const places: NominatimPlace[] = [
+      ...(mosqueResponse.data ?? []),
+      ...(masjidResponse.data ?? []),
+      ...(fallbackResponse.data ?? []),
+    ];
 
     const mapped = places
-      .filter((p) => {
-        if (!p.name) return false;
-        // Accept mosque/musholla types; filter out non-Muslim if type is clearly something else
-        const religion = p.extratags?.religion ?? '';
-        if (religion && religion !== 'muslim') return false;
-        return true;
-      })
+      .filter((place) => place.category === 'amenity' && Boolean(place.name) && isMosquePlace(place))
       .map((place) => {
         const placeLat = Number(place.lat);
         const placeLon = Number(place.lon);

@@ -130,6 +130,7 @@ const SCROLL_ITEMS = [...PRIMARY, ...MORE_ITEMS];
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const shouldHide = pathname.startsWith('/bukan-admin') || pathname.startsWith('/admin');
   const [visible, setVisible] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const lastYRef = useRef(0);
@@ -154,11 +155,6 @@ export default function BottomNav() {
     el.addEventListener('wheel', onWheelNative, { passive: false });
     return () => el.removeEventListener('wheel', onWheelNative);
   }, []);
-
-  // Do not render floating public navigation on CMS/admin screens.
-  if (pathname.startsWith('/bukan-admin') || pathname.startsWith('/admin')) {
-    return null;
-  }
 
   // Hide on scroll down, show on scroll up
   useEffect(() => {
@@ -207,20 +203,32 @@ export default function BottomNav() {
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || !scrollRef.current) return;
-    event.preventDefault();
+
     activePointerIdRef.current = event.pointerId;
-    isDraggingRef.current = true;
-    setIsDragging(true);
+    isDraggingRef.current = false;
+    setIsDragging(false);
     dragMovedRef.current = false;
     startXRef.current = event.clientX;
     scrollLeftRef.current = scrollRef.current.scrollLeft;
-    scrollRef.current.setPointerCapture(event.pointerId);
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDraggingRef.current || !scrollRef.current) return;
-    event.preventDefault();
+    if (activePointerIdRef.current !== event.pointerId || !scrollRef.current) return;
+
     const deltaX = event.clientX - startXRef.current;
+
+    if (!isDraggingRef.current) {
+      if (Math.abs(deltaX) < 6) {
+        return;
+      }
+
+      isDraggingRef.current = true;
+      setIsDragging(true);
+      dragMovedRef.current = true;
+      scrollRef.current.setPointerCapture(event.pointerId);
+    }
+
+    event.preventDefault();
     if (Math.abs(deltaX) > 2) {
       dragMovedRef.current = true;
     }
@@ -233,6 +241,7 @@ export default function BottomNav() {
     }
     activePointerIdRef.current = null;
     isDraggingRef.current = false;
+    dragMovedRef.current = false;
     setIsDragging(false);
   };
 
@@ -243,6 +252,11 @@ export default function BottomNav() {
       dragMovedRef.current = false;
     }
   };
+
+  // Do not render floating public navigation on CMS/admin screens.
+  if (shouldHide) {
+    return null;
+  }
 
   return (
     <>

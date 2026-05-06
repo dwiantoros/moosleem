@@ -15,6 +15,28 @@ type NominatimPlace = {
   extratags?: Record<string, string>;
 };
 
+const HALAL_KEYWORD_PATTERN = /\bhalal\b|\bmuslim\b|\bislamic\b|حلال|ハラール|할랄|清真/i;
+const GLOBAL_HALAL_HINT_PATTERN = /\bmuslim friendly\b|\bmiddle eastern\b|\barabic\b|\barabian\b|\bturkish\b|\bpakistani\b|\bafghan\b|\bbangladeshi\b|\blebanese\b|\bmoroccan\b|\bkebab\b|\bshawarma\b|\bdoner\b|\bgyro\b/i;
+const INDONESIAN_HALAL_LIKELY_PATTERN = /\bpadang\b|\brendang\b|\bsate\b|\bsatay\b|\bsoto\b|\bbakso\b|\bnasi uduk\b|\bayam bakar\b|\bgulai\b|\bkonro\b|\bpecel lele\b|\brumah makan\b|\bmasakan padang\b/i;
+const NON_HALAL_PATTERN = /non-halal|not halal|pork|pork belly|roast pork|roasted pork|bacon|ham|lard|beer|wine|pub|bar|\bbabi\b|\bb2\b|babi guling|se'i babi|suckling pig|pig roast|siobak|bak kut teh|char siu|samcan|lap cheong|bak kwa/i;
+const RESTAURANT_TYPE_ALLOWLIST = new Set(['restaurant', 'fast_food', 'cafe', 'food_court']);
+const INDONESIAN_DEFAULT_ALLOWLIST = new Set(['restaurant', 'fast_food', 'food_court']);
+const MUSLIM_MAJORITY_COUNTRY_PATTERN = /\bindonesia\b|\bmalaysia\b|\bbrunei\b|\bsaudi arabia\b|\bunited arab emirates\b|\buae\b|\bqatar\b|\bkuwait\b|\boman\b|\bbahrain\b|\bturkey\b|\bturkiye\b|\bpakistan\b|\bbangladesh\b|\bmorocco\b|\balgeria\b|\btunisia\b|\begypt\b|\bjordan\b|\biraq\b|\biran\b|\byemen\b|\bpalestine\b|\bsyria\b|\blebanon\b|\bsudan\b|\bsomalia\b|\bmauritania\b|\bsenegal\b|\bniger\b|\bmali\b|\bdjibouti\b|\bazerbaijan\b|\bkazakhstan\b|\buzbekistan\b|\bkyrgyzstan\b|\btajikistan\b/i;
+
+function isInIndonesia(place: NominatimPlace): boolean {
+  const country = place.address?.country ?? '';
+  return /indonesia/i.test(country) || /indonesia/i.test(place.display_name ?? '');
+}
+
+function isInMuslimMajorityCountry(place: NominatimPlace): boolean {
+  const country = (place.address?.country ?? '').toLowerCase().trim();
+  if (!country) {
+    return false;
+  }
+
+  return MUSLIM_MAJORITY_COUNTRY_PATTERN.test(country);
+}
+
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -33,6 +55,40 @@ function isHalalLikely(place: NominatimPlace): boolean {
   const source = [
     place.name,
     place.display_name,
+    place.address?.amenity,
+    place.address?.shop,
+    place.extratags?.cuisine,
+    place.extratags?.description,
+    place.extratags?.note,
+    place.extratags?.name,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (NON_HALAL_PATTERN.test(source)) {
+    return false;
+  }
+
+  if (HALAL_KEYWORD_PATTERN.test(source)) {
+    return true;
+  }
+
+  if (isInMuslimMajorityCountry(place) && place.type && RESTAURANT_TYPE_ALLOWLIST.has(place.type)) {
+    return true;
+  }
+
+  if (!isInIndonesia(place)) {
+    return GLOBAL_HALAL_HINT_PATTERN.test(source);
+  }
+
+  if (place.type && INDONESIAN_DEFAULT_ALLOWLIST.has(place.type)) {
+    return true;
+  }
+
+  const indonesiaSource = [
+    place.name,
+    place.extratags?.name,
     place.extratags?.cuisine,
     place.extratags?.description,
     place.extratags?.note,
@@ -41,11 +97,7 @@ function isHalalLikely(place: NominatimPlace): boolean {
     .join(' ')
     .toLowerCase();
 
-  if (source.includes('non-halal')) {
-    return false;
-  }
-
-  return /\bhalal\b|muslim|islamic|shawarma|kebab|arabian|middle eastern/.test(source);
+  return INDONESIAN_HALAL_LIKELY_PATTERN.test(indonesiaSource);
 }
 
 export async function GET(request: NextRequest) {
@@ -85,27 +137,151 @@ export async function GET(request: NextRequest) {
       lat - latDelta,
     ].join(',');
 
-    const response = await axios.get(NOMINATIM_API, {
-      params: {
-        format: 'jsonv2',
-        amenity: 'restaurant',
-        limit: 80,
-        bounded: 1,
-        viewbox,
-        addressdetails: 1,
-        extratags: 1,
-      },
-      headers: {
-        'User-Agent': 'muslim-traveler/1.0 (local-development)',
-        'Accept-Language': 'id,en',
-      },
-      timeout: 20000,
-    });
+    const [
+      keywordResponse,
+      localKeywordResponse,
+      halalFoodResponse,
+      muslimRestaurantResponse,
+      restaurantResponse,
+      fastFoodResponse,
+      cafeResponse,
+    ] = await Promise.all([
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          q: 'halal restaurant',
+          limit: 80,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0 (local-development)',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          q: 'restoran halal',
+          limit: 80,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0 (local-development)',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          q: 'halal food',
+          limit: 80,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0 (local-development)',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          q: 'muslim restaurant',
+          limit: 80,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0 (local-development)',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          amenity: 'restaurant',
+          limit: 80,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0 (local-development)',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          amenity: 'fast_food',
+          limit: 80,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0 (local-development)',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+      axios.get(NOMINATIM_API, {
+        params: {
+          format: 'jsonv2',
+          amenity: 'cafe',
+          limit: 80,
+          bounded: 1,
+          viewbox,
+          addressdetails: 1,
+          extratags: 1,
+        },
+        headers: {
+          'User-Agent': 'muslim-traveler/1.0 (local-development)',
+          'Accept-Language': 'id,en',
+        },
+        timeout: 20000,
+      }),
+    ]);
 
-    const places: NominatimPlace[] = response.data ?? [];
+    const places: NominatimPlace[] = [
+      ...(keywordResponse.data ?? []),
+      ...(localKeywordResponse.data ?? []),
+      ...(halalFoodResponse.data ?? []),
+      ...(muslimRestaurantResponse.data ?? []),
+      ...(restaurantResponse.data ?? []),
+      ...(fastFoodResponse.data ?? []),
+      ...(cafeResponse.data ?? []),
+    ];
 
     const mappedRestaurants = places
-      .filter((place) => place.category === 'amenity' && place.type === 'restaurant')
+      .filter((place) => {
+        if (place.category !== 'amenity') {
+          return false;
+        }
+
+        if (!place.type || !RESTAURANT_TYPE_ALLOWLIST.has(place.type)) {
+          return false;
+        }
+
+        return isHalalLikely(place);
+      })
       .map((place) => {
         const placeLat = Number(place.lat);
         const placeLon = Number(place.lon);
@@ -137,12 +313,7 @@ export async function GET(request: NextRequest) {
           halalLikely: isHalalLikely(place),
         };
       })
-      .sort((a, b) => {
-        if (a.halalLikely !== b.halalLikely) {
-          return a.halalLikely ? -1 : 1;
-        }
-        return a.distance - b.distance;
-      });
+      .sort((a, b) => a.distance - b.distance);
 
     const deduped = mappedRestaurants.filter((restaurant, index, arr) => {
       return !arr.slice(0, index).some((existing) => {

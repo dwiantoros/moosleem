@@ -10,6 +10,7 @@ interface RestaurantsProps {
   preferredHalalLogoKey?: string;
   countryCode?: string | null;
   countryName?: string | null;
+  onLocationRefresh?: (coords: { latitude: number; longitude: number }) => void;
 }
 
 type HalalLogoItem = {
@@ -87,7 +88,13 @@ const HALAL_LOGOS: HalalLogoItem[] = [
   },
 ];
 
-export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id', countryCode, countryName }: RestaurantsProps) {
+export default function RestaurantFinder({
+  location,
+  preferredHalalLogoKey = 'id',
+  countryCode,
+  countryName,
+  onLocationRefresh,
+}: RestaurantsProps) {
   const [restaurants, setRestaurants] = useState<HalalRestaurant[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<HalalRestaurant | null>(null);
@@ -150,14 +157,16 @@ export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        void fetchRestaurants({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        const coords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+        onLocationRefresh?.(coords);
+        void fetchRestaurants(coords);
       },
       () => {
         void fetchRestaurants();
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
-  }, [fetchRestaurants]);
+  }, [fetchRestaurants, onLocationRefresh]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) return;
@@ -168,7 +177,7 @@ export default function RestaurantFinder({ location, preferredHalalLogoKey = 'id
     const cached = getCached<HalalRestaurant[]>(cacheKey, TTL_MS);
     if (cached) {
       setRestaurants(cached.data);
-      if (!cached.isStale) return;
+      if (!cached.isStale && cached.data.length > 0) return;
     }
 
     fetchRestaurants();

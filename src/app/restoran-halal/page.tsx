@@ -277,6 +277,13 @@ export default function RestaurantsPage() {
 
   const isLocationBlocked = locationPermission !== 'granted';
 
+  const handleFinderLocationRefresh = React.useCallback((coords: { latitude: number; longitude: number }) => {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setLocationPermission('granted');
+    setLocation({ latitude: coords.latitude, longitude: coords.longitude, timezone });
+    setLastLocation({ latitude: coords.latitude, longitude: coords.longitude, timezone });
+  }, []);
+
   const handlePermissionStep = (step: PermissionStep) => {
     if (step === 'requesting-location') {
       setLocationFlowState('pending');
@@ -414,6 +421,7 @@ export default function RestaurantsPage() {
             preferredHalalLogoKey={preferredHalalLogoKey}
             countryCode={countryCode}
             countryName={countryName}
+            onLocationRefresh={handleFinderLocationRefresh}
           />
         )}
 
