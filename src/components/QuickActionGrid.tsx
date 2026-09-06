@@ -14,19 +14,6 @@ interface QuickAction {
 
 const actions: QuickAction[] = [
   {
-    id: 'ibadah',
-    label: 'Jadwal',
-    href: '/schedule',
-    icon: (
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <circle cx="12" cy="12" r="8" />
-        <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    ),
-    color: 'text-teal-700',
-    bgColor: 'bg-teal-50',
-  },
-  {
     id: 'quran',
     label: 'Quran',
     href: '/quran',

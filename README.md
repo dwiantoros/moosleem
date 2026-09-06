@@ -37,6 +37,93 @@ npm run dev
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
+## 🚀 Flow Singkat Penggunaan
+
+### 1) Alur pengguna umum
+1. Buka aplikasi di `http://localhost:3000` untuk development, atau domain Vercel untuk production.
+2. Aplikasi akan meminta akses lokasi. Izinkan agar jadwal sholat dan rekomendasi masjid/restoran bisa disesuaikan dengan lokasi pengguna.
+3. Jika diminta, aktifkan browser notification agar adzan reminder dan push notification bisa muncul.
+4. Gunakan menu utama untuk:
+   - melihat jadwal sholat hari ini,
+   - membaca Quran,
+   - cek masjid/restoran halal terdekat,
+   - melihat konten artikel dan panduan Islam.
+5. Jika user sudah masuk ke halaman publik, semua fitur berjalan tanpa login. Untuk admin, masuk ke route khusus.
+
+### 2) Akses admin / CMS
+1. Buka halaman login admin di `/bukan-admin/login`.
+2. Login memakai username dan password yang di-set di environment variable:
+   - `CMS_ADMIN_USERNAME`
+   - `CMS_ADMIN_PASSWORD`
+   - `CMS_SESSION_SECRET`
+3. Setelah login, admin bisa mengelola:
+   - artikel blog,
+   - profil author,
+   - SEO per halaman,
+   - asset/gambar,
+   - notifikasi push.
+4. Database yang dipakai akan otomatis mengikuti konfigurasi environment:
+   - local development: memakai file lokal `local-cms.db`,
+   - production: memakai Turso/libsql jika `TURSO_DATABASE_URL` dan `TURSO_AUTH_TOKEN` tersedia.
+
+### 3) Database dan mode penyimpanan
+- Untuk local development, aplikasi otomatis memakai SQLite-like file `local-cms.db` via libsql.
+- URL database lokal biasanya otomatis dibuat sebagai `file:./local-cms.db` oleh app.
+- Untuk production, URL database biasanya seperti:
+
+```bash
+TURSO_DATABASE_URL=libsql://mooslem-<database-name>.turso.io
+TURSO_AUTH_TOKEN=YOUR_TURSO_TOKEN
+```
+
+> Ambil nilai `TURSO_DATABASE_URL` dan `TURSO_AUTH_TOKEN` langsung dari dashboard Turso database yang sudah dibuat untuk project Mooslem.
+
+- Jika production belum punya `TURSO_DATABASE_URL`, sistem akan menampilkan warning, dan CMS tidak bisa menyimpan data baru.
+- Untuk fitur push notification, aplikasi juga mendukung storage fallback ke KV atau Turso sesuai environment. Ini penting supaya subscription notifikasi tetap aman dan bisa di-trigger dari cron.
+
+### 4) Singkatnya
+- User biasa: buka app, izinkan lokasi, nikmati fitur utama.
+- Admin: login ke `/bukan-admin/login` lalu kelola content.
+- Database: lokal di `file:./local-cms.db`, production di `TURSO_DATABASE_URL` seperti `libsql://...`.
+
+### 5) Akses lewat Vercel
+- Deploy project di Vercel dengan repo ini.
+- Setelah deploy, app utama biasanya bisa diakses di:
+
+```bash
+https://moosleem.vercel.app
+```
+
+- Login admin di:
+
+```bash
+https://moosleem.vercel.app/bukan-admin/login
+```
+
+- Halaman publik artikel biasanya di:
+
+```bash
+https://moosleem.vercel.app/artikel
+```
+
+- Pastikan di Vercel environment variables sudah diisi:
+
+```bash
+CMS_ADMIN_USERNAME=admin
+CMS_ADMIN_PASSWORD=password-aman
+CMS_SESSION_SECRET=random-string-panjang
+TURSO_DATABASE_URL=libsql://mooslem-<database-name>.turso.io
+TURSO_AUTH_TOKEN=eyJhbGciOi...your_token_here...
+PUSH_VAPID_PUBLIC_KEY=...
+PUSH_VAPID_PRIVATE_KEY=...
+PUSH_VAPID_SUBJECT=mailto:you@example.com
+CRON_SECRET=your-random-secret
+```
+
+> Catatan: `TURSO_DATABASE_URL` harus di-copy persis dari dashboard Turso database kamu. Jangan pakai nama contoh, tapi pakai URL asli yang muncul di Turso.
+
+- Jika app sudah dipasang di Vercel, semua variabel di atas harus diisi di Project Settings > Environment Variables supaya halaman admin, CMS, dan push notification bisa berjalan.
+
 ## 🚀 Usage
 
 ### Getting Started
@@ -63,7 +150,7 @@ npm run dev
 
 ### CMS Artikel + SEO Admin
 
-Project ini sekarang punya CMS artikel sederhana di `/admin/login` dengan fitur:
+Project ini sekarang punya CMS artikel sederhana di `/bukan-admin/login` dengan fitur:
 
 - Login admin berbasis env
 - CRUD artikel
@@ -104,14 +191,21 @@ turso db show muslim-traveler-cms --url
 turso db tokens create muslim-traveler-cms
 ```
 
+Contoh URL database yang akan didapat:
+
+```bash
+TURSO_DATABASE_URL=libsql://mooslem-<database-name>.turso.io
+TURSO_AUTH_TOKEN=eyJhbGciOi...your_token_here...
+```
+
 Lalu isi env di Vercel:
 
 ```bash
 CMS_ADMIN_USERNAME=admin
 CMS_ADMIN_PASSWORD=password-aman
 CMS_SESSION_SECRET=random-string-panjang
-TURSO_DATABASE_URL=libsql://...
-TURSO_AUTH_TOKEN=...
+TURSO_DATABASE_URL=libsql://muslim-traveler-cms.turso.io
+TURSO_AUTH_TOKEN=eyJhbGciOi...your_token_here...
 ```
 
 Catatan:

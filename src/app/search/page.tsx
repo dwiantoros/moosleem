@@ -34,13 +34,6 @@ interface SearchItem {
 
 const featureItems: SearchItem[] = [
   {
-    id: 'feature-schedule',
-    title: 'Jadwal Sholat',
-    description: 'Lihat jadwal sholat harian dan sholat berikutnya sesuai lokasi.',
-    href: '/schedule',
-    category: 'Fitur',
-  },
-  {
     id: 'feature-quran',
     title: 'Quran Reader',
     description: 'Baca Al-Quran lengkap dengan teks Arab dan terjemahan.',

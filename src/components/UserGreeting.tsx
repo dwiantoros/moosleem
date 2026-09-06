@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import NotificationBell from '@/components/NotificationBell';
 
 const MENU_ITEMS = [
-  { href: '/schedule',      label: 'Jadwal Sholat',    desc: 'Waktu sholat sesuai lokasi',        emoji: '🕌' },
+  { href: '/',              label: 'Beranda',          desc: 'Jadwal sholat & ringkasan harian', emoji: '🏠' },
   { href: '/quran',         label: 'Quran Reader',     desc: 'Baca Al-Quran lengkap',             emoji: '📖' },
   { href: '/doa',           label: 'Doa Harian',       desc: 'Kumpulan doa sehari-hari',          emoji: '🤲' },
   { href: '/tasbih',        label: 'Tasbih Digital',   desc: 'Hitung dzikir dengan mudah',        emoji: '📿' },
