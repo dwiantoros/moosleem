@@ -1,27 +1,33 @@
 import { MetadataRoute } from 'next';
 
 function getSiteUrl() {
-  if (process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
-    return process.env.NEXT_PUBLIC_SITE_URL.trim().replace(/\/$/, '');
+  const explicitSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (explicitSiteUrl) {
+    return explicitSiteUrl.replace(/\/$/, '');
   }
 
-  if (process.env.VERCEL_ENV === 'production') {
-    return 'https://moosleem.com';
+  const vercelHost = process.env.VERCEL_URL?.trim();
+  if (vercelHost) {
+    return `https://${vercelHost}`;
   }
 
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-
-  return 'https://moosleem.com';
+  return 'http://localhost:3000';
 }
 
 export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl();
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+  const hostname = (() => {
+    try {
+      return new URL(siteUrl).hostname.toLowerCase();
+    } catch {
+      return '';
+    }
+  })();
+
+  const allowIndexing = hostname === 'moosleem.com' || hostname === 'www.moosleem.com';
 
   return {
-    rules: isProduction
+    rules: allowIndexing
       ? {
           userAgent: '*',
           allow: '/',
@@ -30,6 +36,6 @@ export default function robots(): MetadataRoute.Robots {
           userAgent: '*',
           disallow: '/',
         },
-    sitemap: `${siteUrl}/sitemap.xml`,
+    sitemap: allowIndexing ? `${siteUrl}/sitemap.xml` : undefined,
   };
 }
