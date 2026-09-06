@@ -3,126 +3,143 @@ import { MetadataRoute } from 'next';
 import { listArticles } from '@/server/cms/repository';
 import { type CmsArticle } from '@/server/cms/types';
 
+function getSiteUrl() {
+  if (process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
+    return process.env.NEXT_PUBLIC_SITE_URL.trim().replace(/\/$/, '');
+  }
+
+  if (process.env.VERCEL_ENV === 'production') {
+    return 'https://moosleem.com';
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return 'https://moosleem.com';
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const siteUrl = getSiteUrl();
   let articles: CmsArticle[] = [];
+
   try {
     articles = await listArticles();
   } catch (error) {
-    // Database not available during build - that's okay
     console.log('Sitemap: Database not available, skipping articles');
   }
 
   return [
     {
-      url: 'https://moosleem.com',
+      url: siteUrl,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
     },
     {
-      url: 'https://moosleem.com/quran',
+      url: `${siteUrl}/quran`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
-      url: 'https://moosleem.com/doa',
+      url: `${siteUrl}/doa`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.75,
     },
     {
-      url: 'https://moosleem.com/qibla',
+      url: `${siteUrl}/qibla`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
-      url: 'https://moosleem.com/search',
+      url: `${siteUrl}/search`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.72,
     },
     {
-      url: 'https://moosleem.com/notes',
+      url: `${siteUrl}/notes`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
     },
     {
-      url: 'https://moosleem.com/tasbih',
+      url: `${siteUrl}/tasbih`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
-      url: 'https://moosleem.com/tracker',
+      url: `${siteUrl}/tracker`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.85,
     },
     {
-      url: 'https://moosleem.com/zakat',
+      url: `${siteUrl}/zakat`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.75,
     },
     {
-      url: 'https://moosleem.com/asmaul-husna',
+      url: `${siteUrl}/asmaul-husna`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.75,
     },
     {
-      url: 'https://moosleem.com/artikel',
+      url: `${siteUrl}/artikel`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.78,
     },
     {
-      url: 'https://moosleem.com/restoran-halal',
+      url: `${siteUrl}/restoran-halal`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
-      url: 'https://moosleem.com/masjid',
+      url: `${siteUrl}/masjid`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
-      url: 'https://moosleem.com/kalender-hijriah',
+      url: `${siteUrl}/kalender-hijriah`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.78,
     },
     {
-      url: 'https://moosleem.com/panduan-sholat',
+      url: `${siteUrl}/panduan-sholat`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.75,
     },
     {
-      url: 'https://moosleem.com/puasa',
+      url: `${siteUrl}/puasa`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.82,
     },
     {
-      url: 'https://moosleem.com/tentang',
+      url: `${siteUrl}/tentang`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
-      url: 'https://moosleem.com/bantuan',
+      url: `${siteUrl}/bantuan`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.74,
     },
     ...articles.map((article) => ({
-      url: `https://moosleem.com/artikel/${article.slug}`,
+      url: `${siteUrl}/artikel/${article.slug}`,
       lastModified: new Date(article.updatedAt),
       changeFrequency: 'monthly' as const,
       priority: 0.76,
